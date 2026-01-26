@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -65,5 +66,48 @@ public class TournamentService {
                     return requiredRole.equals(role.getRole());
                 })
                 .orElse(false);
+    }
+    
+    public List<TournamentDto> getAllTournaments() {
+        return tournamentRepository.findAll().stream()
+                .map(mapper::toDto)
+                .collect(Collectors.toList());
+    }
+    
+    @Transactional
+    public TournamentDto updateTournament(Integer id, String title, String description,
+                                         LocalDateTime startDate, LocalDateTime endDate,
+                                         String format, String scoringSystem) {
+        Tournament tournament = tournamentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Tournament not found"));
+        
+        if (title != null) {
+            tournament.setTitle(title);
+        }
+        if (description != null) {
+            tournament.setDescription(description);
+        }
+        if (startDate != null) {
+            tournament.setStartDate(startDate);
+        }
+        if (endDate != null) {
+            tournament.setEndDate(endDate);
+        }
+        if (format != null) {
+            tournament.setFormat(format);
+        }
+        if (scoringSystem != null) {
+            tournament.setScoringSystem(scoringSystem);
+        }
+        
+        tournament = tournamentRepository.save(tournament);
+        return mapper.toDto(tournament);
+    }
+    
+    @Transactional
+    public void deleteTournament(Integer id) {
+        Tournament tournament = tournamentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Tournament not found"));
+        tournamentRepository.delete(tournament);
     }
 }

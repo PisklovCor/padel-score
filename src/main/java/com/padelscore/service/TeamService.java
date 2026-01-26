@@ -61,4 +61,34 @@ public class TeamService {
                 .orElseThrow(() -> new RuntimeException("Team not found"));
         return mapper.toDto(team);
     }
+    
+    @Transactional
+    public TeamDto updateTeam(Integer id, String name, Long captainId, 
+                              String description, String color) {
+        Team team = teamRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Team not found"));
+        
+        if (name != null) {
+            team.setName(name);
+        }
+        if (captainId != null) {
+            team.setCaptainId(captainId);
+        }
+        if (description != null) {
+            team.setDescription(description);
+        }
+        if (color != null) {
+            team.setColor(color);
+        }
+        
+        team = teamRepository.save(team);
+        return mapper.toDto(team);
+    }
+    
+    @Transactional
+    public void deleteTeam(Integer id) {
+        Team team = teamRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Team not found"));
+        teamRepository.delete(team);
+    }
 }

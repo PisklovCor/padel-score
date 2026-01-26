@@ -3,6 +3,8 @@ package com.padelscore.bot.handler;
 import com.padelscore.bot.util.KeyboardUtil;
 import com.padelscore.dto.LeaderboardEntryDto;
 import com.padelscore.dto.MatchDto;
+import com.padelscore.dto.PlayerDto;
+import com.padelscore.dto.TeamDto;
 import com.padelscore.dto.TournamentDto;
 import com.padelscore.service.*;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ public class CallbackHandler {
     private final MatchService matchService;
     private final StatisticsService statisticsService;
     private final KeyboardUtil keyboardUtil;
+    private final PlayerService playerService;
     
     public void handle(CallbackQuery callbackQuery, TelegramLongPollingBot bot) {
         String data = callbackQuery.getData();
@@ -34,10 +37,32 @@ public class CallbackHandler {
         try {
             if (data.startsWith("tournament_")) {
                 handleTournamentCallback(data, chatId, messageId, userId, bot);
+            } else if (data.startsWith("teams_list_")) {
+                handleTeamsList(data, chatId, messageId, bot);
             } else if (data.startsWith("team_")) {
                 handleTeamCallback(data, chatId, messageId, userId, bot);
+            } else if (data.startsWith("team_create_")) {
+                handleTeamCreate(data, chatId, userId, bot);
+            } else if (data.startsWith("players_list_")) {
+                handlePlayersList(data, chatId, messageId, bot);
+            } else if (data.startsWith("player_")) {
+                handlePlayerCallback(data, chatId, messageId, bot);
+            } else if (data.startsWith("player_create_")) {
+                handlePlayerCreate(data, chatId, userId, bot);
+            } else if (data.startsWith("matches_list_")) {
+                handleMatchesList(data, chatId, messageId, bot);
             } else if (data.startsWith("match_")) {
                 handleMatchCallback(data, chatId, messageId, userId, bot);
+            } else if (data.startsWith("match_create_")) {
+                handleMatchCreate(data, chatId, userId, bot);
+            } else if (data.startsWith("match_result_")) {
+                handleMatchResultInput(data, chatId, messageId, userId, bot);
+            } else if (data.startsWith("result_quick_")) {
+                handleQuickResult(data, chatId, messageId, userId, bot);
+            } else if (data.startsWith("match_view_")) {
+                handleMatchView(data, chatId, messageId, bot);
+            } else if (data.startsWith("match_dispute_")) {
+                handleMatchDispute(data, chatId, messageId, userId, bot);
             } else if (data.equals("main_menu")) {
                 handleMainMenu(chatId, messageId, bot);
             } else if (data.startsWith("leaderboard_")) {
@@ -85,12 +110,264 @@ public class CallbackHandler {
         }
     }
     
+    private void handleTeamsList(String data, Long chatId, Integer messageId, TelegramLongPollingBot bot) throws TelegramApiException {
+        Integer tournamentId = Integer.parseInt(data.split("_")[2]);
+        List<TeamDto> teams = teamService.getTeamsByTournament(tournamentId);
+        
+        EditMessageText message = new EditMessageText();
+        message.setChatId(chatId.toString());
+        message.setMessageId(messageId);
+        
+        if (teams.isEmpty()) {
+            message.setText("В этом турнире пока нет команд.\n\nИспользуйте кнопку ниже, чтобы добавить команду.");
+        } else {
+            StringBuilder text = new StringBuilder("👥 Команды турнира:\n\n");
+            for (TeamDto team : teams) {
+                text.append(String.format("• %s (ID: %d)\n", team.getName(), team.getId()));
+            }
+            message.setText(text.toString());
+        }
+        message.setReplyMarkup(keyboardUtil.getTeamsMenu(teams, tournamentId));
+        bot.execute(message);
+    }
+    
     private void handleTeamCallback(String data, Long chatId, Integer messageId, Long userId, TelegramLongPollingBot bot) throws TelegramApiException {
-        // Обработка команд
+        Integer teamId = Integer.parseInt(data.split("_")[1]);
+        TeamDto team = teamService.getTeam(teamId);
+        List<PlayerDto> players = playerService.getPlayersByTeam(teamId);
+        
+        StringBuilder text = new StringBuilder("👥 Команда: ").append(team.getName()).append("\n\n");
+        text.append("ID: ").append(team.getId()).append("\n");
+        text.append("Капитан ID: ").append(team.getCaptainId()).append("\n");
+        if (team.getDescription() != null) {
+            text.append("Описание: ").append(team.getDescription()).append("\n");
+        }
+        text.append("\nИгроков: ").append(players.size());
+        
+        EditMessageText message = new EditMessageText();
+        message.setChatId(chatId.toString());
+        message.setMessageId(messageId);
+        message.setText(text.toString());
+        message.setReplyMarkup(keyboardUtil.getTeamMenu(teamId, team.getTournamentId()));
+        bot.execute(message);
+    }
+    
+    private void handleTeamCreate(String data, Long chatId, Long userId, TelegramLongPollingBot bot) {
+        Integer tournamentId = Integer.parseInt(data.split("_")[2]);
+        String text = "Для создания команды отправьте сообщение в формате:\n\n" +
+                "/add_team " + tournamentId + " Название команды\n\n" +
+                "Пример:\n" +
+                "/add_team " + tournamentId + " Команда А";
+        sendMessage(chatId, text, bot);
+    }
+    
+    private void handlePlayersList(String data, Long chatId, Integer messageId, TelegramLongPollingBot bot) throws TelegramApiException {
+        Integer teamId = Integer.parseInt(data.split("_")[2]);
+        List<PlayerDto> players = playerService.getPlayersByTeam(teamId);
+        TeamDto team = teamService.getTeam(teamId);
+        
+        EditMessageText message = new EditMessageText();
+        message.setChatId(chatId.toString());
+        message.setMessageId(messageId);
+        
+        if (players.isEmpty()) {
+            message.setText("В команде пока нет игроков.\n\nИспользуйте кнопку ниже, чтобы добавить игрока.");
+        } else {
+            StringBuilder text = new StringBuilder("👤 Игроки команды ").append(team.getName()).append(":\n\n");
+            for (PlayerDto player : players) {
+                text.append(String.format("• %s %s", player.getFirstName(), player.getLastName()));
+                if (player.getPosition() != null) {
+                    text.append(" (").append(player.getPosition()).append(")");
+                }
+                text.append("\n");
+            }
+            message.setText(text.toString());
+        }
+        message.setReplyMarkup(keyboardUtil.getPlayersMenu(players, teamId));
+        bot.execute(message);
+    }
+    
+    private void handlePlayerCallback(String data, Long chatId, Integer messageId, TelegramLongPollingBot bot) throws TelegramApiException {
+        Integer playerId = Integer.parseInt(data.split("_")[1]);
+        PlayerDto player = playerService.getPlayer(playerId);
+        
+        StringBuilder text = new StringBuilder("👤 Игрок: ").append(player.getFirstName())
+                .append(" ").append(player.getLastName()).append("\n\n");
+        text.append("ID: ").append(player.getId()).append("\n");
+        text.append("Команда ID: ").append(player.getTeamId()).append("\n");
+        if (player.getPosition() != null) {
+            text.append("Позиция: ").append(player.getPosition()).append("\n");
+        }
+        if (player.getRating() != null) {
+            text.append("Рейтинг: ").append(player.getRating()).append("\n");
+        }
+        if (player.getTelegramId() != null) {
+            text.append("Telegram ID: ").append(player.getTelegramId()).append("\n");
+        }
+        
+        EditMessageText message = new EditMessageText();
+        message.setChatId(chatId.toString());
+        message.setMessageId(messageId);
+        message.setText(text.toString());
+        TeamDto team = teamService.getTeam(player.getTeamId());
+        message.setReplyMarkup(keyboardUtil.getBackToTournamentMenu(team.getTournamentId()));
+        bot.execute(message);
+    }
+    
+    private void handlePlayerCreate(String data, Long chatId, Long userId, TelegramLongPollingBot bot) {
+        Integer teamId = Integer.parseInt(data.split("_")[2]);
+        String text = "Для добавления игрока отправьте сообщение в формате:\n\n" +
+                "/add_player " + teamId + " Имя Фамилия\n\n" +
+                "Пример:\n" +
+                "/add_player " + teamId + " Иван Иванов";
+        sendMessage(chatId, text, bot);
+    }
+    
+    private void handleMatchesList(String data, Long chatId, Integer messageId, TelegramLongPollingBot bot) throws TelegramApiException {
+        Integer tournamentId = Integer.parseInt(data.split("_")[2]);
+        List<MatchDto> matches = matchService.getMatchesByTournament(tournamentId);
+        
+        EditMessageText message = new EditMessageText();
+        message.setChatId(chatId.toString());
+        message.setMessageId(messageId);
+        
+        if (matches.isEmpty()) {
+            message.setText("В этом турнире пока нет матчей.\n\nИспользуйте кнопку ниже, чтобы создать матч.");
+        } else {
+            StringBuilder text = new StringBuilder("⚽ Матчи турнира:\n\n");
+            for (MatchDto match : matches) {
+                String status = "scheduled".equals(match.getStatus()) ? "⏰" : 
+                               "completed".equals(match.getStatus()) ? "✅" : "🔄";
+                text.append(String.format("%s %s vs %s\n", status, match.getTeam1Name(), match.getTeam2Name()));
+            }
+            message.setText(text.toString());
+        }
+        message.setReplyMarkup(keyboardUtil.getMatchesMenu(matches, tournamentId));
+        bot.execute(message);
     }
     
     private void handleMatchCallback(String data, Long chatId, Integer messageId, Long userId, TelegramLongPollingBot bot) throws TelegramApiException {
-        // Обработка матчей
+        Integer matchId = Integer.parseInt(data.split("_")[1]);
+        MatchDto match = matchService.getMatch(matchId);
+        
+        StringBuilder text = new StringBuilder("⚽ Матч: ").append(match.getTeam1Name())
+                .append(" vs ").append(match.getTeam2Name()).append("\n\n");
+        text.append("ID: ").append(match.getId()).append("\n");
+        text.append("Статус: ").append(match.getStatus()).append("\n");
+        text.append("Формат: ").append(match.getFormat()).append("\n");
+        if (match.getScheduledDate() != null) {
+            text.append("Дата: ").append(match.getScheduledDate()).append("\n");
+        }
+        
+        EditMessageText message = new EditMessageText();
+        message.setChatId(chatId.toString());
+        message.setMessageId(messageId);
+        message.setText(text.toString());
+        message.setReplyMarkup(keyboardUtil.getMatchMenu(matchId, match.getTournamentId(), match.getStatus()));
+        bot.execute(message);
+    }
+    
+    private void handleMatchCreate(String data, Long chatId, Long userId, TelegramLongPollingBot bot) {
+        Integer tournamentId = Integer.parseInt(data.split("_")[2]);
+        List<TeamDto> teams = teamService.getTeamsByTournament(tournamentId);
+        
+        if (teams.size() < 2) {
+            sendMessage(chatId, "Для создания матча нужно минимум 2 команды в турнире.", bot);
+            return;
+        }
+        
+        StringBuilder text = new StringBuilder("Для создания матча отправьте сообщение в формате:\n\n");
+        text.append("/add_match ").append(tournamentId).append(" ID_команды1 ID_команды2\n\n");
+        text.append("Доступные команды:\n");
+        for (TeamDto team : teams) {
+            text.append(String.format("• %s (ID: %d)\n", team.getName(), team.getId()));
+        }
+        text.append("\nПример:\n");
+        text.append("/add_match ").append(tournamentId).append(" ")
+                .append(teams.get(0).getId()).append(" ").append(teams.get(1).getId());
+        
+        sendMessage(chatId, text.toString(), bot);
+    }
+    
+    private void handleMatchResultInput(String data, Long chatId, Integer messageId, Long userId, TelegramLongPollingBot bot) throws TelegramApiException {
+        Integer matchId = Integer.parseInt(data.split("_")[2]);
+        MatchDto match = matchService.getMatch(matchId);
+        
+        EditMessageText message = new EditMessageText();
+        message.setChatId(chatId.toString());
+        message.setMessageId(messageId);
+        message.setText("Выберите результат матча:\n\n" + match.getTeam1Name() + " vs " + match.getTeam2Name());
+        message.setReplyMarkup(keyboardUtil.getResultInputMenu(matchId));
+        bot.execute(message);
+    }
+    
+    private void handleQuickResult(String data, Long chatId, Integer messageId, Long userId, TelegramLongPollingBot bot) throws TelegramApiException {
+        String[] parts = data.split("_");
+        Integer matchId = Integer.parseInt(parts[2]);
+        String score = parts[3];
+        
+        try {
+            matchService.submitResult(matchId, score, userId, null);
+            MatchDto match = matchService.getMatch(matchId);
+            
+            EditMessageText message = new EditMessageText();
+            message.setChatId(chatId.toString());
+            message.setMessageId(messageId);
+            message.setText("✅ Результат матча сохранен!\n\n" + 
+                    match.getTeam1Name() + " vs " + match.getTeam2Name() + "\n" +
+                    "Счет: " + score);
+            message.setReplyMarkup(keyboardUtil.getMatchMenu(matchId, match.getTournamentId(), "completed"));
+            bot.execute(message);
+        } catch (Exception e) {
+            sendMessage(chatId, "Ошибка при сохранении результата: " + e.getMessage(), bot);
+        }
+    }
+    
+    private void handleMatchView(String data, Long chatId, Integer messageId, TelegramLongPollingBot bot) throws TelegramApiException {
+        Integer matchId = Integer.parseInt(data.split("_")[2]);
+        MatchDto match = matchService.getMatch(matchId);
+        
+        StringBuilder text = new StringBuilder("📊 Результат матча:\n\n");
+        text.append(match.getTeam1Name()).append(" vs ").append(match.getTeam2Name()).append("\n");
+        text.append("Статус: ").append(match.getStatus()).append("\n");
+        
+        if ("completed".equals(match.getStatus())) {
+            try {
+                com.padelscore.dto.MatchResultDto result = matchService.getMatchResult(matchId);
+                text.append("\n🏆 Победитель: ").append(result.getWinnerTeamName()).append("\n");
+                text.append("Счет: ").append(result.getFinalScore()).append("\n");
+                text.append("Очки победителя: ").append(result.getWinnerPoints()).append("\n");
+                text.append("Очки проигравшего: ").append(result.getLoserPoints());
+            } catch (Exception e) {
+                text.append("\n(Результат не найден)");
+            }
+        }
+        
+        EditMessageText message = new EditMessageText();
+        message.setChatId(chatId.toString());
+        message.setMessageId(messageId);
+        message.setText(text.toString());
+        message.setReplyMarkup(keyboardUtil.getMatchMenu(matchId, match.getTournamentId(), match.getStatus()));
+        bot.execute(message);
+    }
+    
+    private void handleMatchDispute(String data, Long chatId, Integer messageId, Long userId, TelegramLongPollingBot bot) throws TelegramApiException {
+        Integer matchId = Integer.parseInt(data.split("_")[2]);
+        
+        try {
+            matchService.disputeResult(matchId);
+            MatchDto match = matchService.getMatch(matchId);
+            
+            EditMessageText message = new EditMessageText();
+            message.setChatId(chatId.toString());
+            message.setMessageId(messageId);
+            message.setText("⚠️ Результат матча помечен как спорный.\n\n" +
+                    "Администратор турнира будет уведомлен.");
+            message.setReplyMarkup(keyboardUtil.getMatchMenu(matchId, match.getTournamentId(), match.getStatus()));
+            bot.execute(message);
+        } catch (Exception e) {
+            sendMessage(chatId, "Ошибка: " + e.getMessage(), bot);
+        }
     }
     
     private void handleLeaderboard(String data, Long chatId, Integer messageId, TelegramLongPollingBot bot) throws TelegramApiException {

@@ -51,4 +51,37 @@ public class PlayerService {
                 .orElseThrow(() -> new RuntimeException("Player not found"));
         return mapper.toDto(player);
     }
+    
+    @Transactional
+    public PlayerDto updatePlayer(Integer id, String firstName, String lastName,
+                                  Long telegramId, Integer rating, String position) {
+        Player player = playerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Player not found"));
+        
+        if (firstName != null) {
+            player.setFirstName(firstName);
+        }
+        if (lastName != null) {
+            player.setLastName(lastName);
+        }
+        if (telegramId != null) {
+            player.setTelegramId(telegramId);
+        }
+        if (rating != null) {
+            player.setRating(rating);
+        }
+        if (position != null) {
+            player.setPosition(position);
+        }
+        
+        player = playerRepository.save(player);
+        return mapper.toDto(player);
+    }
+    
+    @Transactional
+    public void deletePlayer(Integer id) {
+        Player player = playerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Player not found"));
+        playerRepository.delete(player);
+    }
 }

@@ -51,7 +51,7 @@ public class MatchService {
     }
     
     @Transactional
-    public MatchResultDto submitResult(Integer matchId, String finalScore, Long submittedBy) {
+    public MatchResultDto submitResult(Integer matchId, String finalScore, Long submittedBy, String notes) {
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new RuntimeException("Match not found"));
         
@@ -73,16 +73,34 @@ public class MatchService {
             winnerPoints = 4;
         }
         
-        MatchResult result = MatchResult.builder()
-                .match(match)
-                .winnerTeam(winnerTeam)
-                .loserTeam(loserTeam)
-                .finalScore(finalScore)
-                .winnerPoints(winnerPoints)
-                .loserPoints(loserPoints)
-                .submittedBy(submittedBy)
-                .disputed(false)
-                .build();
+        MatchResult result = matchResultRepository.findByMatchId(matchId).orElse(null);
+        
+        if (result == null) {
+            // Создаем новый результат
+            result = MatchResult.builder()
+                    .match(match)
+                    .winnerTeam(winnerTeam)
+                    .loserTeam(loserTeam)
+                    .finalScore(finalScore)
+                    .winnerPoints(winnerPoints)
+                    .loserPoints(loserPoints)
+                    .submittedBy(submittedBy)
+                    .notes(notes)
+                    .disputed(false)
+                    .build();
+        } else {
+            // Обновляем существующий результат
+            result.setWinnerTeam(winnerTeam);
+            result.setLoserTeam(loserTeam);
+            result.setFinalScore(finalScore);
+            result.setWinnerPoints(winnerPoints);
+            result.setLoserPoints(loserPoints);
+            result.setSubmittedBy(submittedBy);
+            if (notes != null) {
+                result.setNotes(notes);
+            }
+            result.setDisputed(false);
+        }
         
         result = matchResultRepository.save(result);
         match.setStatus("completed");
@@ -107,5 +125,66 @@ public class MatchService {
         Match match = matchRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Match not found"));
         return mapper.toDto(match);
+    }
+    
+    public MatchResultDto getMatchResult(Integer matchId) {
+        MatchResult result = matchResultRepository.findByMatchId(matchId)
+                .orElseThrow(() -> new RuntimeException("Match result not found"));
+        return mapper.toDto(result);
+    }
+    
+    @Transactional
+    public MatchResultDto updateResult(Integer matchId, String finalScore, Long submittedBy, String notes) {
+        Match match = matchRepository.findById(matchId)
+                .orElseThrow(() -> new RuntimeException("Match not found"));
+        
+        MatchResult existingResult = matchResultRepository.findByMatchId(matchId)
+                .orElseThrow(() -> new RuntimeException("Match result not found"));
+        
+        String[] scores = finalScore.split("-");
+        if (scores.length != 2) {
+            throw new RuntimeException("Invalid score format. Use format: 2-0 or 2-1");
+        }
+        
+        int team1Sets = Integer.parseInt(scores[0].trim());
+        int team2Sets = Integer.parseInt(scores[1].trim());
+        
+        Team winnerTeam = team1Sets > team2Sets ? match.getTeam1() : match.getTeam2();
+        Team loserTeam = team1Sets > team2Sets ? match.getTeam2() : match.getTeam1();
+        
+        int winnerPoints = 3;
+        int loserPoints = 1;
+        
+        if (team1Sets == 2 && team2Sets == 0) {
+            winnerPoints = 4;
+        }
+        
+        existingResult.setWinnerTeam(winnerTeam);
+        existingResult.setLoserTeam(loserTeam);
+        existingResult.setFinalScore(finalScore);
+        existingResult.setWinnerPoints(winnerPoints);
+        existingResult.setLoserPoints(loserPoints);
+        existingResult.setSubmittedBy(submittedBy);
+        if (notes != null) {
+            existingResult.setNotes(notes);
+        }
+        existingResult.setDisputed(false);
+        
+        existingResult = matchResultRepository.save(existingResult);
+        return mapper.toDto(existingResult);
+    }
+    
+    @Transactional
+    public MatchResultDto disputeResult(Integer matchId) {
+        // Проверяем существование матча
+        matchRepository.findById(matchId)
+                .orElseThrow(() -> new RuntimeException("Match not found"));
+        
+        MatchResult result = matchResultRepository.findByMatchId(matchId)
+                .orElseThrow(() -> new RuntimeException("Match result not found"));
+        
+        result.setDisputed(true);
+        result = matchResultRepository.save(result);
+        return mapper.toDto(result);
     }
 }
