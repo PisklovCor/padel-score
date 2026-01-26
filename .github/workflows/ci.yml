@@ -117,8 +117,9 @@ jobs:
               content = f.read()
           # Находим и заменяем version после artifactId padelscore
           pattern = r'(<artifactId>padelscore</artifactId>\s*<version>)([^<]+)(</version>)'
-          replacement = r'\1' + release_version + r'\3'
-          content = re.sub(pattern, replacement, content, count=1)
+          def replace_version(match):
+              return match.group(1) + release_version + match.group(3)
+          content = re.sub(pattern, replace_version, content, count=1)
           with open('pom.xml', 'w') as f:
               f.write(content)
           EOF
@@ -171,8 +172,9 @@ jobs:
               content = f.read()
           # Находим и заменяем version после artifactId padelscore
           pattern = r'(<artifactId>padelscore</artifactId>\s*<version>)([^<]+)(</version>)'
-          replacement = r'\1' + next_version + r'\3'
-          content = re.sub(pattern, replacement, content, count=1)
+          def replace_version(match):
+              return match.group(1) + next_version + match.group(3)
+          content = re.sub(pattern, replace_version, content, count=1)
           with open('pom.xml', 'w') as f:
               f.write(content)
           EOF
