@@ -5,15 +5,41 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_run:
+    workflows: ["CI Pipeline (develop)"]
+    types:
+      - completed
+    branches:
+      - main
 
 jobs:
   build:
     name: Сборка проекта
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
 
     steps:
       - name: Checkout код
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Проверка релизного коммита
+        id: check-release
+        run: |
+          if [ "${{ github.event_name }}" == "push" ]; then
+            echo "is_release=true" >> $GITHUB_OUTPUT
+            echo "Push событие, выполняем сборку"
+          else
+            LAST_COMMIT_MSG=$(git log -1 --pretty=%B)
+            if echo "$LAST_COMMIT_MSG" | grep -q "Release version"; then
+              echo "is_release=true" >> $GITHUB_OUTPUT
+              echo "Обнаружен релизный коммит: $LAST_COMMIT_MSG"
+            else
+              echo "is_release=false" >> $GITHUB_OUTPUT
+              echo "Это не релизный коммит, пропускаем сборку"
+            fi
+          fi
 
       - name: Настройка JDK 17
         uses: actions/setup-java@v4
@@ -29,12 +55,15 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Компиляция проекта
+        if: steps.check-release.outputs.is_release == 'true'
         run: mvn clean compile
 
       - name: Создание JAR файла
+        if: steps.check-release.outputs.is_release == 'true'
         run: mvn package -DskipTests
 
       - name: Загрузка артефактов сборки
+        if: steps.check-release.outputs.is_release == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: jar-artifact
