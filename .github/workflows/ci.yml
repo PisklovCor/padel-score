@@ -47,10 +47,12 @@ jobs:
       - name: Загрузка отчетов о тестах
         uses: actions/upload-artifact@v4
         if: always()
+        continue-on-error: true
         with:
           name: test-reports
           path: target/surefire-reports/
           retention-days: 30
+          if-no-files-found: ignore
 
   release-approval:
     name: Подтверждение релиза
@@ -161,9 +163,8 @@ jobs:
           IFS='.' read -ra VERSION_PARTS <<< "$RELEASE_VERSION"
           MAJOR="${VERSION_PARTS[0]}"
           MINOR="${VERSION_PARTS[1]}"
-          PATCH="${VERSION_PARTS[2]}"
-          NEXT_PATCH=$((PATCH + 1))
-          NEXT_VERSION="${MAJOR}.${MINOR}.${NEXT_PATCH}-SNAPSHOT"
+          NEXT_MINOR=$((MINOR + 1))
+          NEXT_VERSION="${MAJOR}.${NEXT_MINOR}.0-SNAPSHOT"
           echo "next_version=$NEXT_VERSION" >> $GITHUB_OUTPUT
           echo "Следующая версия: $NEXT_VERSION"
 
