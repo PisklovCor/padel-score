@@ -116,6 +116,29 @@ CREATE TABLE game_scores (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (set_id, game_number)
 );
+
+CREATE TABLE user_roles (
+    id SERIAL PRIMARY KEY,
+    tournament_id INTEGER NOT NULL REFERENCES tournaments(id) ON DELETE CASCADE,
+    user_id BIGINT NOT NULL,  -- Telegram user_id
+    role VARCHAR(50) NOT NULL, -- 'admin', 'captain', 'player', 'viewer'
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (tournament_id, user_id)
+);
+
+CREATE TABLE audit_logs (
+    id SERIAL PRIMARY KEY,
+    entity_type VARCHAR(50) NOT NULL,  -- 'tournament', 'match', 'team', 'player'
+    entity_id INTEGER NOT NULL,
+    action VARCHAR(50) NOT NULL,       -- 'create', 'update', 'delete', 'dispute'
+    user_id BIGINT NOT NULL,           -- Telegram user_id
+    old_values JSONB,
+    new_values JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_audit_logs_entity ON audit_logs(entity_type, entity_id);
+CREATE INDEX idx_audit_logs_created_at ON audit_logs(created_at);
 ```
 
 ---
@@ -189,7 +212,8 @@ src/
 └── resources/
     ├── application.yml
     ├── application-prod.yml
-    └── db/migration/         # Flyway миграции
+    └── db/changelog/         # Liquibase миграции
+        └── db.changelog-master.xml
 ```
 
 ## 5. Интеграция с Telegram
@@ -257,14 +281,88 @@ EXPOSE 8080
 CMD ["java", "-jar", "app.jar"]
 ```
 
-## 7. Нефункциональные требования (техчасть)
+## 7. Управление миграциями БД
 
-Response time API (p95) < 500 ms.
+**Инструмент:** Liquibase (вместо Flyway)
 
-DB query (p95) < 100 ms.
+**Преимущества:**
+- Поддержка XML/YAML/SQL форматов
+- Гибкая модель changesets
+- Встроенный rollback механизм
+- Поддержка нескольких БД
 
-Test coverage (unit/integration) > 80%.
+**Структура:**
+```
+resources/db/changelog/
+├── db.changelog-master.xml
+├── 001-initial-schema.xml
+└── 002-add-audit-logs.xml
+```
 
-Логирование: запросы/ошибки/изменения результатов.
+**Конфигурация Spring Boot:**
+```yaml
+spring:
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    enabled: true
+```
 
-Мониторинг: базовые метрики (CPU, RAM, ошибки, latency).
+## 8. Безопасность
+
+### 8.1 Аутентификация и авторизация
+- Верификация Telegram initData через HMAC-SHA256
+- Роли: admin, captain, player, viewer
+- Проверка прав доступа на уровне сервисов
+
+### 8.2 Защита данных
+- Prepared statements (JPA) для защиты от SQL-инъекций
+- Валидация входных данных (Bean Validation)
+- Rate limiting: 100 запросов/минуту на пользователя
+- Логирование всех изменений результатов в audit_logs
+
+### 8.3 Хранение секретов
+- Токены бота в переменных окружения
+- Пароли БД через environment variables
+- Не хранить секреты в коде/конфигах
+
+## 9. Тестирование
+
+### 9.1 Стратегия
+- **Unit тесты:** сервисы, утилиты (JUnit 5, Mockito)
+- **Integration тесты:** REST API, репозитории (TestContainers для PostgreSQL)
+- **Coverage:** > 80% (JaCoCo)
+
+### 9.2 Структура тестов
+```
+src/test/java/com/padelscore/
+├── unit/
+│   ├── service/
+│   └── util/
+├── integration/
+│   ├── controller/
+│   └── repository/
+└── e2e/
+    └── bot/
+```
+
+## 10. Логирование и мониторинг
+
+### 10.1 Логирование
+- **Формат:** JSON (для парсинга лог-агрегаторами)
+- **Уровни:** ERROR, WARN, INFO, DEBUG
+- **Ротация:** по размеру (100MB) и времени (7 дней)
+- **Логируем:** запросы, ошибки, изменения результатов, аудит
+
+### 10.2 Мониторинг
+- **Метрики:** CPU, RAM, response time, error rate
+- **Инструменты:** Spring Boot Actuator + Prometheus + Grafana (опционально)
+- **Алерты:** ошибки > 5%, latency > 1s, недоступность БД
+
+## 11. Нефункциональные требования (техчасть)
+
+- Response time API (p95) < 500 ms
+- DB query (p95) < 100 ms
+- Test coverage (unit/integration) > 80%
+- Uptime: 99.5%
+- Бэкапы БД каждые 6 часов (pg_dump)
+- Rate limiting: 100 запросов/минуту на пользователя
