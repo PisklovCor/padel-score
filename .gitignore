@@ -1,22 +1,163 @@
-### AL ###
-#Template for AL projects for Dynamics 365 Business Central
-#launch.json folder
+/postgres-keycloak-data
+2024__yandex-architecture-sso.code-workspace
+
+# Go specific
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+/vendor/
+/Godeps/
+
+# Go workspace file
+go.work
+
+# Cursor
+.cursor/
+
+# Go build and test cache
+.go/
+
+# Compiled Object files, Static and Dynamic libs
+*.o
+*.a
+
+# Folders
+_obj
+_test
+bin/
+pkg/
+
+# Dependency directories
+vendor/
+
+# IDE specific files
+.idea/
 .vscode/
-#Cache folder
-.alcache/
-#Symbols folder
-.alpackages/
-#Snapshots folder
-.snapshots/
-#Testing Output folder
-.output/
-#Extension App-file
-*.app
-#Rapid Application Development File
-rad.json
-#Translation Base-file
-*.g.xlf
-#License-file
-*.flf
-#Test results file
-TestResults.xml
+*.swp
+*.swo
+*~
+.DS_Store
+.history/
+*.sublime-workspace
+*.sublime-project
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# Kubernetes
+kubeconfig
+*.kubeconfig
+.kube/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build artifacts
+dist/
+build/
+out/
+target/
+.gradle/
+
+# Node.js (for frontend or Node.js services)
+node_modules/
+npm-debug.log
+yarn-error.log
+.pnp/
+.pnp.js
+coverage/
+.next/
+.nuxt/
+.cache/
+.parcel-cache/
+reports/
+
+# Postman
+newman/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+
+# OS specific
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Certificates and keys
+*.pem
+*.key
+*.crt
+*.cer
+*.der
+*.priv
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Helm
+.helm/
+charts/*/charts/
+charts/*/requirements.lock
+
+# Test coverage
+coverage.txt
+profile.out
+*.cover
+
+# Dependency directories (remove the comment below to include it)
+# vendor/
+
+# Postman tests reports
+tests/postman/reports/
+
+# Sensitive files
+*.p12
+*.pfx
+
+# Terraform files
+*.tfstate
+*.tfstate.*
+!*.tfvars.example
+backend.hcl
+.terraform.lock.hcl
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+*.tfvars
+
+# Plan files
+*.tfplan
+tfplan
