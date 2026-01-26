@@ -2,9 +2,9 @@ name: CI Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [ develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ develop ]
 
 jobs:
   build-and-test:
@@ -51,3 +51,137 @@ jobs:
           name: test-reports
           path: target/surefire-reports/
           retention-days: 30
+
+  release-approval:
+    name: Подтверждение релиза
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    environment:
+      name: release-approval
+    steps:
+      - name: Ожидание подтверждения
+        run: echo "Релиз подтвержден, запускается процесс выпуска версии"
+
+  release:
+    name: Выпуск релиза
+    runs-on: ubuntu-latest
+    needs: release-approval
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout код
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Настройка Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Получение текущей версии
+        id: get-version
+        run: |
+          CURRENT_VERSION=$(grep -m 1 '<version>' pom.xml | sed 's/.*<version>\(.*\)<\/version>.*/\1/')
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "Текущая версия: $CURRENT_VERSION"
+
+      - name: Определение релизной версии
+        id: release-version
+        run: |
+          CURRENT_VERSION="${{ steps.get-version.outputs.current_version }}"
+          RELEASE_VERSION=$(echo "$CURRENT_VERSION" | sed 's/-SNAPSHOT//')
+          echo "release_version=$RELEASE_VERSION" >> $GITHUB_OUTPUT
+          echo "Релизная версия: $RELEASE_VERSION"
+
+      - name: Переключение на main и обновление
+        run: |
+          git checkout main
+          git pull origin main
+
+      - name: Мерж develop в main
+        run: |
+          git merge develop --no-edit
+
+      - name: Обновление версии в pom.xml для релиза
+        run: |
+          RELEASE_VERSION="${{ steps.release-version.outputs.release_version }}"
+          # Заменяем только корневой version (между artifactId и name)
+          python3 << EOF
+          import re
+          import os
+          release_version = os.environ['RELEASE_VERSION']
+          with open('pom.xml', 'r') as f:
+              content = f.read()
+          # Находим и заменяем version после artifactId padelscore
+          pattern = r'(<artifactId>padelscore</artifactId>\s*<version>)([^<]+)(</version>)'
+          replacement = r'\1' + release_version + r'\3'
+          content = re.sub(pattern, replacement, content, count=1)
+          with open('pom.xml', 'w') as f:
+              f.write(content)
+          EOF
+        env:
+          RELEASE_VERSION: ${{ steps.release-version.outputs.release_version }}
+
+      - name: Коммит релизной версии в main
+        run: |
+          RELEASE_VERSION="${{ steps.release-version.outputs.release_version }}"
+          git add pom.xml
+          git commit -m "Release version ${RELEASE_VERSION}"
+          git tag -a "v${RELEASE_VERSION}" -m "Release version ${RELEASE_VERSION}"
+
+      - name: Пуш изменений в main
+        run: |
+          git push origin main
+          git push origin --tags
+
+      - name: Определение следующей SNAPSHOT версии
+        id: next-version
+        run: |
+          RELEASE_VERSION="${{ steps.release-version.outputs.release_version }}"
+          IFS='.' read -ra VERSION_PARTS <<< "$RELEASE_VERSION"
+          MAJOR="${VERSION_PARTS[0]}"
+          MINOR="${VERSION_PARTS[1]}"
+          PATCH="${VERSION_PARTS[2]}"
+          NEXT_PATCH=$((PATCH + 1))
+          NEXT_VERSION="${MAJOR}.${MINOR}.${NEXT_PATCH}-SNAPSHOT"
+          echo "next_version=$NEXT_VERSION" >> $GITHUB_OUTPUT
+          echo "Следующая версия: $NEXT_VERSION"
+
+      - name: Переключение на develop
+        run: |
+          git checkout develop
+          git pull origin develop
+
+      - name: Мерж main в develop
+        run: |
+          git merge main --no-edit
+
+      - name: Обновление версии в pom.xml для develop
+        run: |
+          NEXT_VERSION="${{ steps.next-version.outputs.next_version }}"
+          # Заменяем только корневой version (между artifactId и name)
+          python3 << EOF
+          import re
+          import os
+          next_version = os.environ['NEXT_VERSION']
+          with open('pom.xml', 'r') as f:
+              content = f.read()
+          # Находим и заменяем version после artifactId padelscore
+          pattern = r'(<artifactId>padelscore</artifactId>\s*<version>)([^<]+)(</version>)'
+          replacement = r'\1' + next_version + r'\3'
+          content = re.sub(pattern, replacement, content, count=1)
+          with open('pom.xml', 'w') as f:
+              f.write(content)
+          EOF
+        env:
+          NEXT_VERSION: ${{ steps.next-version.outputs.next_version }}
+
+      - name: Коммит следующей SNAPSHOT версии в develop
+        run: |
+          NEXT_VERSION="${{ steps.next-version.outputs.next_version }}"
+          git add pom.xml
+          git commit -m "Bump version to ${NEXT_VERSION} after release"
+          git push origin develop
