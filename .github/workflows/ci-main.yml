@@ -9,8 +9,6 @@ on:
     workflows: ["CI Pipeline (develop)"]
     types:
       - completed
-    branches:
-      - main
 
 jobs:
   build:
@@ -23,6 +21,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 2
+          ref: main
 
       - name: Проверка релизного коммита
         id: check-release
@@ -31,13 +30,14 @@ jobs:
             echo "is_release=true" >> $GITHUB_OUTPUT
             echo "Push событие, выполняем сборку"
           else
+            # Проверяем последний коммит в main ветке
             LAST_COMMIT_MSG=$(git log -1 --pretty=%B)
             if echo "$LAST_COMMIT_MSG" | grep -q "Release version"; then
               echo "is_release=true" >> $GITHUB_OUTPUT
               echo "Обнаружен релизный коммит: $LAST_COMMIT_MSG"
             else
               echo "is_release=false" >> $GITHUB_OUTPUT
-              echo "Это не релизный коммит, пропускаем сборку"
+              echo "Это не релизный коммит (последний: $LAST_COMMIT_MSG), пропускаем сборку"
             fi
           fi
 
