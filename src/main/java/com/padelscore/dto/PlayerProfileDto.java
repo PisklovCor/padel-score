@@ -5,16 +5,18 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * DTO для профиля игрока (PlayerProfile)
+ */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PlayerDto {
-    private Integer id;
-    private Integer teamId;
+public class PlayerProfileDto {
+    private Integer id; // ID профиля игрока
     private String firstName;
     private String lastName;
+    private String nickname;
     private Long telegramId;
     private Integer rating;
-    private String position;
 }

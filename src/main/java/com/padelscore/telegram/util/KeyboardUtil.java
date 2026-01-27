@@ -1,7 +1,7 @@
-package com.padelscore.bot.util;
+package com.padelscore.telegram.util;
 
 import com.padelscore.dto.MatchDto;
-import com.padelscore.dto.PlayerDto;
+import com.padelscore.dto.TeamPlayerDto;
 import com.padelscore.dto.TeamDto;
 import com.padelscore.dto.TournamentDto;
 import org.springframework.stereotype.Component;
@@ -96,17 +96,17 @@ public class KeyboardUtil {
         leaderboard.setCallbackData("leaderboard_" + tournamentId);
         row2.add(leaderboard);
         
-        List<InlineKeyboardButton> row3 = new ArrayList<>();
-        InlineKeyboardButton addTeam = new InlineKeyboardButton();
-        addTeam.setText("➕ Добавить команду");
-        addTeam.setCallbackData("team_create_" + tournamentId);
-        row3.add(addTeam);
-        
-        List<InlineKeyboardButton> row4 = new ArrayList<>();
-        InlineKeyboardButton addMatch = new InlineKeyboardButton();
-        addMatch.setText("➕ Создать матч");
-        addMatch.setCallbackData("match_create_" + tournamentId);
-        row4.add(addMatch);
+//        List<InlineKeyboardButton> row3 = new ArrayList<>();
+//        InlineKeyboardButton addTeam = new InlineKeyboardButton();
+//        addTeam.setText("➕ Добавить команду");
+//        addTeam.setCallbackData("team_create_" + tournamentId);
+//        row3.add(addTeam);
+//
+//        List<InlineKeyboardButton> row4 = new ArrayList<>();
+//        InlineKeyboardButton addMatch = new InlineKeyboardButton();
+//        addMatch.setText("➕ Создать матч");
+//        addMatch.setCallbackData("match_create_" + tournamentId);
+//        row4.add(addMatch);
         
         List<InlineKeyboardButton> row5 = new ArrayList<>();
         InlineKeyboardButton back = new InlineKeyboardButton();
@@ -116,8 +116,8 @@ public class KeyboardUtil {
         
         keyboard.add(row1);
         keyboard.add(row2);
-        keyboard.add(row3);
-        keyboard.add(row4);
+//        keyboard.add(row3);
+//        keyboard.add(row4);
         keyboard.add(row5);
         markup.setKeyboard(keyboard);
         return markup;
@@ -198,11 +198,11 @@ public class KeyboardUtil {
         return markup;
     }
     
-    public InlineKeyboardMarkup getPlayersMenu(List<PlayerDto> players, Integer teamId) {
+    public InlineKeyboardMarkup getPlayersMenu(List<TeamPlayerDto> players, Integer teamId) {
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         
-        for (PlayerDto player : players) {
+        for (TeamPlayerDto player : players) {
             List<InlineKeyboardButton> row = new ArrayList<>();
             InlineKeyboardButton button = new InlineKeyboardButton();
             button.setText("👤 " + player.getFirstName() + " " + player.getLastName());

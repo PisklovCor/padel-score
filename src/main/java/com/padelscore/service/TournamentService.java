@@ -24,13 +24,17 @@ public class TournamentService {
     
     @Transactional
     public TournamentDto createTournament(String title, String description, Long createdBy, 
-                                         String format, String scoringSystem) {
+                                         String format, String scoringSystem, String prize,
+                                         String status, Boolean completed) {
         Tournament tournament = Tournament.builder()
                 .title(title)
                 .description(description)
                 .createdBy(createdBy)
                 .format(format != null ? format : "group")
                 .scoringSystem(scoringSystem != null ? scoringSystem : "points")
+                .prize(prize)
+                .status(status)
+                .completed(completed != null ? completed : false)
                 .build();
         
         tournament = tournamentRepository.save(tournament);
@@ -77,7 +81,8 @@ public class TournamentService {
     @Transactional
     public TournamentDto updateTournament(Integer id, String title, String description,
                                          LocalDateTime startDate, LocalDateTime endDate,
-                                         String format, String scoringSystem) {
+                                         String format, String scoringSystem, String prize,
+                                         String status, Boolean completed) {
         Tournament tournament = tournamentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Tournament not found"));
         
@@ -98,6 +103,15 @@ public class TournamentService {
         }
         if (scoringSystem != null) {
             tournament.setScoringSystem(scoringSystem);
+        }
+        if (prize != null) {
+            tournament.setPrize(prize);
+        }
+        if (status != null) {
+            tournament.setStatus(status);
+        }
+        if (completed != null) {
+            tournament.setCompleted(completed);
         }
         
         tournament = tournamentRepository.save(tournament);

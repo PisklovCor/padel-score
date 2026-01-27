@@ -1,6 +1,6 @@
 package com.padelscore.config;
 
-import com.padelscore.bot.PadelScoreBot;
+import com.padelscore.telegram.PadelScoreBot;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;

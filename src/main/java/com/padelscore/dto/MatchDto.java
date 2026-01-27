@@ -21,4 +21,6 @@ public class MatchDto {
     private LocalDateTime scheduledDate;
     private String status;
     private String format;
+    private String location;
+    private Boolean completed;
 }

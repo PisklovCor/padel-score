@@ -17,6 +17,8 @@ public class UpdatePlayerRequest {
     @NotBlank(message = "Фамилия обязательна")
     private String lastName;
     
+    private String nickname;
+    
     private Long telegramId;
     
     private Integer rating;

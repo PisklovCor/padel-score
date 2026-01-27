@@ -51,7 +51,10 @@ public class TournamentController {
                 request.getDescription(),
                 request.getCreatedBy(),
                 request.getFormat(),
-                request.getScoringSystem()
+                request.getScoringSystem(),
+                request.getPrize(),
+                request.getStatus(),
+                request.getCompleted()
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(tournament);
     }
@@ -87,7 +90,10 @@ public class TournamentController {
                 request.getStartDate(),
                 request.getEndDate(),
                 request.getFormat(),
-                request.getScoringSystem()
+                request.getScoringSystem(),
+                request.getPrize(),
+                request.getStatus(),
+                request.getCompleted()
         );
         return ResponseEntity.ok(tournament);
     }

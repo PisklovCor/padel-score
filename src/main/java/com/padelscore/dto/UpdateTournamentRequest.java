@@ -25,4 +25,10 @@ public class UpdateTournamentRequest {
     private String format;
     
     private String scoringSystem;
+    
+    private String prize;
+    
+    private String status;
+    
+    private Boolean completed;
 }

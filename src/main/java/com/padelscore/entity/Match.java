@@ -41,6 +41,12 @@ public class Match {
     @Column(length = 50)
     private String format;
     
+    @Column(length = 255)
+    private String location;
+    
+    @Column(nullable = false)
+    private Boolean completed = false;
+    
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
     

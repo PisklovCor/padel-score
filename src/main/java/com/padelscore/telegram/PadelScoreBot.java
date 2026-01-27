@@ -1,7 +1,7 @@
-package com.padelscore.bot;
+package com.padelscore.telegram;
 
-import com.padelscore.bot.handler.CommandHandler;
-import com.padelscore.bot.handler.CallbackHandler;
+import com.padelscore.telegram.handler.CommandHandler;
+import com.padelscore.telegram.handler.CallbackHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

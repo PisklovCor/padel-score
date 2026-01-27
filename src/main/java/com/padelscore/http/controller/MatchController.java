@@ -54,7 +54,9 @@ public class MatchController {
                 request.getTeam1Id(),
                 request.getTeam2Id(),
                 request.getScheduledDate(),
-                request.getFormat()
+                request.getFormat(),
+                request.getLocation(),
+                request.getCompleted()
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(match);
     }

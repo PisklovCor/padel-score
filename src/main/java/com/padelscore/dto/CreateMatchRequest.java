@@ -25,4 +25,8 @@ public class CreateMatchRequest {
     private LocalDateTime scheduledDate;
     
     private String format; // 'best_of_3_sets', 'best_of_5_sets'
+    
+    private String location;
+    
+    private Boolean completed;
 }

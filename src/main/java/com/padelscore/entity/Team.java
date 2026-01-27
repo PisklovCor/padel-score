@@ -45,7 +45,7 @@ public class Team {
     private LocalDateTime updatedAt;
     
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Player> players;
+    private List<TeamPlayer> teamPlayers;
     
     @PrePersist
     protected void onCreate() {

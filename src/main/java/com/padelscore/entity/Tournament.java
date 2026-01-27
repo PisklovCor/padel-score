@@ -41,6 +41,15 @@ public class Tournament {
     @Column(name = "scoring_system", length = 50)
     private String scoringSystem;
     
+    @Column(columnDefinition = "TEXT")
+    private String prize;
+    
+    @Column(length = 50)
+    private String status;
+    
+    @Column(nullable = false)
+    private Boolean completed = false;
+    
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
     

@@ -99,4 +99,21 @@ public class StatisticsService {
                 })
                 .collect(Collectors.toList());
     }
+    
+    public Map<String, Object> getTournamentStats(Integer tournamentId) {
+        List<LeaderboardEntryDto> leaderboard = getLeaderboard(tournamentId);
+        
+        int totalMatches = leaderboard.stream()
+                .mapToInt(LeaderboardEntryDto::getMatches)
+                .sum();
+        
+        int totalTeams = leaderboard.size();
+        
+        return Map.of(
+                "tournamentId", tournamentId,
+                "totalTeams", totalTeams,
+                "totalMatches", totalMatches,
+                "leaderboard", leaderboard
+        );
+    }
 }

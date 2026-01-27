@@ -1,9 +1,8 @@
-package com.padelscore.bot.handler;
+package com.padelscore.telegram.handler;
 
-import com.padelscore.bot.util.KeyboardUtil;
-import com.padelscore.dto.LeaderboardEntryDto;
+import com.padelscore.telegram.util.KeyboardUtil;
 import com.padelscore.dto.MatchDto;
-import com.padelscore.dto.PlayerDto;
+import com.padelscore.dto.TeamPlayerDto;
 import com.padelscore.dto.TeamDto;
 import com.padelscore.dto.TournamentDto;
 import com.padelscore.service.*;
@@ -25,7 +24,7 @@ public class CommandHandler {
     private final MatchService matchService;
     private final StatisticsService statisticsService;
     private final KeyboardUtil keyboardUtil;
-    private final PlayerService playerService;
+    private final TeamPlayerService teamPlayerService;
 
     public void handle(Message message, TelegramLongPollingBot bot) {
         String text = message.getText();
@@ -89,7 +88,7 @@ public class CommandHandler {
         String tournamentTitle = parts[1].trim();
         try {
             TournamentDto tournament = tournamentService.createTournament(
-                    tournamentTitle, null, userId, "group", "points");
+                    tournamentTitle, null, userId, "group", "points", "prize", null, false);
             String text = String.format("✅ Турнир \"%s\" успешно создан!\n\nID: %d\n\nИспользуйте /my_tournaments для управления.", 
                     tournament.getTitle(), tournament.getId());
             sendMessage(chatId, text, bot);
@@ -169,7 +168,7 @@ public class CommandHandler {
             String firstName = nameParts[0];
             String lastName = nameParts[1];
             
-            PlayerDto player = playerService.createPlayer(teamId, firstName, lastName, userId, null, "primary");
+            TeamPlayerDto player = teamPlayerService.createPlayer(teamId, firstName, lastName, userId, null, "primary");
             String text = String.format("✅ Игрок \"%s %s\" успешно добавлен в команду!\n\nID: %d",
                     player.getFirstName(), player.getLastName(), player.getId());
             sendMessage(chatId, text, bot);
@@ -201,7 +200,8 @@ public class CommandHandler {
                 return;
             }
             
-            MatchDto match = matchService.createMatch(tournamentId, team1Id, team2Id, null, null);
+            MatchDto match = matchService.createMatch(
+                    tournamentId, team1Id, team2Id, null, null, null, false);
             String text = String.format("✅ Матч успешно создан!\n\nID: %d\nСтатус: %s",
                     match.getId(), match.getStatus());
             sendMessage(chatId, text, bot);

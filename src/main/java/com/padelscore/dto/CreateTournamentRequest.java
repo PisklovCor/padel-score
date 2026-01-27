@@ -29,4 +29,10 @@ public class CreateTournamentRequest {
     private String format; // 'group', 'knockout', 'mixed'
     
     private String scoringSystem; // 'points', 'win_loss'
+    
+    private String prize;
+    
+    private String status;
+    
+    private Boolean completed;
 }

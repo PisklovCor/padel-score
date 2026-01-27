@@ -45,21 +45,7 @@ public class StatisticsController {
     })
     public ResponseEntity<Map<String, Object>> getTournamentStats(
             @Parameter(description = "ID турнира", required = true) @PathVariable Integer tournamentId) {
-        List<LeaderboardEntryDto> leaderboard = statisticsService.getLeaderboard(tournamentId);
-        
-        int totalMatches = leaderboard.stream()
-                .mapToInt(LeaderboardEntryDto::getMatches)
-                .sum();
-        
-        int totalTeams = leaderboard.size();
-        
-        Map<String, Object> stats = Map.of(
-                "tournamentId", tournamentId,
-                "totalTeams", totalTeams,
-                "totalMatches", totalMatches,
-                "leaderboard", leaderboard
-        );
-        
+        Map<String, Object> stats = statisticsService.getTournamentStats(tournamentId);
         return ResponseEntity.ok(stats);
     }
     
@@ -71,7 +57,7 @@ public class StatisticsController {
     })
     public ResponseEntity<Map<String, Object>> getPlayerStats(
             @Parameter(description = "ID игрока", required = true) @PathVariable Integer playerId) {
-        // TODO: Реализовать статистику игрока, когда будет готов PlayerService с методами статистики
+        // TODO: Реализовать статистику игрока, когда будет готов сервис с методами статистики
         Map<String, Object> stats = Map.of(
                 "playerId", playerId,
                 "message", "Player statistics not implemented yet"

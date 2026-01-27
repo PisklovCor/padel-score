@@ -17,6 +17,9 @@ public class EntityMapper {
                 .endDate(tournament.getEndDate())
                 .format(tournament.getFormat())
                 .scoringSystem(tournament.getScoringSystem())
+                .prize(tournament.getPrize())
+                .status(tournament.getStatus())
+                .completed(tournament.getCompleted())
                 .build();
     }
     
@@ -31,15 +34,29 @@ public class EntityMapper {
                 .build();
     }
     
-    public PlayerDto toDto(Player player) {
-        return PlayerDto.builder()
-                .id(player.getId())
-                .teamId(player.getTeam().getId())
-                .firstName(player.getFirstName())
-                .lastName(player.getLastName())
-                .telegramId(player.getTelegramId())
-                .rating(player.getRating())
-                .position(player.getPosition())
+    public TeamPlayerDto toDto(TeamPlayer teamPlayer) {
+        PlayerProfile profile = teamPlayer.getPlayerProfile();
+        return TeamPlayerDto.builder()
+                .id(teamPlayer.getId())
+                .teamId(teamPlayer.getTeam().getId())
+                .position(teamPlayer.getPosition())
+                .playerProfileId(profile.getId())
+                .firstName(profile.getFirstName())
+                .lastName(profile.getLastName())
+                .nickname(profile.getNickname())
+                .telegramId(profile.getTelegramId())
+                .rating(profile.getRating())
+                .build();
+    }
+    
+    public PlayerProfileDto toDto(PlayerProfile profile) {
+        return PlayerProfileDto.builder()
+                .id(profile.getId())
+                .firstName(profile.getFirstName())
+                .lastName(profile.getLastName())
+                .nickname(profile.getNickname())
+                .telegramId(profile.getTelegramId())
+                .rating(profile.getRating())
                 .build();
     }
     
@@ -54,6 +71,8 @@ public class EntityMapper {
                 .scheduledDate(match.getScheduledDate())
                 .status(match.getStatus())
                 .format(match.getFormat())
+                .location(match.getLocation())
+                .completed(match.getCompleted())
                 .build();
     }
     
