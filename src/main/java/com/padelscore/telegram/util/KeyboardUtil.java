@@ -35,6 +35,21 @@ public class KeyboardUtil {
         markup.setKeyboard(keyboard);
         return markup;
     }
+
+    public InlineKeyboardMarkup getToMainMenu() {
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
+        List<InlineKeyboardButton> buttons = new ArrayList<>();
+        InlineKeyboardButton button = new InlineKeyboardButton();
+        button.setText("🏆 Главное меню");
+        button.setCallbackData("start");
+        buttons.add(button);
+
+        keyboard.add(buttons);
+        markup.setKeyboard(keyboard);
+        return markup;
+    }
     
     public InlineKeyboardMarkup getCreateTournamentMenu() {
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();

@@ -1,5 +1,6 @@
 package com.padelscore.telegram.handler;
 
+import com.padelscore.telegram.handler.command.Command;
 import com.padelscore.telegram.util.KeyboardUtil;
 import com.padelscore.dto.MatchDto;
 import com.padelscore.dto.TeamPlayerDto;
@@ -25,30 +26,41 @@ public class CommandHandler {
     private final StatisticsService statisticsService;
     private final KeyboardUtil keyboardUtil;
     private final TeamPlayerService teamPlayerService;
+    private final List<Command> commands;
 
     public void handle(Message message, TelegramLongPollingBot bot) {
         String text = message.getText();
         Long chatId = message.getChatId();
         Long userId = message.getFrom().getId();
-        
+
         try {
-            if (text.startsWith("/start")) {
-                handleStart(chatId, bot);
-            } else if (text.startsWith("/create_tournament")) {
-                handleCreateTournament(chatId, userId, bot, text);
-            } else if (text.startsWith("/my_tournaments")) {
-                handleMyTournaments(chatId, userId, bot);
-            } else if (text.startsWith("/add_team")) {
-                handleAddTeam(chatId, userId, bot, text);
-            } else if (text.startsWith("/add_player")) {
-                handleAddPlayer(chatId, userId, bot, text);
-            } else if (text.startsWith("/add_match")) {
-                handleAddMatch(chatId, userId, bot, text);
-            } else if (text.startsWith("/help")) {
-                handleHelp(chatId, bot);
-            } else {
-                sendMessage(chatId, "Неизвестная команда. Используйте /help для справки.", bot);
-            }
+            commands.stream()
+                    .filter(c -> c.coincidence(text))
+                    .findFirst()
+                    .ifPresentOrElse(
+                            c -> c.handle(message, bot),
+                            () -> sendMessage(chatId,
+                                    "Неизвестная команда. Используйте /help для справки.", bot
+                            )
+                    );
+
+//            if (text.startsWith("/start")) {
+//                handleStart(chatId, bot);
+//            } else if (text.startsWith("/create_tournament")) {
+//                handleCreateTournament(chatId, userId, bot, text);
+//            } else if (text.startsWith("/my_tournaments")) {
+//                handleMyTournaments(chatId, userId, bot);
+//            } else if (text.startsWith("/add_team")) {
+//                handleAddTeam(chatId, userId, bot, text);
+//            } else if (text.startsWith("/add_player")) {
+//                handleAddPlayer(chatId, userId, bot, text);
+//            } else if (text.startsWith("/add_match")) {
+//                handleAddMatch(chatId, userId, bot, text);
+//            } else if (text.startsWith("/help")) {
+//                handleHelp(chatId, bot);
+//            } else {
+//                sendMessage(chatId, "Неизвестная команда. Используйте /help для справки.", bot);
+//            }
         } catch (Exception e) {
             sendMessage(chatId, "Ошибка: " + e.getMessage(), bot);
         }
@@ -212,18 +224,18 @@ public class CommandHandler {
         }
     }
     
-    private void handleHelp(Long chatId, TelegramLongPollingBot bot) {
-        String text = "📖 Справка по командам:\n\n" +
-                "/start - Главное меню\n" +
-                "/create_tournament Название - Создать турнир\n" +
-                "/my_tournaments - Мои турниры\n" +
-                "/add_team ID_турнира Название - Добавить команду\n" +
-                "/add_player ID_команды Имя Фамилия - Добавить игрока\n" +
-                "/add_match ID_турнира ID_команды1 ID_команды2 - Создать матч\n" +
-                "/help - Эта справка\n\n" +
-                "Используйте inline-кнопки для быстрого доступа к функциям.";
-        sendMessage(chatId, text, bot);
-    }
+//    private void handleHelp(Long chatId, TelegramLongPollingBot bot) {
+//        String text = "📖 Справка по командам:\n\n" +
+//                "/start - Главное меню\n" +
+//                "/create_tournament Название - Создать турнир\n" +
+//                "/my_tournaments - Мои турниры\n" +
+//                "/add_team ID_турнира Название - Добавить команду\n" +
+//                "/add_player ID_команды Имя Фамилия - Добавить игрока\n" +
+//                "/add_match ID_турнира ID_команды1 ID_команды2 - Создать матч\n" +
+//                "/help - Эта справка\n\n" +
+//                "Используйте inline-кнопки для быстрого доступа к функциям.";
+//        sendMessage(chatId, text, bot);
+//    }
     
     private void sendMessage(Long chatId, String text, TelegramLongPollingBot bot) {
         SendMessage message = new SendMessage();
