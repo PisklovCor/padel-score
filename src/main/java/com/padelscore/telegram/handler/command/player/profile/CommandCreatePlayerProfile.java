@@ -2,7 +2,7 @@ package com.padelscore.telegram.handler.command.player.profile;
 
 import com.padelscore.service.PlayerProfileService;
 import com.padelscore.telegram.handler.command.Command;
-import com.padelscore.telegram.util.KeyboardUtil;
+import com.padelscore.telegram.util.KeyboardPlayerProfileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 public class CommandCreatePlayerProfile implements Command {
 
     private final PlayerProfileService playerProfileService;
-    private final KeyboardUtil keyboardUtil;
+    private final KeyboardPlayerProfileUtil keyboardPlayerProfileUtil;
 
     @Override
     public boolean coincidence(String command) {
@@ -38,7 +38,6 @@ public class CommandCreatePlayerProfile implements Command {
         if (nickname == null || nickname.isBlank()) {
             String[] parts = input.trim().split("\\s+", 2);
 
-            //TODO: на проверку ника заполненный в телеграмме
             if (parts.length < 2) {
                 throw new IllegalArgumentException("После команды должен быть ник т.к. у вас он не заполнен в телеграмме." +
                         " Пример: /create_profiles Сахарок");
@@ -73,7 +72,7 @@ public class CommandCreatePlayerProfile implements Command {
         var messageReply  = new SendMessage();
         messageReply.setChatId(message.getChatId().toString());
         messageReply.setText(text);
-        messageReply.setReplyMarkup(keyboardUtil.getToMainMenu());
+        messageReply.setReplyMarkup(keyboardPlayerProfileUtil.getProfileMenu(true));
 
         try {
             bot.execute(messageReply);

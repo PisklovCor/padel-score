@@ -20,7 +20,11 @@ public class PlayerProfileService {
     private final PlayerProfileRepository playerProfileRepository;
     private final TeamPlayerRepository teamPlayerRepository;
     private final EntityMapper mapper;
-    
+
+    public boolean existsByTelegramId(Long telegramId) {
+        return playerProfileRepository.existsByTelegramId(telegramId);
+    }
+
     public PlayerProfileDto getPlayerProfile(Integer id) {
         PlayerProfile profile = playerProfileRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Player profile not found"));

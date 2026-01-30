@@ -1,5 +1,7 @@
 package com.padelscore.telegram.handler;
 
+import com.padelscore.telegram.handler.callback.Callback;
+import com.padelscore.telegram.handler.command.Command;
 import com.padelscore.telegram.util.KeyboardUtil;
 import com.padelscore.dto.LeaderboardEntryDto;
 import com.padelscore.dto.MatchDto;
@@ -27,6 +29,7 @@ public class CallbackHandler {
     private final StatisticsService statisticsService;
     private final KeyboardUtil keyboardUtil;
     private final TeamPlayerService teamPlayerService;
+    private final List<Callback> callbacks;
     
     public void handle(CallbackQuery callbackQuery, TelegramLongPollingBot bot) {
         String data = callbackQuery.getData();
@@ -35,45 +38,57 @@ public class CallbackHandler {
         Long userId = callbackQuery.getFrom().getId();
         
         try {
-            if (data.startsWith("tournament_")) {
-                handleTournamentCallback(data, chatId, messageId, userId, bot);
-            } else if (data.startsWith("teams_list_")) {
-                handleTeamsList(data, chatId, messageId, bot);
-            } else if (data.startsWith("team_")) {
-                handleTeamCallback(data, chatId, messageId, userId, bot);
-            } else if (data.startsWith("team_create_")) {
-                handleTeamCreate(data, chatId, userId, bot);
-            } else if (data.startsWith("players_list_")) {
-                handlePlayersList(data, chatId, messageId, bot);
-            } else if (data.startsWith("player_")) {
-                handlePlayerCallback(data, chatId, messageId, bot);
-            } else if (data.startsWith("player_create_")) {
-                handlePlayerCreate(data, chatId, userId, bot);
-            } else if (data.startsWith("matches_list_")) {
-                handleMatchesList(data, chatId, messageId, bot);
-            } else if (data.startsWith("match_")) {
-                handleMatchCallback(data, chatId, messageId, userId, bot);
-            } else if (data.startsWith("match_create_")) {
-                handleMatchCreate(data, chatId, userId, bot);
-            } else if (data.startsWith("match_result_")) {
-                handleMatchResultInput(data, chatId, messageId, userId, bot);
-            } else if (data.startsWith("result_quick_")) {
-                handleQuickResult(data, chatId, messageId, userId, bot);
-            } else if (data.startsWith("match_view_")) {
-                handleMatchView(data, chatId, messageId, bot);
-            } else if (data.startsWith("match_dispute_")) {
-                handleMatchDispute(data, chatId, messageId, userId, bot);
-            } else if (data.equals("main_menu")) {
-                handleMainMenu(chatId, messageId, bot);
-            } else if (data.startsWith("leaderboard_")) {
-                handleLeaderboard(data, chatId, messageId, bot);
-            } else if (data.startsWith("help")) {
-                handleHelp(chatId, bot);
-            }
+
+            callbacks.stream()
+                    .filter(c -> c.coincidence(data))
+                    .findFirst()
+                    .ifPresentOrElse(
+                            c -> c.handle(callbackQuery, bot),
+                            () -> sendMessage(chatId,
+                                    "Неизвестная команда. Используйте /help для справки.", bot
+                            )
+                    );
+
+//            if (data.startsWith("tournament_")) {
+//                handleTournamentCallback(data, chatId, messageId, userId, bot);
+//            } else if (data.startsWith("teams_list_")) {
+//                handleTeamsList(data, chatId, messageId, bot);
+//            } else if (data.startsWith("team_")) {
+//                handleTeamCallback(data, chatId, messageId, userId, bot);
+//            } else if (data.startsWith("team_create_")) {
+//                handleTeamCreate(data, chatId, userId, bot);
+//            } else if (data.startsWith("players_list_")) {
+//                handlePlayersList(data, chatId, messageId, bot);
+//            } else if (data.startsWith("player_")) {
+//                handlePlayerCallback(data, chatId, messageId, bot);
+//            } else if (data.startsWith("player_create_")) {
+//                handlePlayerCreate(data, chatId, userId, bot);
+//            } else if (data.startsWith("matches_list_")) {
+//                handleMatchesList(data, chatId, messageId, bot);
+//            } else if (data.startsWith("match_")) {
+//                handleMatchCallback(data, chatId, messageId, userId, bot);
+//            } else if (data.startsWith("match_create_")) {
+//                handleMatchCreate(data, chatId, userId, bot);
+//            } else if (data.startsWith("match_result_")) {
+//                handleMatchResultInput(data, chatId, messageId, userId, bot);
+//            } else if (data.startsWith("result_quick_")) {
+//                handleQuickResult(data, chatId, messageId, userId, bot);
+//            } else if (data.startsWith("match_view_")) {
+//                handleMatchView(data, chatId, messageId, bot);
+//            } else if (data.startsWith("match_dispute_")) {
+//                handleMatchDispute(data, chatId, messageId, userId, bot);
+//            } else if (data.equals("main_menu")) {
+//                handleMainMenu(chatId, messageId, bot);
+//            } else if (data.startsWith("leaderboard_")) {
+//                handleLeaderboard(data, chatId, messageId, bot);
+//            } else if (data.startsWith("help")) {
+//                handleHelp(chatId, bot);
+//            }
             
             bot.execute(org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery.builder()
                     .callbackQueryId(callbackQuery.getId())
                     .build());
+
         } catch (Exception e) {
             sendMessage(chatId, "Ошибка: " + e.getMessage(), bot);
         }

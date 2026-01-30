@@ -2,6 +2,7 @@ package com.padelscore.telegram.handler.command.player.profile;
 
 import com.padelscore.service.PlayerProfileService;
 import com.padelscore.telegram.handler.command.Command;
+import com.padelscore.telegram.util.KeyboardPlayerProfileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 public class CommandDeletePlayerProfile implements Command {
 
     private final PlayerProfileService playerProfileService;
+    private final KeyboardPlayerProfileUtil keyboardPlayerProfileUtil;
 
     @Override
     public boolean coincidence(String command) {
@@ -34,7 +36,8 @@ public class CommandDeletePlayerProfile implements Command {
 
         var messageReply = new SendMessage();
         messageReply.setChatId(message.getChatId().toString());
-        messageReply.setText("Ваш профиль удален.");
+        messageReply.setText("❌ Ваш профиль удален.");
+        messageReply.setReplyMarkup(keyboardPlayerProfileUtil.getProfileMenu(false));
 
         try {
             bot.execute(messageReply);

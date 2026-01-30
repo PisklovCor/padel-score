@@ -20,33 +20,32 @@ public class KeyboardUtil {
         
         List<InlineKeyboardButton> row1 = new ArrayList<>();
         InlineKeyboardButton tournaments = new InlineKeyboardButton();
-        tournaments.setText("🏆 Мои турниры");
-        tournaments.setCallbackData("tournament_list");
+        tournaments.setText("🏆 Турниры");
+        tournaments.setCallbackData("tournaments");
         row1.add(tournaments);
-        
+
         List<InlineKeyboardButton> row2 = new ArrayList<>();
+        InlineKeyboardButton teams = new InlineKeyboardButton();
+        teams.setText("🎭 Мои команды");
+        teams.setCallbackData("my_teams");
+        row2.add(teams);
+
+        List<InlineKeyboardButton> row3 = new ArrayList<>();
+        InlineKeyboardButton profile = new InlineKeyboardButton();
+        profile.setText("👤 Профиль");
+        profile.setCallbackData("profiles");
+        row3.add(profile);
+
+        List<InlineKeyboardButton> row4 = new ArrayList<>();
         InlineKeyboardButton help = new InlineKeyboardButton();
         help.setText("❓ Помощь");
         help.setCallbackData("help");
-        row2.add(help);
+        row4.add(help);
         
         keyboard.add(row1);
         keyboard.add(row2);
-        markup.setKeyboard(keyboard);
-        return markup;
-    }
-
-    public InlineKeyboardMarkup getToMainMenu() {
-        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-
-        List<InlineKeyboardButton> buttons = new ArrayList<>();
-        InlineKeyboardButton button = new InlineKeyboardButton();
-        button.setText("🏆 Главное меню");
-        button.setCallbackData("start");
-        buttons.add(button);
-
-        keyboard.add(buttons);
+        keyboard.add(row3);
+        keyboard.add(row4);
         markup.setKeyboard(keyboard);
         return markup;
     }
