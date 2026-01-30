@@ -18,7 +18,6 @@ public class CreatePlayerRequest {
     @NotBlank(message = "Имя обязательно")
     private String firstName;
     
-    @NotBlank(message = "Фамилия обязательна")
     private String lastName;
     
     private Long telegramId;

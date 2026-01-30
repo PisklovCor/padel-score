@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
-    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
     http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
-    
+
     <changeSet id="001-create-tournaments" author="padelscore">
         <createTable tableName="tournaments">
             <column name="id" type="SERIAL">
@@ -32,7 +32,7 @@
             <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
         </createTable>
     </changeSet>
-    
+
     <changeSet id="002-create-teams" author="padelscore">
         <createTable tableName="teams">
             <column name="id" type="SERIAL">
@@ -55,18 +55,18 @@
             <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
         </createTable>
         <addForeignKeyConstraint
-            baseTableName="teams"
-            baseColumnNames="tournament_id"
-            referencedTableName="tournaments"
-            referencedColumnNames="id"
-            constraintName="fk_teams_tournament"
-            onDelete="CASCADE"/>
+                baseTableName="teams"
+                baseColumnNames="tournament_id"
+                referencedTableName="tournaments"
+                referencedColumnNames="id"
+                constraintName="fk_teams_tournament"
+                onDelete="CASCADE"/>
         <addUniqueConstraint
-            tableName="teams"
-            columnNames="tournament_id, name"
-            constraintName="uk_teams_tournament_name"/>
+                tableName="teams"
+                columnNames="tournament_id, name"
+                constraintName="uk_teams_tournament_name"/>
     </changeSet>
-    
+
     <changeSet id="003-create-player-profiles" author="padelscore">
         <createTable tableName="player_profiles">
             <column name="id" type="SERIAL">
@@ -75,26 +75,29 @@
             <column name="first_name" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="last_name" type="VARCHAR(255)">
+            <column name="last_name" type="VARCHAR(255)"/>
+            <column name="telegram_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column name="telegram_id" type="BIGINT"/>
+            <column name="nickname" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
             <column name="rating" type="INTEGER"/>
             <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
             <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
         </createTable>
-        <sql>
-            CREATE UNIQUE INDEX uk_player_profiles_telegram_id ON player_profiles(telegram_id) WHERE telegram_id IS NOT NULL;
-        </sql>
-        <createIndex
-            indexName="idx_player_profiles_telegram_id"
-            tableName="player_profiles">
-            <column name="telegram_id"/>
-        </createIndex>
+        <addUniqueConstraint
+                tableName="player_profiles"
+                columnNames="telegram_id"
+                constraintName="uk_player_profiles_telegram_id"/>
+        <addUniqueConstraint
+                tableName="player_profiles"
+                columnNames="nickname"
+                constraintName="uk_player_profiles_nickname"/>
     </changeSet>
-    
+
     <changeSet id="004-create-team-players" author="padelscore">
         <createTable tableName="team_players">
             <column name="id" type="SERIAL">
@@ -112,35 +115,35 @@
             </column>
         </createTable>
         <addForeignKeyConstraint
-            baseTableName="team_players"
-            baseColumnNames="team_id"
-            referencedTableName="teams"
-            referencedColumnNames="id"
-            constraintName="fk_team_players_team"
-            onDelete="CASCADE"/>
+                baseTableName="team_players"
+                baseColumnNames="team_id"
+                referencedTableName="teams"
+                referencedColumnNames="id"
+                constraintName="fk_team_players_team"
+                onDelete="CASCADE"/>
         <addForeignKeyConstraint
-            baseTableName="team_players"
-            baseColumnNames="player_profile_id"
-            referencedTableName="player_profiles"
-            referencedColumnNames="id"
-            constraintName="fk_team_players_player_profile"
-            onDelete="CASCADE"/>
+                baseTableName="team_players"
+                baseColumnNames="player_profile_id"
+                referencedTableName="player_profiles"
+                referencedColumnNames="id"
+                constraintName="fk_team_players_player_profile"
+                onDelete="CASCADE"/>
         <addUniqueConstraint
-            tableName="team_players"
-            columnNames="team_id, player_profile_id"
-            constraintName="uk_team_players_team_player"/>
+                tableName="team_players"
+                columnNames="team_id, player_profile_id"
+                constraintName="uk_team_players_team_player"/>
         <createIndex
-            indexName="idx_team_players_team_id"
-            tableName="team_players">
+                indexName="idx_team_players_team_id"
+                tableName="team_players">
             <column name="team_id"/>
         </createIndex>
         <createIndex
-            indexName="idx_team_players_player_profile_id"
-            tableName="team_players">
+                indexName="idx_team_players_player_profile_id"
+                tableName="team_players">
             <column name="player_profile_id"/>
         </createIndex>
     </changeSet>
-    
+
     <changeSet id="005-create-matches" author="padelscore">
         <createTable tableName="matches">
             <column name="id" type="SERIAL">
@@ -168,29 +171,30 @@
             <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
         </createTable>
         <addForeignKeyConstraint
-            baseTableName="matches"
-            baseColumnNames="tournament_id"
-            referencedTableName="tournaments"
-            referencedColumnNames="id"
-            constraintName="fk_matches_tournament"
-            onDelete="CASCADE"/>
+                baseTableName="matches"
+                baseColumnNames="tournament_id"
+                referencedTableName="tournaments"
+                referencedColumnNames="id"
+                constraintName="fk_matches_tournament"
+                onDelete="CASCADE"/>
         <addForeignKeyConstraint
-            baseTableName="matches"
-            baseColumnNames="team1_id"
-            referencedTableName="teams"
-            referencedColumnNames="id"
-            constraintName="fk_matches_team1"/>
+                baseTableName="matches"
+                baseColumnNames="team1_id"
+                referencedTableName="teams"
+                referencedColumnNames="id"
+                constraintName="fk_matches_team1"/>
         <addForeignKeyConstraint
-            baseTableName="matches"
-            baseColumnNames="team2_id"
-            referencedTableName="teams"
-            referencedColumnNames="id"
-            constraintName="fk_matches_team2"/>
+                baseTableName="matches"
+                baseColumnNames="team2_id"
+                referencedTableName="teams"
+                referencedColumnNames="id"
+                constraintName="fk_matches_team2"/>
         <sql>
-            ALTER TABLE matches ADD CONSTRAINT check_teams CHECK (team1_id != team2_id);
+            ALTER TABLE matches
+                ADD CONSTRAINT check_teams CHECK (team1_id != team2_id);
         </sql>
     </changeSet>
-    
+
     <changeSet id="006-create-match-results" author="padelscore">
         <createTable tableName="match_results">
             <column name="id" type="SERIAL">
@@ -222,26 +226,26 @@
             <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
         </createTable>
         <addForeignKeyConstraint
-            baseTableName="match_results"
-            baseColumnNames="match_id"
-            referencedTableName="matches"
-            referencedColumnNames="id"
-            constraintName="fk_match_results_match"
-            onDelete="CASCADE"/>
+                baseTableName="match_results"
+                baseColumnNames="match_id"
+                referencedTableName="matches"
+                referencedColumnNames="id"
+                constraintName="fk_match_results_match"
+                onDelete="CASCADE"/>
         <addForeignKeyConstraint
-            baseTableName="match_results"
-            baseColumnNames="winner_team_id"
-            referencedTableName="teams"
-            referencedColumnNames="id"
-            constraintName="fk_match_results_winner"/>
+                baseTableName="match_results"
+                baseColumnNames="winner_team_id"
+                referencedTableName="teams"
+                referencedColumnNames="id"
+                constraintName="fk_match_results_winner"/>
         <addForeignKeyConstraint
-            baseTableName="match_results"
-            baseColumnNames="loser_team_id"
-            referencedTableName="teams"
-            referencedColumnNames="id"
-            constraintName="fk_match_results_loser"/>
+                baseTableName="match_results"
+                baseColumnNames="loser_team_id"
+                referencedTableName="teams"
+                referencedColumnNames="id"
+                constraintName="fk_match_results_loser"/>
     </changeSet>
-    
+
     <changeSet id="007-create-set-scores" author="padelscore">
         <createTable tableName="set_scores">
             <column name="id" type="SERIAL">
@@ -267,18 +271,18 @@
             <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
         </createTable>
         <addForeignKeyConstraint
-            baseTableName="set_scores"
-            baseColumnNames="match_id"
-            referencedTableName="matches"
-            referencedColumnNames="id"
-            constraintName="fk_set_scores_match"
-            onDelete="CASCADE"/>
+                baseTableName="set_scores"
+                baseColumnNames="match_id"
+                referencedTableName="matches"
+                referencedColumnNames="id"
+                constraintName="fk_set_scores_match"
+                onDelete="CASCADE"/>
         <addUniqueConstraint
-            tableName="set_scores"
-            columnNames="match_id, set_number"
-            constraintName="uk_set_scores_match_set"/>
+                tableName="set_scores"
+                columnNames="match_id, set_number"
+                constraintName="uk_set_scores_match_set"/>
     </changeSet>
-    
+
     <changeSet id="008-create-game-scores" author="padelscore">
         <createTable tableName="game_scores">
             <column name="id" type="SERIAL">
@@ -305,24 +309,24 @@
             <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
         </createTable>
         <addForeignKeyConstraint
-            baseTableName="game_scores"
-            baseColumnNames="set_id"
-            referencedTableName="set_scores"
-            referencedColumnNames="id"
-            constraintName="fk_game_scores_set"
-            onDelete="CASCADE"/>
+                baseTableName="game_scores"
+                baseColumnNames="set_id"
+                referencedTableName="set_scores"
+                referencedColumnNames="id"
+                constraintName="fk_game_scores_set"
+                onDelete="CASCADE"/>
         <addForeignKeyConstraint
-            baseTableName="game_scores"
-            baseColumnNames="server_team_id"
-            referencedTableName="teams"
-            referencedColumnNames="id"
-            constraintName="fk_game_scores_server"/>
+                baseTableName="game_scores"
+                baseColumnNames="server_team_id"
+                referencedTableName="teams"
+                referencedColumnNames="id"
+                constraintName="fk_game_scores_server"/>
         <addUniqueConstraint
-            tableName="game_scores"
-            columnNames="set_id, game_number"
-            constraintName="uk_game_scores_set_game"/>
+                tableName="game_scores"
+                columnNames="set_id, game_number"
+                constraintName="uk_game_scores_set_game"/>
     </changeSet>
-    
+
     <changeSet id="009-create-user-roles" author="padelscore">
         <createTable tableName="user_roles">
             <column name="id" type="SERIAL">
@@ -342,18 +346,18 @@
             </column>
         </createTable>
         <addForeignKeyConstraint
-            baseTableName="user_roles"
-            baseColumnNames="tournament_id"
-            referencedTableName="tournaments"
-            referencedColumnNames="id"
-            constraintName="fk_user_roles_tournament"
-            onDelete="CASCADE"/>
+                baseTableName="user_roles"
+                baseColumnNames="tournament_id"
+                referencedTableName="tournaments"
+                referencedColumnNames="id"
+                constraintName="fk_user_roles_tournament"
+                onDelete="CASCADE"/>
         <addUniqueConstraint
-            tableName="user_roles"
-            columnNames="tournament_id, user_id"
-            constraintName="uk_user_roles_tournament_user"/>
+                tableName="user_roles"
+                columnNames="tournament_id, user_id"
+                constraintName="uk_user_roles_tournament_user"/>
     </changeSet>
-    
+
     <changeSet id="010-create-audit-logs" author="padelscore">
         <createTable tableName="audit_logs">
             <column name="id" type="SERIAL">
@@ -378,27 +382,16 @@
             </column>
         </createTable>
         <createIndex
-            indexName="idx_audit_logs_entity"
-            tableName="audit_logs">
+                indexName="idx_audit_logs_entity"
+                tableName="audit_logs">
             <column name="entity_type"/>
             <column name="entity_id"/>
         </createIndex>
         <createIndex
-            indexName="idx_audit_logs_created_at"
-            tableName="audit_logs">
+                indexName="idx_audit_logs_created_at"
+                tableName="audit_logs">
             <column name="created_at"/>
         </createIndex>
     </changeSet>
-    
-    <changeSet id="011-add-nickname-to-player-profiles" author="padelscore">
-        <addColumn tableName="player_profiles">
-            <column name="nickname" type="VARCHAR(255)"/>
-        </addColumn>
-        <sql>
-            CREATE UNIQUE INDEX uk_player_profiles_nickname_lower 
-            ON player_profiles(LOWER(nickname)) 
-            WHERE nickname IS NOT NULL;
-        </sql>
-    </changeSet>
-    
+
 </databaseChangeLog>

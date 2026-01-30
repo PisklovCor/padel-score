@@ -14,7 +14,6 @@ public class UpdatePlayerRequest {
     @NotBlank(message = "Имя обязательно")
     private String firstName;
     
-    @NotBlank(message = "Фамилия обязательна")
     private String lastName;
     
     private String nickname;

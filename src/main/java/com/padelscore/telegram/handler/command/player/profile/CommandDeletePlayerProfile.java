@@ -34,7 +34,7 @@ public class CommandDeletePlayerProfile implements Command {
 
         var messageReply = new SendMessage();
         messageReply.setChatId(message.getChatId().toString());
-        messageReply.setText("Ваш профиль удален");
+        messageReply.setText("Ваш профиль удален.");
 
         try {
             bot.execute(messageReply);

@@ -53,6 +53,10 @@ public class PlayerProfileService {
             throw new RuntimeException("Player profile with this telegram_id already exists");
         }
         
+        if (telegramId != null && playerProfileRepository.findByFirstNameAndTelegramId(firstName, telegramId).isPresent()) {
+            throw new RuntimeException("Player profile with this first_name and telegram_id already exists");
+        }
+        
         if (nickname != null && !nickname.trim().isEmpty()) {
             playerProfileRepository.findByNicknameIgnoreCase(nickname).ifPresent(existing -> {
                 throw new RuntimeException("Player profile with this nickname already exists");
@@ -61,7 +65,7 @@ public class PlayerProfileService {
         
         PlayerProfile profile = PlayerProfile.builder()
                 .firstName(firstName)
-                .lastName(lastName)
+                .lastName(lastName != null && !lastName.trim().isEmpty() ? lastName : null)
                 .nickname(nickname)
                 .telegramId(telegramId)
                 .rating(rating)
@@ -81,7 +85,7 @@ public class PlayerProfileService {
             profile.setFirstName(firstName);
         }
         if (lastName != null) {
-            profile.setLastName(lastName);
+            profile.setLastName(lastName.trim().isEmpty() ? null : lastName);
         }
         if (nickname != null) {
             // Проверяем уникальность nickname (регистронезависимо)
@@ -104,6 +108,17 @@ public class PlayerProfileService {
                 });
             }
             profile.setTelegramId(telegramId);
+        }
+        
+        // Проверяем уникальность комбинации first_name и telegram_id
+        String finalFirstName = firstName != null ? firstName : profile.getFirstName();
+        Long finalTelegramId = telegramId != null ? telegramId : profile.getTelegramId();
+        if (finalTelegramId != null) {
+            playerProfileRepository.findByFirstNameAndTelegramId(finalFirstName, finalTelegramId).ifPresent(existing -> {
+                if (!existing.getId().equals(id)) {
+                    throw new RuntimeException("Player profile with this first_name and telegram_id already exists");
+                }
+            });
         }
         if (rating != null) {
             profile.setRating(rating);

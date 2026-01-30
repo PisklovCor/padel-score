@@ -11,6 +11,7 @@ import java.util.Optional;
 public interface PlayerProfileRepository extends JpaRepository<PlayerProfile, Integer> {
     Optional<PlayerProfile> findByTelegramId(Long telegramId);
     Optional<PlayerProfile> findByNicknameIgnoreCase(String nickname);
+    Optional<PlayerProfile> findByFirstNameAndTelegramId(String firstName, Long telegramId);
     List<PlayerProfile> findByFirstNameAndLastName(String firstName, String lastName);
     List<PlayerProfile> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(String firstName, String lastName);
 }
