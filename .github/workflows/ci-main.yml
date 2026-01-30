@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [ main ]
   workflow_run:
-    workflows: ["CI Pipeline (develop)"]
+    workflows: [ "CI Pipeline (develop)" ]
     types:
       - completed
 
@@ -15,6 +15,8 @@ jobs:
     name: Сборка проекта
     runs-on: ubuntu-latest
     if: github.event_name == 'push' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+    outputs:
+      is_release: ${{ steps.check-release.outputs.is_release }}
 
     steps:
       - name: Checkout код
@@ -69,3 +71,95 @@ jobs:
           name: jar-artifact
           path: target/padelscore-*.jar
           retention-days: 30
+  docker-build:
+    name: Сборка Docker образа
+    runs-on: ubuntu-latest
+    needs: build
+    if: needs.build.outputs.is_release == 'true'
+
+    steps:
+      - name: Checkout код
+        uses: actions/checkout@v4
+
+      - name: Настройка Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Сборка Docker образа
+        run: |
+          docker build -f Dockerfile -t padelscore:latest .
+          docker tag padelscore:latest padelscore:${{ github.sha }}
+
+      - name: Сохранение Docker образа
+        run: |
+          docker save padelscore:latest | gzip > padelscore.tar.gz
+
+      - name: Загрузка Docker образа
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image
+          path: padelscore.tar.gz
+          retention-days: 30
+
+  docker-push:
+    name: Push в Docker Hub
+    runs-on: ubuntu-latest
+    needs: docker-build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout код
+        uses: actions/checkout@v4
+
+      - name: Проверка секретов
+        run: |
+          if [ -z "${{ secrets.DOCKER_USERNAME }}" ]; then
+            echo "❌ DOCKER_USERNAME не установлен"
+            exit 1
+          fi
+          if [ -z "${{ secrets.DOCKER_PASSWORD }}" ]; then
+            echo "❌ DOCKER_PASSWORD не установлен"
+            exit 1
+          fi
+          echo "✅ Секреты Docker настроены"
+
+      - name: Скачивание Docker образа
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-image
+          path: .
+
+      - name: Загрузка Docker образа
+        run: |
+          gunzip -c padelscore.tar.gz | docker load
+
+      - name: Авторизация в Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Проверка авторизации
+        run: |
+          echo "Проверяем авторизацию в Docker Hub..."
+          docker info | grep Username || echo "Не удалось определить пользователя"
+
+      - name: Push образа в Docker Hub
+        run: |
+          DOCKER_USER="${{ secrets.DOCKER_USERNAME }}"
+          echo "Docker username: $DOCKER_USER"
+
+          docker images | grep padelscore || (echo "❌ Образ padelscore не найден" && exit 1)
+
+          docker tag padelscore:latest "${DOCKER_USER}/padelscore:latest"
+          docker tag padelscore:latest "${DOCKER_USER}/padelscore:${{ github.sha }}"
+
+          docker images | grep "${DOCKER_USER}/padelscore"
+
+          echo "Pushing latest tag..."
+          docker push "${DOCKER_USER}/padelscore:latest"
+
+          echo "Pushing SHA tag..."
+          docker push "${DOCKER_USER}/padelscore:${{ github.sha }}"
+
+          echo "✅ Образы успешно загружены в Docker Hub"
+          echo "📦 Репозиторий доступен по адресу: https://hub.docker.com/r/${DOCKER_USER}/padelscore"
