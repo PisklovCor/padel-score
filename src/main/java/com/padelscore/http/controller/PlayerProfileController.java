@@ -1,5 +1,6 @@
 package com.padelscore.http.controller;
 
+import com.padelscore.dto.CreatePlayerProfileRequest;
 import com.padelscore.dto.PlayerProfileDto;
 import com.padelscore.dto.TeamPlayerDto;
 import com.padelscore.dto.UpdatePlayerRequest;
@@ -138,17 +139,5 @@ public class PlayerProfileController {
             @Parameter(description = "ID профиля игрока", required = true) @PathVariable Integer id) {
         List<TeamPlayerDto> teams = playerProfileService.getPlayerTeams(id);
         return ResponseEntity.ok(teams);
-    }
-    
-    // Внутренний класс для запроса создания профиля
-    @lombok.Data
-    @lombok.NoArgsConstructor
-    @lombok.AllArgsConstructor
-    public static class CreatePlayerProfileRequest {
-        private String firstName;
-        private String lastName;
-        private String nickname;
-        private Long telegramId;
-        private Integer rating;
     }
 }
