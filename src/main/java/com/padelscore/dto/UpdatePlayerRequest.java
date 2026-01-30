@@ -11,16 +11,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdatePlayerRequest {
-    @NotBlank(message = "Имя обязательно")
-    private String firstName;
-    
-    private String lastName;
-    
-    private String nickname;
-    
-    private Long telegramId;
-    
-    private Integer rating;
-    
-    private String position;
+
+  @NotBlank(message = "Имя обязательно")
+  private String firstName;
+
+  private String lastName;
+
+  private String nickname;
+
+  private Long telegramId;
+
+  private Integer rating;
+
+  private String position;
 }

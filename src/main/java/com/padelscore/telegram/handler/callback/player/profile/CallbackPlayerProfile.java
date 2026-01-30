@@ -50,7 +50,8 @@ public class CallbackPlayerProfile implements Callback {
             text = """
                     ⚠️ У вас пока нет профиля:
                     
-                    Для быстрого создания выполните команду:
+                    Для быстрого создания используйте кнопку
+                    или выполните команду:
                     /create_profiles - Создать профиль""";
         }
 

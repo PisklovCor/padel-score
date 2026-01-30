@@ -13,20 +13,21 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateMatchRequest {
-    @NotNull(message = "ID турнира обязателен")
-    private Integer tournamentId;
-    
-    @NotNull(message = "ID первой команды обязательно")
-    private Integer team1Id;
-    
-    @NotNull(message = "ID второй команды обязательно")
-    private Integer team2Id;
-    
-    private LocalDateTime scheduledDate;
-    
-    private String format; // 'best_of_3_sets', 'best_of_5_sets'
-    
-    private String location;
-    
-    private Boolean completed;
+
+  @NotNull(message = "ID турнира обязателен")
+  private Integer tournamentId;
+
+  @NotNull(message = "ID первой команды обязательно")
+  private Integer team1Id;
+
+  @NotNull(message = "ID второй команды обязательно")
+  private Integer team2Id;
+
+  private LocalDateTime scheduledDate;
+
+  private String format; // 'best_of_3_sets', 'best_of_5_sets'
+
+  private String location;
+
+  private Boolean completed;
 }

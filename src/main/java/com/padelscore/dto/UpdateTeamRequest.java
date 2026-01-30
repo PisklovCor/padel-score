@@ -11,12 +11,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateTeamRequest {
-    @NotBlank(message = "Название команды обязательно")
-    private String name;
-    
-    private Long captainId;
-    
-    private String description;
-    
-    private String color;
+
+  @NotBlank(message = "Название команды обязательно")
+  private String name;
+
+  private Long captainId;
+
+  private String description;
+
+  private String color;
 }

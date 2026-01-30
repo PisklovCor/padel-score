@@ -14,25 +14,26 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateTournamentRequest {
-    @NotBlank(message = "Название турнира обязательно")
-    private String title;
-    
-    private String description;
-    
-    @NotNull(message = "ID создателя обязателен")
-    private Long createdBy;
-    
-    private LocalDateTime startDate;
-    
-    private LocalDateTime endDate;
-    
-    private String format; // 'group', 'knockout', 'mixed'
-    
-    private String scoringSystem; // 'points', 'win_loss'
-    
-    private String prize;
-    
-    private String status;
-    
-    private Boolean completed;
+
+  @NotBlank(message = "Название турнира обязательно")
+  private String title;
+
+  private String description;
+
+  @NotNull(message = "ID создателя обязателен")
+  private Long createdBy;
+
+  private LocalDateTime startDate;
+
+  private LocalDateTime endDate;
+
+  private String format; // 'group', 'knockout', 'mixed'
+
+  private String scoringSystem; // 'points', 'win_loss'
+
+  private String prize;
+
+  private String status;
+
+  private Boolean completed;
 }

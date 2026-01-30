@@ -9,8 +9,12 @@ import java.util.Optional;
 
 @Repository
 public interface TeamPlayerRepository extends JpaRepository<TeamPlayer, Integer> {
-    List<TeamPlayer> findByTeamId(Integer teamId);
-    List<TeamPlayer> findByPlayerProfileId(Integer playerProfileId);
-    Optional<TeamPlayer> findByTeamIdAndPlayerProfileId(Integer teamId, Integer playerProfileId);
-    boolean existsByTeamIdAndPlayerProfileId(Integer teamId, Integer playerProfileId);
+
+  List<TeamPlayer> findByTeamId(Integer teamId);
+
+  List<TeamPlayer> findByPlayerProfileId(Integer playerProfileId);
+
+  Optional<TeamPlayer> findByTeamIdAndPlayerProfileId(Integer teamId, Integer playerProfileId);
+
+  boolean existsByTeamIdAndPlayerProfileId(Integer teamId, Integer playerProfileId);
 }

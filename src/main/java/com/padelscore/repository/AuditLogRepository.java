@@ -8,5 +8,6 @@ import java.util.List;
 
 @Repository
 public interface AuditLogRepository extends JpaRepository<AuditLog, Integer> {
-    List<AuditLog> findByEntityTypeAndEntityId(String entityType, Integer entityId);
+
+  List<AuditLog> findByEntityTypeAndEntityId(String entityType, Integer entityId);
 }

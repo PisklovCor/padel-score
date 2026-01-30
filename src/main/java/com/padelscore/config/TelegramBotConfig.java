@@ -14,12 +14,12 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 @RequiredArgsConstructor
 public class TelegramBotConfig {
 
-    private final PadelScoreBot padelScoreBot;
+  private final PadelScoreBot padelScoreBot;
 
-    @Bean
-    public TelegramBotsApi telegramBotsApi() throws TelegramApiException {
-        TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
-        botsApi.registerBot(padelScoreBot);
-        return botsApi;
-    }
+  @Bean
+  public TelegramBotsApi telegramBotsApi() throws TelegramApiException {
+    TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
+    botsApi.registerBot(padelScoreBot);
+    return botsApi;
+  }
 }

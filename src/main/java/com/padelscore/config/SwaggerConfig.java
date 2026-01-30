@@ -12,23 +12,23 @@ import java.util.List;
 
 @Configuration
 public class SwaggerConfig {
-    
-    @Bean
-    public OpenAPI customOpenAPI() {
-        return new OpenAPI()
-                .info(new Info()
-                        .title("PadelScore API")
-                        .version("1.6.0")
-                        .description("API для управления турнирами по паделу через Telegram бота")
-                        .contact(new Contact()
-                                .name("PadelScore Team")
-                                .email("support@padelscore.com"))
-                        .license(new License()
-                                .name("Apache 2.0")
-                                .url("https://www.apache.org/licenses/LICENSE-2.0.html")))
-                .servers(List.of(
-                        new Server().url("http://localhost:8080").description("Локальный сервер"),
-                        new Server().url("https://api.padelscore.com").description("Продакшн сервер")
-                ));
-    }
+
+  @Bean
+  public OpenAPI customOpenAPI() {
+    return new OpenAPI()
+        .info(new Info()
+            .title("PadelScore API")
+            .version("1.6.0")
+            .description("API для управления турнирами по паделу через Telegram бота")
+            .contact(new Contact()
+                .name("PadelScore Team")
+                .email("support@padelscore.com"))
+            .license(new License()
+                .name("Apache 2.0")
+                .url("https://www.apache.org/licenses/LICENSE-2.0.html")))
+        .servers(List.of(
+            new Server().url("http://localhost:8080").description("Локальный сервер"),
+            new Server().url("https://api.padelscore.com").description("Продакшн сервер")
+        ));
+  }
 }

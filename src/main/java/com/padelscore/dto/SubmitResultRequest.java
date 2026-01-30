@@ -12,11 +12,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SubmitResultRequest {
-    @NotBlank(message = "Финальный счет обязателен (формат: 2-0 или 2-1)")
-    private String finalScore;
-    
-    @NotNull(message = "ID пользователя, отправившего результат, обязателен")
-    private Long submittedBy;
-    
-    private String notes;
+
+  @NotBlank(message = "Финальный счет обязателен (формат: 2-0 или 2-1)")
+  private String finalScore;
+
+  @NotNull(message = "ID пользователя, отправившего результат, обязателен")
+  private Long submittedBy;
+
+  private String notes;
 }

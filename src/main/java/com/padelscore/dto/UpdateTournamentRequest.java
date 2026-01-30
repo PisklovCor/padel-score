@@ -13,22 +13,23 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateTournamentRequest {
-    @NotBlank(message = "Название турнира обязательно")
-    private String title;
-    
-    private String description;
-    
-    private LocalDateTime startDate;
-    
-    private LocalDateTime endDate;
-    
-    private String format;
-    
-    private String scoringSystem;
-    
-    private String prize;
-    
-    private String status;
-    
-    private Boolean completed;
+
+  @NotBlank(message = "Название турнира обязательно")
+  private String title;
+
+  private String description;
+
+  private LocalDateTime startDate;
+
+  private LocalDateTime endDate;
+
+  private String format;
+
+  private String scoringSystem;
+
+  private String prize;
+
+  private String status;
+
+  private Boolean completed;
 }

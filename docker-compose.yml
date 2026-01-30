@@ -11,16 +11,16 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U padel_user"]
+      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER}" ]
       interval: 10s
       timeout: 5s
       retries: 5
 
   app:
-    build: .
-    container_name: padelscore-app
+    image: pisklovcor/padelscore:latest
+    container_name: padelscore-service
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/padelscore
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       BOT_TOKEN: ${BOT_TOKEN}

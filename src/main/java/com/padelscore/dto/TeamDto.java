@@ -10,10 +10,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TeamDto {
-    private Integer id;
-    private Integer tournamentId;
-    private String name;
-    private Long captainId;
-    private String description;
-    private String color;
+
+  private Integer id;
+
+  private Integer tournamentId;
+
+  private String name;
+
+  private Long captainId;
+
+  private String description;
+
+  private String color;
 }

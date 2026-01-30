@@ -13,10 +13,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PlayerProfileDto {
-    private Integer id; // ID профиля игрока
-    private String firstName;
-    private String lastName;
-    private String nickname;
-    private Long telegramId;
-    private Integer rating;
+
+  private Integer id; // ID профиля игрока
+
+  private String firstName;
+
+  private String lastName;
+
+  private String nickname;
+
+  private Long telegramId;
+
+  private Integer rating;
 }

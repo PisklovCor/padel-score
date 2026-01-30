@@ -20,55 +20,56 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class PadelScoreBot extends TelegramLongPollingBot {
-    
-    @Value("${telegram.bot.token}")
-    private String botToken;
-    
-    @Value("${telegram.bot.username}")
-    private String botUsername;
-    
-    private final CommandHandler commandHandler;
-    private final CallbackHandler callbackHandler;
-    
-    @Override
-    public String getBotUsername() {
-        return botUsername;
+
+  @Value("${telegram.bot.token}")
+  private String botToken;
+
+  @Value("${telegram.bot.username}")
+  private String botUsername;
+
+  private final CommandHandler commandHandler;
+
+  private final CallbackHandler callbackHandler;
+
+  @Override
+  public String getBotUsername() {
+    return botUsername;
+  }
+
+  @Override
+  public String getBotToken() {
+    return botToken;
+  }
+
+  @Override
+  public void onUpdateReceived(Update update) {
+    if (update.hasMessage() && update.getMessage().hasText()) {
+      commandHandler.handle(update.getMessage(), this);
+    } else if (update.hasCallbackQuery()) {
+      callbackHandler.handle(update.getCallbackQuery(), this);
     }
-    
-    @Override
-    public String getBotToken() {
-        return botToken;
+  }
+
+  @PostConstruct
+  public void initBotCommands() {
+    List<BotCommand> commands = List.of(
+        new BotCommand("/start", "Главное меню"),
+        new BotCommand("/tournaments", "Турниры"),
+        new BotCommand("/my_teams", "Мои команды"),
+        new BotCommand("/profiles", "Профиль"),
+        new BotCommand("/help", "Справка")
+    );
+
+    SetMyCommands setMyCommands = new SetMyCommands();
+    setMyCommands.setCommands(commands);
+    setMyCommands.setScope(new BotCommandScopeDefault());
+    setMyCommands.setLanguageCode("ru");
+
+    try {
+      execute(setMyCommands);
+      log.info("Команды бота успешно установлены в меню");
+    } catch (TelegramApiException e) {
+      log.error("Ошибка при установке команд бота: {}", e.getMessage(), e);
     }
-    
-    @Override
-    public void onUpdateReceived(Update update) {
-        if (update.hasMessage() && update.getMessage().hasText()) {
-            commandHandler.handle(update.getMessage(), this);
-        } else if (update.hasCallbackQuery()) {
-            callbackHandler.handle(update.getCallbackQuery(), this);
-        }
-    }
-    
-    @PostConstruct
-    public void initBotCommands() {
-        List<BotCommand> commands = List.of(
-            new BotCommand("/start", "Главное меню"),
-            new BotCommand("/tournaments", "Турниры"),
-            new BotCommand("/my_teams", "Мои команды"),
-            new BotCommand("/profiles", "Профиль"),
-            new BotCommand("/help", "Справка")
-        );
-        
-        SetMyCommands setMyCommands = new SetMyCommands();
-        setMyCommands.setCommands(commands);
-        setMyCommands.setScope(new BotCommandScopeDefault());
-        setMyCommands.setLanguageCode("ru");
-        
-        try {
-            execute(setMyCommands);
-            log.info("Команды бота успешно установлены в меню");
-        } catch (TelegramApiException e) {
-            log.error("Ошибка при установке команд бота: {}", e.getMessage(), e);
-        }
-    }
+  }
 }

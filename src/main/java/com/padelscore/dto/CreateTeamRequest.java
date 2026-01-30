@@ -12,16 +12,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateTeamRequest {
-    @NotNull(message = "ID турнира обязателен")
-    private Integer tournamentId;
-    
-    @NotBlank(message = "Название команды обязательно")
-    private String name;
-    
-    @NotNull(message = "ID капитана обязателен")
-    private Long captainId;
-    
-    private String description;
-    
-    private String color; // HEX color
+
+  @NotNull(message = "ID турнира обязателен")
+  private Integer tournamentId;
+
+  @NotBlank(message = "Название команды обязательно")
+  private String name;
+
+  @NotNull(message = "ID капитана обязателен")
+  private Long captainId;
+
+  private String description;
+
+  private String color; // HEX color
 }

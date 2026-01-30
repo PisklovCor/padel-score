@@ -9,6 +9,8 @@ import java.util.Optional;
 
 @Repository
 public interface MatchResultRepository extends JpaRepository<MatchResult, Integer> {
-    Optional<MatchResult> findByMatchId(Integer matchId);
-    List<MatchResult> findByWinnerTeamIdOrLoserTeamId(Integer winnerTeamId, Integer loserTeamId);
+
+  Optional<MatchResult> findByMatchId(Integer matchId);
+
+  List<MatchResult> findByWinnerTeamIdOrLoserTeamId(Integer winnerTeamId, Integer loserTeamId);
 }

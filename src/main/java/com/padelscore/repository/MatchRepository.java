@@ -8,7 +8,10 @@ import java.util.List;
 
 @Repository
 public interface MatchRepository extends JpaRepository<Match, Integer> {
-    List<Match> findByTournamentId(Integer tournamentId);
-    List<Match> findByStatus(String status);
-    List<Match> findByTournamentIdAndStatus(Integer tournamentId, String status);
+
+  List<Match> findByTournamentId(Integer tournamentId);
+
+  List<Match> findByStatus(String status);
+
+  List<Match> findByTournamentIdAndStatus(Integer tournamentId, String status);
 }

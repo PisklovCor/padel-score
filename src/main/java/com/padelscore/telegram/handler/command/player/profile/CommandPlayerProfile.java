@@ -3,7 +3,6 @@ package com.padelscore.telegram.handler.command.player.profile;
 import com.padelscore.service.PlayerProfileService;
 import com.padelscore.telegram.handler.command.Command;
 import com.padelscore.telegram.util.KeyboardPlayerProfileUtil;
-import com.padelscore.telegram.util.KeyboardUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -50,7 +49,8 @@ public class CommandPlayerProfile implements Command {
             text = """
                     ⚠️ У вас пока нет профиля:
                     
-                    Для быстрого создания выполните команду:
+                    Для быстрого создания используйте кнопку
+                    или выполните команду:
                     /create_profiles - Создать профиль""";
         }
 

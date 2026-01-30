@@ -8,5 +8,6 @@ import java.util.List;
 
 @Repository
 public interface SetScoreRepository extends JpaRepository<SetScore, Integer> {
-    List<SetScore> findByMatchId(Integer matchId);
+
+  List<SetScore> findByMatchId(Integer matchId);
 }

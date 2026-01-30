@@ -17,54 +17,54 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @RequiredArgsConstructor
 public class CallbackCreatePlayerProfile implements Callback {
 
-    private final PlayerProfileService playerProfileService;
-    private final KeyboardPlayerProfileUtil keyboardPlayerProfileUtil;
+  private final PlayerProfileService playerProfileService;
 
-    @Override
-    public boolean coincidence(String command) {
+  private final KeyboardPlayerProfileUtil keyboardPlayerProfileUtil;
 
-        return "create_profiles".equals(command);
+  @Override
+  public boolean coincidence(String command) {
+
+    return "create_profiles".equals(command);
+  }
+
+  @Override
+  public void handle(CallbackQuery callbackQuery, TelegramLongPollingBot bot) {
+
+    final var chatId = callbackQuery.getMessage().getChatId().toString();
+    final User user = callbackQuery.getFrom();
+    final String nickname = user.getUserName();
+
+    if (nickname == null || nickname.isBlank()) {
+      throw new IllegalArgumentException(
+          "У вас не заполнен ник в телеграмме. Воспользуйтесь командой: /create_profiles Сахарок");
     }
 
-    @Override
-    public void handle(CallbackQuery callbackQuery, TelegramLongPollingBot bot) {
+    log.info("UserId=[{}], nickname=[{}]", user.getId(), nickname);
 
-        final var chatId = callbackQuery.getMessage().getChatId().toString();
-        final User user = callbackQuery.getFrom();
-        final String nickname = user.getUserName();
+    final var playerProfileDto = playerProfileService.createPlayerProfile(user.getFirstName(),
+        user.getLastName(), nickname, user.getId(), 0);
 
-        if (nickname == null || nickname.isBlank()) {
-            throw new IllegalArgumentException(
-                    "У вас не заполнен ник в телеграмме. Воспользуйтесь командой: /create_profiles Сахарок");
-        }
+    final var text = """
+        ✅ Профиль создан:
+        
+        Ник - %s
+        Имя - %s
+        Рейтинг - %d""".formatted(
+        playerProfileDto.getNickname(),
+        playerProfileDto.getFirstName(),
+        playerProfileDto.getRating());
 
-        log.info("UserId=[{}], nickname=[{}]",user.getId(), nickname);
+    final var message = new EditMessageText();
+    message.setChatId(chatId);
+    message.setMessageId(callbackQuery.getMessage().getMessageId());
+    message.setText(text);
+    message.setReplyMarkup(keyboardPlayerProfileUtil.getProfileMenu(true));
 
-        final var playerProfileDto = playerProfileService.createPlayerProfile(user.getFirstName(),
-                user.getLastName(), nickname, user.getId(), 0);
-
-        final var text = """
-                ✅ Профиль создан:
-                
-                Ник - %s
-                Имя - %s
-                Рейтинг - %d""".formatted(
-                playerProfileDto.getNickname(),
-                playerProfileDto.getFirstName(),
-                playerProfileDto.getRating());
-
-        final var message = new EditMessageText();
-        message.setChatId(chatId);
-        message.setMessageId(callbackQuery.getMessage().getMessageId());
-        message.setText(text);
-        message.setReplyMarkup(keyboardPlayerProfileUtil.getProfileMenu(true));
-
-
-        try {
-            bot.execute(message);
-        } catch (TelegramApiException e) {
-            log.error(e.getMessage());
-            e.printStackTrace();
-        }
+    try {
+      bot.execute(message);
+    } catch (TelegramApiException e) {
+      log.error(e.getMessage());
+      e.printStackTrace();
     }
+  }
 }

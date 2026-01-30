@@ -12,15 +12,26 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TournamentDto {
-    private Integer id;
-    private String title;
-    private String description;
-    private Long createdBy;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
-    private String format;
-    private String scoringSystem;
-    private String prize;
-    private String status;
-    private Boolean completed;
+
+  private Integer id;
+
+  private String title;
+
+  private String description;
+
+  private Long createdBy;
+
+  private LocalDateTime startDate;
+
+  private LocalDateTime endDate;
+
+  private String format;
+
+  private String scoringSystem;
+
+  private String prize;
+
+  private String status;
+
+  private Boolean completed;
 }
