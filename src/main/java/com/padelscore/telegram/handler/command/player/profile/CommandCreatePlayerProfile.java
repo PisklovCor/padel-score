@@ -18,6 +18,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 public class CommandCreatePlayerProfile implements Command {
 
     private final PlayerProfileService playerProfileService;
+
     private final KeyboardPlayerProfileUtil keyboardPlayerProfileUtil;
 
     @Override

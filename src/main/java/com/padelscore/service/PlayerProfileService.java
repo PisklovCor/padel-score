@@ -18,7 +18,9 @@ import java.util.stream.Collectors;
 public class PlayerProfileService {
     
     private final PlayerProfileRepository playerProfileRepository;
+
     private final TeamPlayerRepository teamPlayerRepository;
+
     private final EntityMapper mapper;
 
     public boolean existsByTelegramId(Long telegramId) {

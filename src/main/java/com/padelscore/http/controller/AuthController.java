@@ -11,8 +11,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @RestController
@@ -20,20 +22,21 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Tag(name = "Аутентификация", description = "API для аутентификации через Telegram")
 public class AuthController {
-    
-    private final TelegramAuthService telegramAuthService;
-    
-    @PostMapping("/telegram")
-    @Operation(summary = "Верификация Telegram пользователя", 
-               description = "Проверяет данные авторизации Telegram и возвращает информацию о пользователе")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Успешная верификация",
-                    content = @Content(schema = @Schema(implementation = Map.class))),
-        @ApiResponse(responseCode = "400", description = "Неверные данные запроса"),
-        @ApiResponse(responseCode = "401", description = "Неверная подпись данных")
-    })
-    public ResponseEntity<Map<String, Object>> verifyTelegram(@Valid @RequestBody TelegramAuthRequest request) {
-        Map<String, Object> result = telegramAuthService.verifyAndGetUser(request.getInitData());
-        return ResponseEntity.ok(result);
-    }
+
+  private final TelegramAuthService telegramAuthService;
+
+  @PostMapping("/telegram")
+  @Operation(summary = "Верификация Telegram пользователя",
+      description = "Проверяет данные авторизации Telegram и возвращает информацию о пользователе")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Успешная верификация",
+          content = @Content(schema = @Schema(implementation = Map.class))),
+      @ApiResponse(responseCode = "400", description = "Неверные данные запроса"),
+      @ApiResponse(responseCode = "401", description = "Неверная подпись данных")
+  })
+  public ResponseEntity<Map<String, Object>> verifyTelegram(
+      @Valid @RequestBody TelegramAuthRequest request) {
+    Map<String, Object> result = telegramAuthService.verifyAndGetUser(request.getInitData());
+    return ResponseEntity.ok(result);
+  }
 }

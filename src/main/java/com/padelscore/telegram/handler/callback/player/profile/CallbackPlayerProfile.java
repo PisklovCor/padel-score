@@ -17,6 +17,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 public class CallbackPlayerProfile implements Callback {
 
     private final PlayerProfileService playerProfileService;
+
     private final KeyboardPlayerProfileUtil keyboardPlayerProfileUtil;
 
     @Override
