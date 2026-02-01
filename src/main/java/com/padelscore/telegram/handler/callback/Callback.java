@@ -5,7 +5,7 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 
 public interface Callback {
 
-    void handle(CallbackQuery callbackQuery, TelegramLongPollingBot bot);
+  void handle(CallbackQuery callbackQuery, TelegramLongPollingBot bot);
 
-    boolean coincidence(String command);
+  boolean coincidence(String command);
 }

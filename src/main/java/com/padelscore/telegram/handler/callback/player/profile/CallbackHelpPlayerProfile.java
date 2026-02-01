@@ -15,37 +15,37 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @RequiredArgsConstructor
 public class CallbackHelpPlayerProfile implements Callback {
 
-    @Override
-    public boolean coincidence(String command) {
+  @Override
+  public boolean coincidence(String command) {
 
-        return false;
+    return false;
+  }
+
+  @Override
+  public void handle(CallbackQuery callbackQuery, TelegramLongPollingBot bot) {
+
+    final var chatId = callbackQuery.getMessage().getChatId();
+
+    final var text = """
+        📖 Справка по командам профиля:
+        
+        /profiles - Посмотреть профиль
+        /create_profiles - Создать профиль
+        /update_profiles - Обновить профиль
+        /delete_profiles - Удалить профиль
+        /help - Справка
+        
+        Используйте inline-кнопки для быстрого доступа к функциям.""";
+
+    var messageReply = new SendMessage();
+    messageReply.setChatId(chatId);
+    messageReply.setText(text);
+
+    try {
+      bot.execute(messageReply);
+    } catch (TelegramApiException e) {
+      log.error(e.getMessage());
+      e.printStackTrace();
     }
-
-    @Override
-    public void handle(CallbackQuery callbackQuery, TelegramLongPollingBot bot) {
-
-        final var chatId = callbackQuery.getMessage().getChatId();
-
-        final var text = """
-                📖 Справка по командам профиля:
-                
-                /profiles - Посмотреть профиль
-                /create_profiles - Создать профиль
-                /update_profiles - Обновить профиль
-                /delete_profiles - Удалить профиль
-                /help - Справка
-                
-                Используйте inline-кнопки для быстрого доступа к функциям.""";
-
-        var messageReply  = new SendMessage();
-        messageReply.setChatId(chatId);
-        messageReply.setText(text);
-
-        try {
-            bot.execute(messageReply);
-        } catch (TelegramApiException e) {
-            log.error(e.getMessage());
-            e.printStackTrace();
-        }
-    }
+  }
 }

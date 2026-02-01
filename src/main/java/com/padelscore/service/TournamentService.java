@@ -1,5 +1,6 @@
 package com.padelscore.service;
 
+import com.padelscore.dto.TeamDto;
 import com.padelscore.dto.TournamentDto;
 import com.padelscore.entity.Tournament;
 import com.padelscore.entity.UserRole;
@@ -11,15 +12,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class TournamentService {
-    
+
     private final TournamentRepository tournamentRepository;
     private final UserRoleRepository userRoleRepository;
+    private final TeamService teamService;
     private final EntityMapper mapper;
     
     @Transactional
@@ -60,7 +64,22 @@ public class TournamentService {
                 .map(mapper::toDto)
                 .collect(Collectors.toList());
     }
-    
+
+    /**
+     * Турниры, в которых участвуют команды пользователя (как капитан или как игрок).
+     */
+    @Transactional(readOnly = true)
+    public List<TournamentDto> getTournamentsByUserTeams(Long userId) {
+        List<TeamDto> userTeams = teamService.getTeamsByUser(userId);
+        Set<Integer> tournamentIds = new LinkedHashSet<>();
+        for (TeamDto team : userTeams) {
+            tournamentIds.add(team.getTournamentId());
+        }
+        return tournamentIds.stream()
+                .map(this::getTournament)
+                .collect(Collectors.toList());
+    }
+
     public boolean hasAccess(Long userId, Integer tournamentId, String requiredRole) {
         return userRoleRepository.findByTournamentIdAndUserId(tournamentId, userId)
                 .map(role -> {

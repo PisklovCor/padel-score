@@ -31,10 +31,7 @@ public class CommandStart implements Command {
                 • Создавать турниры и команды
                 • Вводить результаты матчей
                 • Просматривать таблицу и статистику
-                Используйте команды или меню ниже для навигации.
-                
-                Для создания турнира используйте:
-                /create_tournament Название""";
+                Используйте команды или меню ниже для навигации.""";
 
         var messageReply = new SendMessage();
         messageReply.setChatId(message.getChatId().toString());

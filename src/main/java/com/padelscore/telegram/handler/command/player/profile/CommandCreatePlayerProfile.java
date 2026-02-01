@@ -17,69 +17,70 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @RequiredArgsConstructor
 public class CommandCreatePlayerProfile implements Command {
 
-    private final PlayerProfileService playerProfileService;
+  private final PlayerProfileService playerProfileService;
 
-    private final KeyboardPlayerProfileUtil keyboardPlayerProfileUtil;
+  private final KeyboardPlayerProfileUtil keyboardPlayerProfileUtil;
 
-    @Override
-    public boolean coincidence(String command) {
+  @Override
+  public boolean coincidence(String command) {
 
-        final String[] parts = command.trim().split("\\s+", 2);
-        return "/create_profiles".equals(parts[0]);
+    final String[] parts = command.trim().split("\\s+", 2);
+    return "/create_profiles".equals(parts[0]);
+  }
+
+  @Override
+  public void handle(Message message, TelegramLongPollingBot bot) {
+
+    final User user = message.getFrom();
+    final String messageText = message.getText();
+    final String input = messageText.trim();
+    String nickname = user.getUserName();
+
+    if (nickname == null || nickname.isBlank()) {
+      String[] parts = input.trim().split("\\s+", 2);
+
+      if (parts.length < 2) {
+        throw new IllegalArgumentException(
+            "После команды должен быть ник т.к. у вас он не заполнен в телеграмме." +
+                " Пример: /create_profiles Сахарок");
+      }
+
+      final String rest = parts[1];
+
+      String[] args = rest.trim().split("\\s+");
+      if (args.length != 1) {
+        throw new IllegalArgumentException("После команды должен быть ник в одно слово");
+      }
+
+      nickname = args[0];
+
     }
 
-    @Override
-    public void handle(Message message, TelegramLongPollingBot bot) {
+    log.info("UserId=[{}], nickname=[{}]", user.getId(), nickname);
 
-        final User user = message.getFrom();
-        final String messageText = message.getText();
-        final String input = messageText.trim();
-        String nickname = user.getUserName();
+    final var playerProfileDto = playerProfileService.createPlayerProfile(user.getFirstName(),
+        user.getLastName(), nickname, user.getId(), 0);
 
-        if (nickname == null || nickname.isBlank()) {
-            String[] parts = input.trim().split("\\s+", 2);
+    final var text = """
+        ✅ Профиль создан:
+        
+        Ник - %s
+        Имя - %s
+        Рейтинг - %d""".formatted(
+        playerProfileDto.getNickname(),
+        playerProfileDto.getFirstName(),
+        playerProfileDto.getRating());
 
-            if (parts.length < 2) {
-                throw new IllegalArgumentException("После команды должен быть ник т.к. у вас он не заполнен в телеграмме." +
-                        " Пример: /create_profiles Сахарок");
-            }
+    var messageReply = new SendMessage();
+    messageReply.setChatId(message.getChatId().toString());
+    messageReply.setText(text);
+    messageReply.setReplyMarkup(keyboardPlayerProfileUtil.getProfileMenu(true));
 
-            final String rest = parts[1];
-
-            String[] args = rest.trim().split("\\s+");
-            if (args.length != 1) {
-                throw new IllegalArgumentException("После команды должен быть ник в одно слово");
-            }
-
-            nickname = args[0];
-
-        }
-
-        log.info("UserId=[{}], nickname=[{}]",user.getId(), nickname);
-
-        final var playerProfileDto = playerProfileService.createPlayerProfile(user.getFirstName(),
-                user.getLastName(), nickname, user.getId(), 0);
-
-        final var text = """
-                ✅ Профиль создан:
-                
-                Ник - %s
-                Имя - %s
-                Рейтинг - %d""".formatted(
-                playerProfileDto.getNickname(),
-                playerProfileDto.getFirstName(),
-                playerProfileDto.getRating());
-
-        var messageReply  = new SendMessage();
-        messageReply.setChatId(message.getChatId().toString());
-        messageReply.setText(text);
-        messageReply.setReplyMarkup(keyboardPlayerProfileUtil.getProfileMenu(true));
-
-        try {
-            bot.execute(messageReply);
-        } catch (TelegramApiException e) {
-            log.error(e.getMessage());
-            e.printStackTrace();
-        }
+    try {
+      bot.execute(messageReply);
+    } catch (TelegramApiException e) {
+      log.error(e.getMessage());
+      e.printStackTrace();
     }
+  }
 }

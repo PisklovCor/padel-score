@@ -41,7 +41,7 @@ public class CallbackMyTeams implements Callback {
     message.setChatId(chatId);
     message.setMessageId(messageId);
     message.setText(text);
-    message.setReplyMarkup(keyboardUtil.getCreateTournamentMenu());
+    message.setReplyMarkup(keyboardUtil.getButtonToMainMenu());
 
     try {
       bot.execute(message);

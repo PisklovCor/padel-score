@@ -16,54 +16,55 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @RequiredArgsConstructor
 public class CommandPlayerProfile implements Command {
 
-    private final PlayerProfileService playerProfileService;
-    private final KeyboardPlayerProfileUtil keyboardPlayerProfileUtil;
+  private final PlayerProfileService playerProfileService;
 
-    @Override
-    public boolean coincidence(String command) {
+  private final KeyboardPlayerProfileUtil keyboardPlayerProfileUtil;
 
-        return "/profiles".equals(command);
+  @Override
+  public boolean coincidence(String command) {
+
+    return "/profiles".equals(command);
+  }
+
+  @Override
+  public void handle(Message message, TelegramLongPollingBot bot) {
+
+    final long userId = message.getFrom().getId();
+    String text;
+    final boolean isProfileExists = playerProfileService.existsByTelegramId(userId);
+
+    if (isProfileExists) {
+
+      final var playerProfileDto = playerProfileService.getPlayerProfileByTelegramId(userId);
+
+      text = """
+          👤 Профиль пользователя:
+          
+          Ник - %s
+          Имя - %s
+          Рейтинг - %d""".formatted(
+          playerProfileDto.getNickname(),
+          playerProfileDto.getFirstName(),
+          playerProfileDto.getRating());
+    } else {
+      text = """
+          ⚠️ У вас пока нет профиля:
+          
+          Для быстрого создания используйте кнопку
+          или выполните команду:
+          /create_profiles - Создать профиль""";
     }
 
-    @Override
-    public void handle(Message message, TelegramLongPollingBot bot) {
+    var messageReply = new SendMessage();
+    messageReply.setChatId(message.getChatId().toString());
+    messageReply.setText(text);
+    messageReply.setReplyMarkup(keyboardPlayerProfileUtil.getProfileMenu(isProfileExists));
 
-        final long userId = message.getFrom().getId();
-        String text;
-        final boolean isProfileExists = playerProfileService.existsByTelegramId(userId);
-
-        if (isProfileExists) {
-
-            final var playerProfileDto = playerProfileService.getPlayerProfileByTelegramId(userId);
-
-            text = """
-                    👤 Профиль пользователя:
-                    
-                    Ник - %s
-                    Имя - %s
-                    Рейтинг - %d""".formatted(
-                    playerProfileDto.getNickname(),
-                    playerProfileDto.getFirstName(),
-                    playerProfileDto.getRating());
-        } else {
-            text = """
-                    ⚠️ У вас пока нет профиля:
-                    
-                    Для быстрого создания используйте кнопку
-                    или выполните команду:
-                    /create_profiles - Создать профиль""";
-        }
-
-        var messageReply = new SendMessage();
-        messageReply.setChatId(message.getChatId().toString());
-        messageReply.setText(text);
-        messageReply.setReplyMarkup(keyboardPlayerProfileUtil.getProfileMenu(isProfileExists));
-
-        try {
-            bot.execute(messageReply);
-        } catch (TelegramApiException e) {
-            log.error(e.getMessage());
-            e.printStackTrace();
-        }
+    try {
+      bot.execute(messageReply);
+    } catch (TelegramApiException e) {
+      log.error(e.getMessage());
+      e.printStackTrace();
     }
+  }
 }

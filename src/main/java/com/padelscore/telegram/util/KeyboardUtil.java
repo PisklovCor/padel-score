@@ -50,13 +50,13 @@ public class KeyboardUtil {
     return markup;
   }
 
-  public InlineKeyboardMarkup getCreateTournamentMenu() {
+  public InlineKeyboardMarkup getButtonToMainMenu() {
     InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
     List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
 
     List<InlineKeyboardButton> row = new ArrayList<>();
     InlineKeyboardButton back = new InlineKeyboardButton();
-    back.setText("◀️ Назад");
+    back.setText("📑 Главное меню");
     back.setCallbackData("main_menu");
     row.add(back);
     keyboard.add(row);
