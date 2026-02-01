@@ -121,18 +121,21 @@ public class MatchService {
     
     private record ScoreCalculationResult(Team winnerTeam, Team loserTeam, int winnerPoints, int loserPoints) {}
     
+    @Transactional(readOnly = true)
     public List<MatchDto> getMatchesByTournament(Integer tournamentId) {
         return matchRepository.findByTournamentId(tournamentId).stream()
                 .map(mapper::toDto)
                 .collect(Collectors.toList());
     }
-    
+
+    @Transactional(readOnly = true)
     public MatchDto getMatch(Integer id) {
         Match match = matchRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Match not found"));
         return mapper.toDto(match);
     }
-    
+
+    @Transactional(readOnly = true)
     public MatchResultDto getMatchResult(Integer matchId) {
         MatchResult result = matchResultRepository.findByMatchId(matchId)
                 .orElseThrow(() -> new RuntimeException("Match result not found"));
