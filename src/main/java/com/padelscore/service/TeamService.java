@@ -4,6 +4,8 @@ import com.padelscore.dto.TeamDto;
 import com.padelscore.entity.Team;
 import com.padelscore.entity.Tournament;
 import com.padelscore.entity.UserRole;
+import com.padelscore.repository.PlayerProfileRepository;
+import com.padelscore.repository.TeamPlayerRepository;
 import com.padelscore.repository.TeamRepository;
 import com.padelscore.repository.TournamentRepository;
 import com.padelscore.repository.UserRoleRepository;
@@ -12,16 +14,21 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class TeamService {
-    
+
     private final TeamRepository teamRepository;
     private final TournamentRepository tournamentRepository;
     private final UserRoleRepository userRoleRepository;
+    private final TeamPlayerRepository teamPlayerRepository;
+    private final PlayerProfileRepository playerProfileRepository;
     private final EntityMapper mapper;
     
     @Transactional
@@ -54,6 +61,28 @@ public class TeamService {
         return teamRepository.findByTournamentId(tournamentId).stream()
                 .map(mapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Команды, где пользователь участвует как капитан или как игрок (по telegramId).
+     */
+    @Transactional(readOnly = true)
+    public List<TeamDto> getTeamsByUser(Long telegramId) {
+        Set<Integer> seenIds = new LinkedHashSet<>();
+        List<TeamDto> result = new ArrayList<>();
+        for (Team team : teamRepository.findByCaptainId(telegramId)) {
+            seenIds.add(team.getId());
+            result.add(mapper.toDto(team));
+        }
+        playerProfileRepository.findByTelegramId(telegramId).ifPresent(profile -> {
+            for (var tp : teamPlayerRepository.findByPlayerProfileId(profile.getId())) {
+                Team team = tp.getTeam();
+                if (seenIds.add(team.getId())) {
+                    result.add(mapper.toDto(team));
+                }
+            }
+        });
+        return result;
     }
     
     public TeamDto getTeam(Integer id) {

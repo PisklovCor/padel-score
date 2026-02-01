@@ -29,7 +29,7 @@ public class CallbackHelp implements Callback {
                 
                 /start - Главное меню
                 /profiles - Профиль
-                /help_profiles - Справка по профилю
+                /help - Это справка
                 
                 Используйте inline-кнопки для быстрого доступа к функциям.""";
 

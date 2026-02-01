@@ -9,6 +9,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+@Deprecated
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -17,7 +18,7 @@ public class CommandHelpPlayerProfile implements Command {
     @Override
     public boolean coincidence(String command) {
 
-        return "/help_profiles".equals(command);
+        return false;
     }
 
     @Override
