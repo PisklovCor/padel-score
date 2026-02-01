@@ -53,7 +53,7 @@ public class PadelScoreBot extends TelegramLongPollingBot {
   @PostConstruct
   public void initBotCommands() {
     List<BotCommand> commands = List.of(
-        new BotCommand("/start", "Главное меню"),
+        new BotCommand("/menu", "Главное меню"),
         new BotCommand("/profiles", "Профиль"),
         new BotCommand("/help", "Справка")
     );

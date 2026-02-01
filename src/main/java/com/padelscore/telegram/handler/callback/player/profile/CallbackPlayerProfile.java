@@ -51,9 +51,7 @@ public class CallbackPlayerProfile implements Callback {
       text = """
           ⚠️ У вас пока нет профиля:
           
-          Для быстрого создания используйте кнопку
-          или выполните команду:
-          /create_profiles - Создать профиль""";
+          Для быстрого создания используйте кнопку.""";
     }
 
     final var message = new EditMessageText();

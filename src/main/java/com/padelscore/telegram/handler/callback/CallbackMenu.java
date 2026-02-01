@@ -12,14 +12,14 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CallbackCommon implements Callback {
+public class CallbackMenu implements Callback {
 
   private final KeyboardUtil keyboardUtil;
 
   @Override
   public boolean coincidence(String command) {
 
-    return "main_menu".equals(command);
+    return "menu".equals(command);
   }
 
   @Override
@@ -32,7 +32,7 @@ public class CallbackCommon implements Callback {
     message.setChatId(chatId);
     message.setMessageId(messageId);
     message.setText("🏆 Главное меню PadelScore Bot");
-    message.setReplyMarkup(keyboardUtil.getMainMenu());
+    message.setReplyMarkup(keyboardUtil.getMenu());
 
     try {
       bot.execute(message);

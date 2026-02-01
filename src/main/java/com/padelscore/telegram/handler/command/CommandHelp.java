@@ -25,7 +25,7 @@ public class CommandHelp implements Command {
         final var text = """
                 📖 Справка по командам:
                 
-                /main_menu - Главное меню
+                /menu - Главное меню
                 /profiles - Профиль
                 /help - Это справка
                 

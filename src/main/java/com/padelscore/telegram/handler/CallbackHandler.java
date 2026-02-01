@@ -1,7 +1,6 @@
 package com.padelscore.telegram.handler;
 
 import com.padelscore.telegram.handler.callback.Callback;
-import com.padelscore.telegram.handler.command.Command;
 import com.padelscore.telegram.util.KeyboardUtil;
 import com.padelscore.dto.LeaderboardEntryDto;
 import com.padelscore.dto.MatchDto;
@@ -398,7 +397,7 @@ public class CallbackHandler {
         message.setChatId(chatId.toString());
         message.setMessageId(messageId);
         message.setText("🏆 Главное меню PadelScore Bot");
-        message.setReplyMarkup(keyboardUtil.getMainMenu());
+        message.setReplyMarkup(keyboardUtil.getMenu());
         bot.execute(message);
     }
     

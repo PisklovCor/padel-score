@@ -10,6 +10,13 @@ import java.util.List;
 @Component
 public class KeyboardPlayerProfileUtil {
 
+
+  /**
+   * Добавдяет кнопки для профиля пользователя (в зависимости от наличия профиля)
+   *
+   * @param isProfileExists признак наличия профиля
+   * @return кнопки формы профиля
+   */
   public InlineKeyboardMarkup getProfileMenu(boolean isProfileExists) {
 
     InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
@@ -18,7 +25,7 @@ public class KeyboardPlayerProfileUtil {
     List<InlineKeyboardButton> mainMenuRow = new ArrayList<>();
     InlineKeyboardButton mainMenu = new InlineKeyboardButton();
     mainMenu.setText("📑 Главное меню");
-    mainMenu.setCallbackData("main_menu");
+    mainMenu.setCallbackData("menu");
     mainMenuRow.add(mainMenu);
     keyboard.add(mainMenuRow);
 

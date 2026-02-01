@@ -50,9 +50,7 @@ public class CommandPlayerProfile implements Command {
       text = """
           ⚠️ У вас пока нет профиля:
           
-          Для быстрого создания используйте кнопку
-          или выполните команду:
-          /create_profiles - Создать профиль""";
+          Для быстрого создания используйте кнопку.""";
     }
 
     var messageReply = new SendMessage();

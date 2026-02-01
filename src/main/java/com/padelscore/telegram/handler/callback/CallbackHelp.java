@@ -27,7 +27,7 @@ public class CallbackHelp implements Callback {
     final var text = """
         📖 Справка по командам:
         
-        /start - Главное меню
+        /menu - Главное меню
         /profiles - Профиль
         /help - Это справка
         

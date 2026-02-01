@@ -1,6 +1,7 @@
 package com.padelscore.telegram.handler.callback.team;
 
 import com.padelscore.dto.TeamDto;
+import com.padelscore.service.PlayerProfileService;
 import com.padelscore.service.TeamService;
 import com.padelscore.telegram.handler.callback.Callback;
 import com.padelscore.telegram.util.KeyboardUtil;
@@ -23,6 +24,8 @@ public class CallbackMyTeams implements Callback {
 
   private final KeyboardUtil keyboardUtil;
 
+  private final PlayerProfileService playerProfileService;
+
   @Override
   public boolean coincidence(String command) {
     return "my_teams".equals(command);
@@ -35,13 +38,16 @@ public class CallbackMyTeams implements Callback {
     Long userId = callbackQuery.getFrom().getId();
 
     List<TeamDto> teams = teamService.getTeamsByUser(userId);
-    String text = buildListText(teams, userId);
+
+    final boolean isProfileExists = playerProfileService.existsByTelegramId(userId);
+
+    String text = buildListText(teams, userId, isProfileExists);
 
     EditMessageText message = new EditMessageText();
     message.setChatId(chatId);
     message.setMessageId(messageId);
     message.setText(text);
-    message.setReplyMarkup(keyboardUtil.getButtonToMainMenu());
+    message.setReplyMarkup(keyboardUtil.getButtonToMenu());
 
     try {
       bot.execute(message);
@@ -51,7 +57,13 @@ public class CallbackMyTeams implements Callback {
     }
   }
 
-  private static String buildListText(List<TeamDto> teams, Long telegramId) {
+  private static String buildListText(List<TeamDto> teams, Long telegramId,
+      boolean isProfileExists) {
+
+    if (!isProfileExists) {
+      return "⚠️ У вас пока нет профиля. Воспользуйтесь пунктом меню для создания профиля.";
+    }
+
     if (teams.isEmpty()) {
       return "👥 Мои команды\n\nВы пока не участвуете ни в одной команде (ни как капитан, ни как игрок).";
     }

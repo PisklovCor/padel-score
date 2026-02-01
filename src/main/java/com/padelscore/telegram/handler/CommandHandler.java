@@ -78,7 +78,7 @@ public class CommandHandler {
         SendMessage message = new SendMessage();
         message.setChatId(chatId.toString());
         message.setText(text);
-        message.setReplyMarkup(keyboardUtil.getMainMenu());
+        message.setReplyMarkup(keyboardUtil.getMenu());
         try {
             bot.execute(message);
         } catch (TelegramApiException e) {

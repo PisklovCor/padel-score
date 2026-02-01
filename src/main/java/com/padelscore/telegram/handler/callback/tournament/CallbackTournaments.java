@@ -1,6 +1,7 @@
 package com.padelscore.telegram.handler.callback.tournament;
 
 import com.padelscore.dto.TournamentDto;
+import com.padelscore.service.PlayerProfileService;
 import com.padelscore.service.TournamentService;
 import com.padelscore.telegram.handler.callback.Callback;
 import com.padelscore.telegram.util.KeyboardTournamentUtil;
@@ -26,6 +27,8 @@ public class CallbackTournaments implements Callback {
 
   private final KeyboardUtil keyboardUtil;
 
+  private final PlayerProfileService playerProfileService;
+
 
   @Override
   public boolean coincidence(String command) {
@@ -42,7 +45,22 @@ public class CallbackTournaments implements Callback {
     Integer messageId = callbackQuery.getMessage().getMessageId();
     Long userId = callbackQuery.getFrom().getId();
 
+    final boolean isProfileExists = playerProfileService.existsByTelegramId(userId);
+
     try {
+
+      if (!isProfileExists) {
+
+        EditMessageText message = new EditMessageText();
+        message.setChatId(chatId);
+        message.setMessageId(messageId);
+        message.setText(
+            "⚠️ У вас пока нет профиля. Воспользуйтесь пунктом меню для создания профиля.");
+        message.setReplyMarkup(keyboardUtil.getButtonToMenu());
+        bot.execute(message);
+        return;
+      }
+
       if ("tournaments".equals(data) || "tournament_list".equals(data)) {
         List<TournamentDto> tournaments = tournamentService.getTournamentsByUserTeams(userId);
         EditMessageText message = new EditMessageText();
@@ -50,7 +68,7 @@ public class CallbackTournaments implements Callback {
         message.setMessageId(messageId);
         if (tournaments.isEmpty()) {
           message.setText("🏆 Турниры\n\nВаши команды пока не участвуют ни в одном турнире.");
-          message.setReplyMarkup(keyboardUtil.getButtonToMainMenu());
+          message.setReplyMarkup(keyboardUtil.getButtonToMenu());
         } else {
           StringBuilder text = new StringBuilder("🏆 Турниры (участие ваших команд)\n\n");
           for (TournamentDto t : tournaments) {

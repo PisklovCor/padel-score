@@ -2,7 +2,6 @@ package com.padelscore.telegram.util;
 
 import com.padelscore.dto.MatchDto;
 import com.padelscore.dto.TeamPlayerDto;
-import com.padelscore.dto.TeamDto;
 import com.padelscore.dto.TournamentDto;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -14,7 +13,12 @@ import java.util.List;
 @Component
 public class KeyboardUtil {
 
-  public InlineKeyboardMarkup getMainMenu() {
+  /**
+   * Добавляет кнопки главного меню
+   *
+   * @return главное меню
+   */
+  public InlineKeyboardMarkup getMenu() {
     InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
     List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
 
@@ -50,14 +54,19 @@ public class KeyboardUtil {
     return markup;
   }
 
-  public InlineKeyboardMarkup getButtonToMainMenu() {
+  /**
+   * Добавляет единственную кнопку перехода в главное меню
+   *
+   * @return главное меню
+   */
+  public InlineKeyboardMarkup getButtonToMenu() {
     InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
     List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
 
     List<InlineKeyboardButton> row = new ArrayList<>();
     InlineKeyboardButton back = new InlineKeyboardButton();
     back.setText("📑 Главное меню");
-    back.setCallbackData("main_menu");
+    back.setCallbackData("menu");
     row.add(back);
     keyboard.add(row);
 
@@ -81,7 +90,7 @@ public class KeyboardUtil {
     List<InlineKeyboardButton> backRow = new ArrayList<>();
     InlineKeyboardButton back = new InlineKeyboardButton();
     back.setText("◀️ Назад");
-    back.setCallbackData("main_menu");
+    back.setCallbackData("menu");
     backRow.add(back);
     keyboard.add(backRow);
 
