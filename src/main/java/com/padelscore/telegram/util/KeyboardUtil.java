@@ -152,37 +152,6 @@ public class KeyboardUtil {
     return markup;
   }
 
-  public InlineKeyboardMarkup getTeamsMenu(List<TeamDto> teams, Integer tournamentId) {
-    InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-    List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-
-    for (TeamDto team : teams) {
-      List<InlineKeyboardButton> row = new ArrayList<>();
-      InlineKeyboardButton button = new InlineKeyboardButton();
-      button.setText("👥 " + team.getName());
-      button.setCallbackData("team_" + team.getId());
-      row.add(button);
-      keyboard.add(row);
-    }
-
-    List<InlineKeyboardButton> addRow = new ArrayList<>();
-    InlineKeyboardButton addTeam = new InlineKeyboardButton();
-    addTeam.setText("➕ Добавить команду");
-    addTeam.setCallbackData("team_create_" + tournamentId);
-    addRow.add(addTeam);
-    keyboard.add(addRow);
-
-    List<InlineKeyboardButton> backRow = new ArrayList<>();
-    InlineKeyboardButton back = new InlineKeyboardButton();
-    back.setText("◀️ Назад");
-    back.setCallbackData("tournament_" + tournamentId);
-    backRow.add(back);
-    keyboard.add(backRow);
-
-    markup.setKeyboard(keyboard);
-    return markup;
-  }
-
   public InlineKeyboardMarkup getTeamMenu(Integer teamId, Integer tournamentId) {
     InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
     List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();

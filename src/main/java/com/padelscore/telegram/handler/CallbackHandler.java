@@ -125,27 +125,6 @@ public class CallbackHandler {
         }
     }
     
-    private void handleTeamsList(String data, Long chatId, Integer messageId, TelegramLongPollingBot bot) throws TelegramApiException {
-        Integer tournamentId = Integer.parseInt(data.split("_")[2]);
-        List<TeamDto> teams = teamService.getTeamsByTournament(tournamentId);
-        
-        EditMessageText message = new EditMessageText();
-        message.setChatId(chatId.toString());
-        message.setMessageId(messageId);
-        
-        if (teams.isEmpty()) {
-            message.setText("В этом турнире пока нет команд.\n\nИспользуйте кнопку ниже, чтобы добавить команду.");
-        } else {
-            StringBuilder text = new StringBuilder("👥 Команды турнира:\n\n");
-            for (TeamDto team : teams) {
-                text.append(String.format("• %s (ID: %d)\n", team.getName(), team.getId()));
-            }
-            message.setText(text.toString());
-        }
-        message.setReplyMarkup(keyboardUtil.getTeamsMenu(teams, tournamentId));
-        bot.execute(message);
-    }
-    
     private void handleTeamCallback(String data, Long chatId, Integer messageId, Long userId, TelegramLongPollingBot bot) throws TelegramApiException {
         Integer teamId = Integer.parseInt(data.split("_")[1]);
         TeamDto team = teamService.getTeam(teamId);

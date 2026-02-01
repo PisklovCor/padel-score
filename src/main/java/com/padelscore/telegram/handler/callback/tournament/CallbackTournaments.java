@@ -3,6 +3,7 @@ package com.padelscore.telegram.handler.callback.tournament;
 import com.padelscore.dto.TournamentDto;
 import com.padelscore.service.TournamentService;
 import com.padelscore.telegram.handler.callback.Callback;
+import com.padelscore.telegram.util.KeyboardTournamentUtil;
 import com.padelscore.telegram.util.KeyboardUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +21,11 @@ import java.util.List;
 public class CallbackTournaments implements Callback {
 
   private final TournamentService tournamentService;
+
+  private final KeyboardTournamentUtil keyboardTournamentUtil;
+
   private final KeyboardUtil keyboardUtil;
+
 
   @Override
   public boolean coincidence(String command) {
@@ -52,7 +57,7 @@ public class CallbackTournaments implements Callback {
             text.append(String.format("• %s (ID: %d)\n", t.getTitle(), t.getId()));
           }
           message.setText(text.toString());
-          message.setReplyMarkup(keyboardUtil.getTournamentsMenu(tournaments));
+          message.setReplyMarkup(keyboardTournamentUtil.getTournamentsMenu(tournaments));
         }
         bot.execute(message);
       } else if (data.startsWith("tournament_")) {
@@ -64,7 +69,7 @@ public class CallbackTournaments implements Callback {
         message.setText(String.format("🏆 Турнир: %s\n\nID: %d\nФормат: %s\nПриз: %s",
             tournament.getTitle(), tournament.getId(),
             tournament.getFormat(), tournament.getPrize()));
-        message.setReplyMarkup(keyboardUtil.getTournamentMenu(tournamentId));
+        message.setReplyMarkup(keyboardTournamentUtil.getTournamentMenu(tournamentId));
         bot.execute(message);
       }
     } catch (TelegramApiException e) {

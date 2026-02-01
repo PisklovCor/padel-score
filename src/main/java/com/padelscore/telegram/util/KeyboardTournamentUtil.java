@@ -164,13 +164,6 @@ public class KeyboardTournamentUtil {
       keyboard.add(row);
     }
 
-    List<InlineKeyboardButton> addRow = new ArrayList<>();
-    InlineKeyboardButton addTeam = new InlineKeyboardButton();
-    addTeam.setText("➕ Добавить команду");
-    addTeam.setCallbackData("team_create_" + tournamentId);
-    addRow.add(addTeam);
-    keyboard.add(addRow);
-
     List<InlineKeyboardButton> backRow = new ArrayList<>();
     InlineKeyboardButton back = new InlineKeyboardButton();
     back.setText("◀️ Назад");
