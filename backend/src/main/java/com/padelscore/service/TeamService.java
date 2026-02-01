@@ -47,12 +47,15 @@ public class TeamService {
         
         team = teamRepository.save(team);
         
-        UserRole captainRole = UserRole.builder()
-                .tournament(tournament)
-                .userId(captainId)
-                .role("captain")
-                .build();
-        userRoleRepository.save(captainRole);
+        // Роль captain добавляем только если у пользователя ещё нет роли в турнире (иначе создатель турнира не смог бы быть капитаном)
+        if (userRoleRepository.findByTournamentIdAndUserId(tournament.getId(), captainId).isEmpty()) {
+            UserRole captainRole = UserRole.builder()
+                    .tournament(tournament)
+                    .userId(captainId)
+                    .role("captain")
+                    .build();
+            userRoleRepository.save(captainRole);
+        }
         
         return mapper.toDto(team);
     }
