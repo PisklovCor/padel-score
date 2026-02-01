@@ -13,57 +13,12 @@ import com.padelscore.dto.TournamentDto;
 @Component
 public class KeyboardTournamentUtil {
 
-  public InlineKeyboardMarkup getMainMenu() {
-    InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-    List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-
-    List<InlineKeyboardButton> row1 = new ArrayList<>();
-    InlineKeyboardButton tournaments = new InlineKeyboardButton();
-    tournaments.setText("🏆 Турниры");
-    tournaments.setCallbackData("tournaments");
-    row1.add(tournaments);
-
-    List<InlineKeyboardButton> row2 = new ArrayList<>();
-    InlineKeyboardButton teams = new InlineKeyboardButton();
-    teams.setText("🎭 Мои команды");
-    teams.setCallbackData("my_teams");
-    row2.add(teams);
-
-    List<InlineKeyboardButton> row3 = new ArrayList<>();
-    InlineKeyboardButton profile = new InlineKeyboardButton();
-    profile.setText("👤 Профиль");
-    profile.setCallbackData("profiles");
-    row3.add(profile);
-
-    List<InlineKeyboardButton> row4 = new ArrayList<>();
-    InlineKeyboardButton help = new InlineKeyboardButton();
-    help.setText("❓ Помощь");
-    help.setCallbackData("help");
-    row4.add(help);
-
-    keyboard.add(row1);
-    keyboard.add(row2);
-    keyboard.add(row3);
-    keyboard.add(row4);
-    markup.setKeyboard(keyboard);
-    return markup;
-  }
-
-  public InlineKeyboardMarkup getCreateTournamentMenu() {
-    InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-    List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-
-    List<InlineKeyboardButton> row = new ArrayList<>();
-    InlineKeyboardButton back = new InlineKeyboardButton();
-    back.setText("◀️ Назад");
-    back.setCallbackData("main_menu");
-    row.add(back);
-    keyboard.add(row);
-
-    markup.setKeyboard(keyboard);
-    return markup;
-  }
-
+  /**
+   * Добавляет кнопки для меня турниров
+   *
+   * @param tournaments список турниров
+   * @return кнопки формы турниров
+   */
   public InlineKeyboardMarkup getTournamentsMenu(List<TournamentDto> tournaments) {
     InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
     List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
@@ -79,8 +34,8 @@ public class KeyboardTournamentUtil {
 
     List<InlineKeyboardButton> backRow = new ArrayList<>();
     InlineKeyboardButton back = new InlineKeyboardButton();
-    back.setText("◀️ Назад");
-    back.setCallbackData("main_menu");
+    back.setText("📑 Главное меню");
+    back.setCallbackData("menu");
     backRow.add(back);
     keyboard.add(backRow);
 
@@ -88,6 +43,12 @@ public class KeyboardTournamentUtil {
     return markup;
   }
 
+  /**
+   * Добавляет кнопки для меня отдельного турнира
+   *
+   * @param tournamentId турнир
+   * @return кнопки формы турниров
+   */
   public InlineKeyboardMarkup getTournamentMenu(Integer tournamentId) {
     InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
     List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
@@ -136,20 +97,6 @@ public class KeyboardTournamentUtil {
     return markup;
   }
 
-  public InlineKeyboardMarkup getBackToTournamentMenu(Integer tournamentId) {
-    InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-    List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-
-    List<InlineKeyboardButton> row = new ArrayList<>();
-    InlineKeyboardButton back = new InlineKeyboardButton();
-    back.setText("◀️ Назад к турниру");
-    back.setCallbackData("tournament_" + tournamentId);
-    row.add(back);
-    keyboard.add(row);
-
-    markup.setKeyboard(keyboard);
-    return markup;
-  }
 
   public InlineKeyboardMarkup getTeamsMenu(List<TeamDto> teams, Integer tournamentId) {
     InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
