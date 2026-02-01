@@ -63,7 +63,7 @@ PadelScore — это Telegram бот для управления любител
 
 3. Запустите:
    ```bash
-   ./mvnw spring-boot:run
+   cd backend && mvn spring-boot:run
    ```
 
 ## Команды бота
@@ -77,24 +77,20 @@ PadelScore — это Telegram бот для управления любител
 
 ```text
 padelscore/
-├── documents/
-│   ├── PRD_PadelScore.md        # Product Requirements Document
-│   └── TECH_PadelScore.md        # Техническое описание
-├── src/
-│   ├── main/java/com/padelscore/
-│   │   ├── bot/                  # Telegram Bot обработчики
+├── backend/                      # Java-сервис (API + Telegram Bot)
+│   ├── src/main/java/com/padelscore/
+│   │   ├── telegram/             # Telegram Bot обработчики
+│   │   ├── http/                 # REST контроллеры
 │   │   ├── config/               # Конфигурация Spring
-│   │   ├── dto/                  # Data Transfer Objects
-│   │   ├── entity/               # JPA Entities
-│   │   ├── repository/           # Spring Data JPA репозитории
-│   │   ├── service/              # Бизнес-логика
-│   │   └── util/                 # Утилиты
+│   │   ├── dto/, entity/, repository/, service/, util/
 │   └── main/resources/
-│       ├── application.yml       # Конфигурация приложения
+│       ├── application.yml
 │       └── db/changelog/         # Liquibase миграции
+│   ├── Dockerfile
+│   └── pom.xml
+├── documents/
 ├── docker-compose.yml
-├── Dockerfile
-└── pom.xml
+└── ...
 ```
 
 ## Разработка
@@ -102,13 +98,13 @@ padelscore/
 ### Сборка проекта
 
 ```bash
-./mvnw clean package
+cd backend && mvn clean package
 ```
 
 ### Запуск тестов
 
 ```bash
-./mvnw test
+cd backend && mvn test
 ```
 
 ## Лицензия

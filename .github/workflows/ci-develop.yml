@@ -31,17 +31,19 @@ jobs:
 
       - name: Компиляция и запуск тестов
         run: mvn clean compile test
+        working-directory: backend
         env:
           SPRING_PROFILES_ACTIVE: test
 
       - name: Создание JAR файла
         run: mvn package -DskipTests
+        working-directory: backend
 
       - name: Загрузка артефактов сборки
         uses: actions/upload-artifact@v4
         with:
           name: jar-artifact
-          path: target/padelscore-*.jar
+          path: backend/target/padelscore-*.jar
           retention-days: 30
 
       - name: Загрузка отчетов о тестах
@@ -50,7 +52,7 @@ jobs:
         continue-on-error: true
         with:
           name: test-reports
-          path: target/surefire-reports/
+          path: backend/target/surefire-reports/
           retention-days: 30
           if-no-files-found: ignore
 
@@ -88,7 +90,7 @@ jobs:
         run: |
           CURRENT_VERSION=$(python3 << 'PYEOF'
           import re
-          with open('pom.xml', 'r') as f:
+          with open('backend/pom.xml', 'r') as f:
               content = f.read()
           # Ищем version после artifactId padelscore
           pattern = r'<artifactId>padelscore</artifactId>\s*<version>([^<]+)</version>'
@@ -127,14 +129,14 @@ jobs:
           import re
           import os
           release_version = os.environ['RELEASE_VERSION']
-          with open('pom.xml', 'r') as f:
+          with open('backend/pom.xml', 'r') as f:
               content = f.read()
           # Находим и заменяем version после artifactId padelscore
           pattern = r'(<artifactId>padelscore</artifactId>\s*<version>)([^<]+)(</version>)'
           def replace_version(match):
               return match.group(1) + release_version + match.group(3)
           content = re.sub(pattern, replace_version, content, count=1)
-          with open('pom.xml', 'w') as f:
+          with open('backend/pom.xml', 'w') as f:
               f.write(content)
           EOF
         env:
@@ -143,7 +145,7 @@ jobs:
       - name: Коммит релизной версии в main
         run: |
           RELEASE_VERSION="${{ steps.release-version.outputs.release_version }}"
-          git add pom.xml
+          git add backend/pom.xml
           git commit -m "Release version ${RELEASE_VERSION}"
           # Удаляем тег если существует (локально и удаленно)
           git tag -d "v${RELEASE_VERSION}" 2>/dev/null || true
@@ -185,14 +187,14 @@ jobs:
           import re
           import os
           next_version = os.environ['NEXT_VERSION']
-          with open('pom.xml', 'r') as f:
+          with open('backend/pom.xml', 'r') as f:
               content = f.read()
           # Находим и заменяем version после artifactId padelscore
           pattern = r'(<artifactId>padelscore</artifactId>\s*<version>)([^<]+)(</version>)'
           def replace_version(match):
               return match.group(1) + next_version + match.group(3)
           content = re.sub(pattern, replace_version, content, count=1)
-          with open('pom.xml', 'w') as f:
+          with open('backend/pom.xml', 'w') as f:
               f.write(content)
           EOF
         env:
@@ -201,6 +203,6 @@ jobs:
       - name: Коммит следующей SNAPSHOT версии в develop
         run: |
           NEXT_VERSION="${{ steps.next-version.outputs.next_version }}"
-          git add pom.xml
+          git add backend/pom.xml
           git commit -m "Bump version to ${NEXT_VERSION} after release"
           git push origin develop

@@ -268,17 +268,21 @@ volumes:
 
 ### 6.2 Dockerfile (prod)
 
+Контекст сборки: `backend/`. Файл расположен в `backend/Dockerfile`.
+
 ```
-FROM eclipse-temurin:17-jdk-alpine as builder
+FROM eclipse-temurin:17-jdk-alpine AS builder
+RUN apk add --no-cache maven
 WORKDIR /app
-COPY . .
-RUN ./mvnw clean package -DskipTests
+COPY pom.xml .
+COPY src ./src
+RUN mvn clean package -DskipTests
 
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 COPY --from=builder /app/target/padelscore-*.jar app.jar
 EXPOSE 8080
-CMD ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
 ```
 
 ## 7. Управление миграциями БД
