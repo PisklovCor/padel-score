@@ -60,6 +60,7 @@ public class TeamService {
         return mapper.toDto(team);
     }
     
+    @Transactional(readOnly = true)
     public List<TeamDto> getTeamsByTournament(Integer tournamentId) {
         return teamRepository.findByTournamentId(tournamentId).stream()
                 .map(mapper::toDto)
@@ -88,6 +89,7 @@ public class TeamService {
         return result;
     }
     
+    @Transactional(readOnly = true)
     public TeamDto getTeam(Integer id) {
         Team team = teamRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Team not found"));

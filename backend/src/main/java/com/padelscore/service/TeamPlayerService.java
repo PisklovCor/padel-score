@@ -25,12 +25,14 @@ public class TeamPlayerService {
     private final PlayerProfileRepository playerProfileRepository;
     private final EntityMapper mapper;
     
+    @Transactional(readOnly = true)
     public List<TeamPlayerDto> getPlayersByTeam(Integer teamId) {
         return teamPlayerRepository.findByTeamId(teamId).stream()
                 .map(mapper::toDto)
                 .collect(Collectors.toList());
     }
     
+    @Transactional(readOnly = true)
     public TeamPlayerDto getTeamPlayer(Integer id) {
         TeamPlayer teamPlayer = teamPlayerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Team player not found"));

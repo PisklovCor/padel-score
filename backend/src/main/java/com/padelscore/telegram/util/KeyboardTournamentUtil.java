@@ -122,6 +122,22 @@ public class KeyboardTournamentUtil {
     return markup;
   }
 
+  /**
+   * Меню просмотра состава команды: только кнопка «Назад к командам».
+   */
+  public InlineKeyboardMarkup getTeamViewMenu(Integer tournamentId) {
+    InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+    List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+    List<InlineKeyboardButton> backRow = new ArrayList<>();
+    InlineKeyboardButton back = new InlineKeyboardButton();
+    back.setText("◀️ Назад к командам");
+    back.setCallbackData("teams_list_" + tournamentId);
+    backRow.add(back);
+    keyboard.add(backRow);
+    markup.setKeyboard(keyboard);
+    return markup;
+  }
+
   public InlineKeyboardMarkup getTeamMenu(Integer teamId, Integer tournamentId) {
     InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
     List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
@@ -196,13 +212,6 @@ public class KeyboardTournamentUtil {
       row.add(button);
       keyboard.add(row);
     }
-
-    List<InlineKeyboardButton> addRow = new ArrayList<>();
-    InlineKeyboardButton addMatch = new InlineKeyboardButton();
-    addMatch.setText("➕ Создать матч");
-    addMatch.setCallbackData("match_create_" + tournamentId);
-    addRow.add(addMatch);
-    keyboard.add(addRow);
 
     List<InlineKeyboardButton> backRow = new ArrayList<>();
     InlineKeyboardButton back = new InlineKeyboardButton();

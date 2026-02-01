@@ -16,6 +16,7 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageTe
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Slf4j
@@ -76,10 +77,16 @@ public class CallbackTournamentMatches implements Callback {
       message.setText("⚽ Матчи турнира\n\nВ этом турнире пока нет матчей.\n\nИспользуйте кнопку ниже, чтобы создать матч.");
     } else {
       StringBuilder text = new StringBuilder("⚽ Матчи турнира\n\n");
+      DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
       for (MatchDto match : matches) {
         String status = "scheduled".equals(match.getStatus()) ? "⏰"
             : "completed".equals(match.getStatus()) ? "✅" : "🔄";
-        text.append(String.format("%s %s vs %s\n", status, match.getTeam1Name(), match.getTeam2Name()));
+        String teams = match.getTeam1Name() + " vs " + match.getTeam2Name();
+        String dateStr = match.getScheduledDate() != null
+            ? match.getScheduledDate().format(dateFormatter) : "—";
+        String location = match.getLocation() != null && !match.getLocation().isBlank()
+            ? match.getLocation().trim() : "—";
+        text.append(String.format("%s %s — %s — %s\n", status, teams, dateStr, location));
       }
       message.setText(text.toString());
     }
@@ -105,7 +112,12 @@ public class CallbackTournamentMatches implements Callback {
     text.append("Статус: ").append(match.getStatus()).append("\n");
     text.append("Формат: ").append(match.getFormat()).append("\n");
     if (match.getScheduledDate() != null) {
-      text.append("Дата: ").append(match.getScheduledDate()).append("\n");
+      text.append("Дата: ")
+          .append(match.getScheduledDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")))
+          .append("\n");
+    }
+    if (match.getLocation() != null && !match.getLocation().isBlank()) {
+      text.append("Место: ").append(match.getLocation().trim()).append("\n");
     }
 
     EditMessageText message = new EditMessageText();
