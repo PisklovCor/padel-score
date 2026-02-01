@@ -31,7 +31,7 @@ public class CallbackMenu implements Callback {
     EditMessageText message = new EditMessageText();
     message.setChatId(chatId);
     message.setMessageId(messageId);
-    message.setText("🏆 Главное меню PadelScore Bot");
+    message.setText("📑 Главное меню PadelScore Bot");
     message.setReplyMarkup(keyboardUtil.getMenu());
 
     try {

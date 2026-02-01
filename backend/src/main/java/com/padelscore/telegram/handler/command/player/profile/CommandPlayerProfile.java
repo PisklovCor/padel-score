@@ -1,5 +1,6 @@
 package com.padelscore.telegram.handler.command.player.profile;
 
+import com.padelscore.dto.PlayerProfileDto;
 import com.padelscore.service.PlayerProfileService;
 import com.padelscore.telegram.handler.command.Command;
 import com.padelscore.telegram.util.KeyboardPlayerProfileUtil;
@@ -34,23 +35,10 @@ public class CommandPlayerProfile implements Command {
     final boolean isProfileExists = playerProfileService.existsByTelegramId(userId);
 
     if (isProfileExists) {
-
       final var playerProfileDto = playerProfileService.getPlayerProfileByTelegramId(userId);
-
-      text = """
-          👤 Профиль пользователя:
-          
-          Ник - %s
-          Имя - %s
-          Рейтинг - %d""".formatted(
-          playerProfileDto.getNickname(),
-          playerProfileDto.getFirstName(),
-          playerProfileDto.getRating());
+      text = getTextProfileExists(playerProfileDto);
     } else {
-      text = """
-          ⚠️ У вас пока нет профиля:
-          
-          Для быстрого создания используйте кнопку.""";
+      text = getGetTextProfileNotExists();
     }
 
     var messageReply = new SendMessage();
@@ -64,5 +52,24 @@ public class CommandPlayerProfile implements Command {
       log.error(e.getMessage());
       e.printStackTrace();
     }
+  }
+
+  private String getTextProfileExists(PlayerProfileDto  playerProfileDto) {
+    return """
+          👤 Профиль пользователя:
+          
+          Ник - %s
+          Имя - %s
+          Рейтинг - %d""".formatted(
+        playerProfileDto.getNickname(),
+        playerProfileDto.getFirstName(),
+        playerProfileDto.getRating());
+  }
+
+  private String getGetTextProfileNotExists() {
+    return """
+          ⚠️ У вас пока нет профиля:
+          
+          Для быстрого создания используйте кнопку.""";
   }
 }

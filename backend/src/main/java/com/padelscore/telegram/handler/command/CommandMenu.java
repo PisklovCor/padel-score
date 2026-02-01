@@ -27,7 +27,7 @@ public class CommandMenu implements Command {
 
     var messageReply = new SendMessage();
     messageReply.setChatId(message.getChatId().toString());
-    messageReply.setText("🏆 Главное меню PadelScore Bot");
+    messageReply.setText("📑 Главное меню PadelScore Bot");
     messageReply.setReplyMarkup(keyboardUtil.getMenu());
 
     try {

@@ -396,7 +396,7 @@ public class CallbackHandler {
         EditMessageText message = new EditMessageText();
         message.setChatId(chatId.toString());
         message.setMessageId(messageId);
-        message.setText("🏆 Главное меню PadelScore Bot");
+        message.setText("📑 Главное меню PadelScore Bot");
         message.setReplyMarkup(keyboardUtil.getMenu());
         bot.execute(message);
     }
