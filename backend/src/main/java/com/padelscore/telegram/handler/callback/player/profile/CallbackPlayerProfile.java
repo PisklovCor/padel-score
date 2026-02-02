@@ -20,12 +20,19 @@ public class CallbackPlayerProfile implements Callback {
 
   private final KeyboardPlayerProfileUtil keyboardPlayerProfileUtil;
 
+  /**
+   * Совпадение для callback data «profiles».
+   */
   @Override
   public boolean coincidence(String command) {
 
     return "profiles".equals(command);
   }
 
+  /**
+   * Редактирует сообщение: данные профиля пользователя или предложение создать профиль и
+   * клавиатуру.
+   */
   @Override
   public void handle(CallbackQuery callbackQuery, TelegramLongPollingBot bot) {
 

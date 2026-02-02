@@ -74,6 +74,12 @@ public class KeyboardUtil {
     return markup;
   }
 
+  /**
+   * Строит клавиатуру со списком турниров (кнопка на каждый турнир) и кнопкой «Назад».
+   *
+   * @param tournaments список турниров
+   * @return разметка inline-кнопок
+   */
   public InlineKeyboardMarkup getTournamentsMenu(List<TournamentDto> tournaments) {
     InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
     List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
@@ -98,6 +104,12 @@ public class KeyboardUtil {
     return markup;
   }
 
+  /**
+   * Строит клавиатуру турнира: Команды, Матчи, Таблица и «Назад к турнирам».
+   *
+   * @param tournamentId идентификатор турнира
+   * @return разметка inline-кнопок
+   */
   public InlineKeyboardMarkup getTournamentMenu(Integer tournamentId) {
     InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
     List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
@@ -146,6 +158,12 @@ public class KeyboardUtil {
     return markup;
   }
 
+  /**
+   * Строит клавиатуру с одной кнопкой «Назад к турниру».
+   *
+   * @param tournamentId идентификатор турнира
+   * @return разметка inline-кнопок
+   */
   public InlineKeyboardMarkup getBackToTournamentMenu(Integer tournamentId) {
     InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
     List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
@@ -161,6 +179,13 @@ public class KeyboardUtil {
     return markup;
   }
 
+  /**
+   * Строит клавиатуру команды: Игроки, Добавить игрока, «Назад к командам».
+   *
+   * @param teamId       идентификатор команды
+   * @param tournamentId идентификатор турнира
+   * @return разметка inline-кнопок
+   */
   public InlineKeyboardMarkup getTeamMenu(Integer teamId, Integer tournamentId) {
     InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
     List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
@@ -190,6 +215,13 @@ public class KeyboardUtil {
     return markup;
   }
 
+  /**
+   * Строит клавиатуру со списком игроков команды, кнопкой «Добавить игрока» и «Назад».
+   *
+   * @param players список игроков
+   * @param teamId  идентификатор команды
+   * @return разметка inline-кнопок
+   */
   public InlineKeyboardMarkup getPlayersMenu(List<TeamPlayerDto> players, Integer teamId) {
     InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
     List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
@@ -221,6 +253,13 @@ public class KeyboardUtil {
     return markup;
   }
 
+  /**
+   * Строит клавиатуру со списком матчей турнира, кнопкой «Создать матч» и «Назад».
+   *
+   * @param matches      список матчей
+   * @param tournamentId идентификатор турнира
+   * @return разметка inline-кнопок
+   */
   public InlineKeyboardMarkup getMatchesMenu(List<MatchDto> matches, Integer tournamentId) {
     InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
     List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
@@ -254,6 +293,15 @@ public class KeyboardUtil {
     return markup;
   }
 
+  /**
+   * Строит клавиатуру матча: для scheduled — «Ввести результат»; для completed — «Просмотр
+   * результата», «Изменить», «Оспорить»; всегда «Назад к матчам».
+   *
+   * @param matchId      идентификатор матча
+   * @param tournamentId идентификатор турнира
+   * @param status       статус матча (scheduled / completed)
+   * @return разметка inline-кнопок
+   */
   public InlineKeyboardMarkup getMatchMenu(Integer matchId, Integer tournamentId, String status) {
     InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
     List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
@@ -297,6 +345,12 @@ public class KeyboardUtil {
     return markup;
   }
 
+  /**
+   * Строит клавиатуру ввода результата матча: счёт 2-0, 2-1 и «Отмена».
+   *
+   * @param matchId идентификатор матча
+   * @return разметка inline-кнопок
+   */
   public InlineKeyboardMarkup getResultInputMenu(Integer matchId) {
     InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
     List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();

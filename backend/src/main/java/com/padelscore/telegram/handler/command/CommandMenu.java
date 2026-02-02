@@ -16,12 +16,18 @@ public class CommandMenu implements Command {
 
   private final KeyboardUtil keyboardUtil;
 
+  /**
+   * Совпадение для команды /menu.
+   */
   @Override
   public boolean coincidence(String command) {
 
     return "/menu".equals(command);
   }
 
+  /**
+   * Отправляет текст «Главное меню» и клавиатуру главного меню.
+   */
   @Override
   public void handle(Message message, TelegramLongPollingBot bot) {
 

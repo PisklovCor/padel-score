@@ -21,12 +21,18 @@ public class CallbackCreatePlayerProfile implements Callback {
 
   private final KeyboardPlayerProfileUtil keyboardPlayerProfileUtil;
 
+  /**
+   * Совпадение для callback data «create_profiles».
+   */
   @Override
   public boolean coincidence(String command) {
 
     return "create_profiles".equals(command);
   }
 
+  /**
+   * Создаёт профиль по данным Telegram (ник обязателен) и редактирует сообщение с подтверждением.
+   */
   @Override
   public void handle(CallbackQuery callbackQuery, TelegramLongPollingBot bot) {
 

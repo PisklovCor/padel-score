@@ -23,11 +23,17 @@ public class CallbackTournamentTeams implements Callback {
 
   private final KeyboardTournamentUtil keyboardUtil;
 
+  /**
+   * Совпадение для callback data вида «teams_list_&lt;tournamentId&gt;».
+   */
   @Override
   public boolean coincidence(String command) {
     return command != null && command.startsWith("teams_list_");
   }
 
+  /**
+   * Редактирует сообщение: список команд турнира и клавиатуру с командами и «Назад».
+   */
   @Override
   public void handle(CallbackQuery callbackQuery, TelegramLongPollingBot bot) {
     String data = callbackQuery.getData();

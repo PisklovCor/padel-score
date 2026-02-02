@@ -13,12 +13,18 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @RequiredArgsConstructor
 public class CallbackHelp implements Callback {
 
+  /**
+   * Совпадение для callback data «help».
+   */
   @Override
   public boolean coincidence(String command) {
 
     return "help".equals(command);
   }
 
+  /**
+   * Отправляет справку по командам (/menu, /profiles, /help).
+   */
   @Override
   public void handle(CallbackQuery callbackQuery, TelegramLongPollingBot bot) {
 

@@ -12,24 +12,30 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @Service
 public class CommandUpdatePlayerProfile implements Command {
 
-    @Override
-    public boolean coincidence(String command) {
+  /**
+   * Совпадение для команды /update_profiles.
+   */
+  @Override
+  public boolean coincidence(String command) {
 
-        return "/update_profiles".equals(command);
+    return "/update_profiles".equals(command);
+  }
+
+  /**
+   * Отправляет сообщение о том, что обновление профиля пока не реализовано.
+   */
+  @Override
+  public void handle(Message message, TelegramLongPollingBot bot) {
+
+    var messageReply = new SendMessage();
+    messageReply.setChatId(message.getChatId().toString());
+    messageReply.setText("Пока не реализованно");
+
+    try {
+      bot.execute(messageReply);
+    } catch (TelegramApiException e) {
+      log.error(e.getMessage());
+      e.printStackTrace();
     }
-
-    @Override
-    public void handle(Message message, TelegramLongPollingBot bot) {
-
-        var messageReply = new SendMessage();
-        messageReply.setChatId(message.getChatId().toString());
-        messageReply.setText("Пока не реализованно");
-
-        try {
-            bot.execute(messageReply);
-        } catch (TelegramApiException e) {
-            log.error(e.getMessage());
-            e.printStackTrace();
-        }
-    }
+  }
 }

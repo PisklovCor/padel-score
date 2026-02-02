@@ -20,11 +20,18 @@ public class CallbackDeletePlayerProfile implements Callback {
 
   private final KeyboardPlayerProfileUtil keyboardPlayerProfileUtil;
 
+  /**
+   * Совпадение для callback data «delete_profiles».
+   */
   @Override
   public boolean coincidence(String command) {
     return "delete_profiles".equals(command);
   }
 
+  /**
+   * Удаляет профиль пользователя и редактирует сообщение с подтверждением и клавиатурой без
+   * профиля.
+   */
   @Override
   public void handle(CallbackQuery callbackQuery, TelegramLongPollingBot bot) {
     final long userId = callbackQuery.getFrom().getId();

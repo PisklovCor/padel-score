@@ -16,12 +16,18 @@ public class CommandStart implements Command {
 
   private final KeyboardUtil keyboardUtil;
 
+  /**
+   * Совпадение для команды /start.
+   */
   @Override
   public boolean coincidence(String command) {
 
     return "/start".equals(command);
   }
 
+  /**
+   * Отправляет приветствие и главное меню с inline-кнопками.
+   */
   @Override
   public void handle(Message message, TelegramLongPollingBot bot) {
 

@@ -26,11 +26,18 @@ public class CallbackMyTeams implements Callback {
 
   private final PlayerProfileService playerProfileService;
 
+  /**
+   * Совпадение для callback data «my_teams».
+   */
   @Override
   public boolean coincidence(String command) {
     return "my_teams".equals(command);
   }
 
+  /**
+   * Редактирует сообщение: список команд пользователя (капитан/игрок) или предложение создать
+   * профиль.
+   */
   @Override
   public void handle(CallbackQuery callbackQuery, TelegramLongPollingBot bot) {
     String chatId = callbackQuery.getMessage().getChatId().toString();

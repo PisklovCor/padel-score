@@ -17,7 +17,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.util.List;
 
 /**
- * Обработчик выбора команды из списка «Команды турнира»: показывает состав (ник имя — рейтинг) и кнопку «Назад».
+ * Обработчик выбора команды из списка «Команды турнира»: показывает состав (ник имя — рейтинг) и
+ * кнопку «Назад».
  */
 @Slf4j
 @Service
@@ -28,11 +29,17 @@ public class CallbackTeamView implements Callback {
   private final TeamPlayerService teamPlayerService;
   private final KeyboardTournamentUtil keyboardUtil;
 
+  /**
+   * Совпадение для callback data вида «team_&lt;id&gt;».
+   */
   @Override
   public boolean coincidence(String command) {
     return command != null && command.matches("team_\\d+");
   }
 
+  /**
+   * Редактирует сообщение: состав команды (ник, имя, рейтинг) и кнопка «Назад к командам».
+   */
   @Override
   public void handle(CallbackQuery callbackQuery, TelegramLongPollingBot bot) {
     String data = callbackQuery.getData();

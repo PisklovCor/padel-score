@@ -13,33 +13,39 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @RequiredArgsConstructor
 public class CommandHelp implements Command {
 
-    @Override
-    public boolean coincidence(String command) {
+  /**
+   * Совпадение для команды /help.
+   */
+  @Override
+  public boolean coincidence(String command) {
 
-        return "/help".equals(command);
+    return "/help".equals(command);
+  }
+
+  /**
+   * Отправляет справку по командам (/menu, /profiles, /help).
+   */
+  @Override
+  public void handle(Message message, TelegramLongPollingBot bot) {
+
+    final var text = """
+        📖 Справка по командам:
+        
+        /menu - Главное меню
+        /profiles - Профиль
+        /help - Это справка
+        
+        Используйте inline-кнопки для быстрого доступа к функциям.""";
+
+    var messageReply = new SendMessage();
+    messageReply.setChatId(message.getChatId().toString());
+    messageReply.setText(text);
+
+    try {
+      bot.execute(messageReply);
+    } catch (TelegramApiException e) {
+      log.error(e.getMessage());
+      e.printStackTrace();
     }
-
-    @Override
-    public void handle(Message message, TelegramLongPollingBot bot) {
-
-        final var text = """
-                📖 Справка по командам:
-                
-                /menu - Главное меню
-                /profiles - Профиль
-                /help - Это справка
-                
-                Используйте inline-кнопки для быстрого доступа к функциям.""";
-
-        var messageReply  = new SendMessage();
-        messageReply.setChatId(message.getChatId().toString());
-        messageReply.setText(text);
-
-        try {
-            bot.execute(messageReply);
-        } catch (TelegramApiException e) {
-            log.error(e.getMessage());
-            e.printStackTrace();
-        }
-    }
+  }
 }

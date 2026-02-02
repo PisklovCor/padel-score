@@ -28,6 +28,10 @@ public class CallbackTournamentMatches implements Callback {
   private final TeamService teamService;
   private final KeyboardTournamentUtil keyboardTournamentUtil;
 
+  /**
+   * Совпадение для matches_list_, match_, match_result_, result_quick_, match_view_,
+   * match_dispute_, match_create_.
+   */
   @Override
   public boolean coincidence(String command) {
     return command != null
@@ -36,6 +40,10 @@ public class CallbackTournamentMatches implements Callback {
         || command.startsWith("result_quick_"));
   }
 
+  /**
+   * Обрабатывает матчи турнира: список матчей, карточка матча, ввод результата, просмотр,
+   * оспаривание, создание.
+   */
   @Override
   public void handle(CallbackQuery callbackQuery, TelegramLongPollingBot bot) {
     String data = callbackQuery.getData();
@@ -65,7 +73,7 @@ public class CallbackTournamentMatches implements Callback {
   }
 
   private void handleMatchesList(String data, String chatId, Integer messageId,
-                                  TelegramLongPollingBot bot) throws TelegramApiException {
+      TelegramLongPollingBot bot) throws TelegramApiException {
     Integer tournamentId = Integer.parseInt(data.split("_")[2]);
     List<MatchDto> matches = matchService.getMatchesByTournament(tournamentId);
 
@@ -74,7 +82,8 @@ public class CallbackTournamentMatches implements Callback {
     message.setMessageId(messageId);
 
     if (matches.isEmpty()) {
-      message.setText("⚽ Матчи турнира\n\nВ этом турнире пока нет матчей.\n\nИспользуйте кнопку ниже, чтобы создать матч.");
+      message.setText(
+          "⚽ Матчи турнира\n\nВ этом турнире пока нет матчей.\n\nИспользуйте кнопку ниже, чтобы создать матч.");
     } else {
       StringBuilder text = new StringBuilder("⚽ Матчи турнира\n\n");
       DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
@@ -95,7 +104,7 @@ public class CallbackTournamentMatches implements Callback {
   }
 
   private void handleMatchCard(String data, String chatId, Integer messageId,
-                               TelegramLongPollingBot bot) throws TelegramApiException {
+      TelegramLongPollingBot bot) throws TelegramApiException {
     String[] parts = data.split("_");
     if (parts.length != 2) {
       return;
@@ -130,7 +139,7 @@ public class CallbackTournamentMatches implements Callback {
   }
 
   private void handleMatchResultInput(String data, String chatId, Integer messageId,
-                                      TelegramLongPollingBot bot) throws TelegramApiException {
+      TelegramLongPollingBot bot) throws TelegramApiException {
     Integer matchId = Integer.parseInt(data.split("_")[2]);
     MatchDto match = matchService.getMatch(matchId);
 
@@ -144,7 +153,7 @@ public class CallbackTournamentMatches implements Callback {
   }
 
   private void handleQuickResult(String data, String chatId, Integer messageId, Long userId,
-                                 TelegramLongPollingBot bot) throws TelegramApiException {
+      TelegramLongPollingBot bot) throws TelegramApiException {
     String[] parts = data.split("_");
     Integer matchId = Integer.parseInt(parts[2]);
     String score = parts[3];
@@ -168,7 +177,7 @@ public class CallbackTournamentMatches implements Callback {
   }
 
   private void handleMatchView(String data, String chatId, Integer messageId,
-                               TelegramLongPollingBot bot) throws TelegramApiException {
+      TelegramLongPollingBot bot) throws TelegramApiException {
     Integer matchId = Integer.parseInt(data.split("_")[2]);
     MatchDto match = matchService.getMatch(matchId);
 
@@ -198,7 +207,7 @@ public class CallbackTournamentMatches implements Callback {
   }
 
   private void handleMatchDispute(String data, String chatId, Integer messageId, Long userId,
-                                  TelegramLongPollingBot bot) throws TelegramApiException {
+      TelegramLongPollingBot bot) throws TelegramApiException {
     Integer matchId = Integer.parseInt(data.split("_")[2]);
 
     try {
@@ -219,7 +228,7 @@ public class CallbackTournamentMatches implements Callback {
   }
 
   private void handleMatchCreate(String data, String chatId, Long userId,
-                                 TelegramLongPollingBot bot) {
+      TelegramLongPollingBot bot) {
     Integer tournamentId = Integer.parseInt(data.split("_")[2]);
     List<TeamDto> teams = teamService.getTeamsByTournament(tournamentId);
 

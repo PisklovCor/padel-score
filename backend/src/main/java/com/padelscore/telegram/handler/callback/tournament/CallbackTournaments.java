@@ -29,7 +29,9 @@ public class CallbackTournaments implements Callback {
 
   private final PlayerProfileService playerProfileService;
 
-
+  /**
+   * Совпадение для «tournaments», «tournament_list» или «tournament_&lt;id&gt;».
+   */
   @Override
   public boolean coincidence(String command) {
     return "tournaments".equals(command)
@@ -38,6 +40,9 @@ public class CallbackTournaments implements Callback {
         "tournament_list"));
   }
 
+  /**
+   * Редактирует сообщение: список турниров пользователя или карточку турнира (ID, формат, приз).
+   */
   @Override
   public void handle(CallbackQuery callbackQuery, TelegramLongPollingBot bot) {
     String data = callbackQuery.getData();

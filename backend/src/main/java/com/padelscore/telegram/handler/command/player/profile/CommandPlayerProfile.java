@@ -21,12 +21,18 @@ public class CommandPlayerProfile implements Command {
 
   private final KeyboardPlayerProfileUtil keyboardPlayerProfileUtil;
 
+  /**
+   * Совпадение для команды /profiles.
+   */
   @Override
   public boolean coincidence(String command) {
 
     return "/profiles".equals(command);
   }
 
+  /**
+   * Отправляет данные профиля пользователя или предложение создать профиль и клавиатуру профиля.
+   */
   @Override
   public void handle(Message message, TelegramLongPollingBot bot) {
 
@@ -54,13 +60,13 @@ public class CommandPlayerProfile implements Command {
     }
   }
 
-  private String getTextProfileExists(PlayerProfileDto  playerProfileDto) {
+  private String getTextProfileExists(PlayerProfileDto playerProfileDto) {
     return """
-          👤 Профиль пользователя:
-          
-          Ник - %s
-          Имя - %s
-          Рейтинг - %d""".formatted(
+        👤 Профиль пользователя:
+        
+        Ник - %s
+        Имя - %s
+        Рейтинг - %d""".formatted(
         playerProfileDto.getNickname(),
         playerProfileDto.getFirstName(),
         playerProfileDto.getRating());
@@ -68,8 +74,8 @@ public class CommandPlayerProfile implements Command {
 
   private String getGetTextProfileNotExists() {
     return """
-          ⚠️ У вас пока нет профиля:
-          
-          Для быстрого создания используйте кнопку.""";
+        ⚠️ У вас пока нет профиля:
+        
+        Для быстрого создания используйте кнопку.""";
   }
 }

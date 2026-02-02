@@ -21,6 +21,9 @@ public class CommandCreatePlayerProfile implements Command {
 
   private final KeyboardPlayerProfileUtil keyboardPlayerProfileUtil;
 
+  /**
+   * Совпадение для команды /create_profiles (с опциональным ником).
+   */
   @Override
   public boolean coincidence(String command) {
 
@@ -28,6 +31,10 @@ public class CommandCreatePlayerProfile implements Command {
     return "/create_profiles".equals(parts[0]);
   }
 
+  /**
+   * Создаёт профиль по данным Telegram (или нику из текста) и отправляет подтверждение с
+   * клавиатурой.
+   */
   @Override
   public void handle(Message message, TelegramLongPollingBot bot) {
 

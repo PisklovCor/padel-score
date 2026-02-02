@@ -16,34 +16,40 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @RequiredArgsConstructor
 public class CommandDeletePlayerProfile implements Command {
 
-    private final PlayerProfileService playerProfileService;
-    private final KeyboardPlayerProfileUtil keyboardPlayerProfileUtil;
+  private final PlayerProfileService playerProfileService;
+  private final KeyboardPlayerProfileUtil keyboardPlayerProfileUtil;
 
-    @Override
-    public boolean coincidence(String command) {
+  /**
+   * Совпадение для команды /delete_profiles.
+   */
+  @Override
+  public boolean coincidence(String command) {
 
-        return "/delete_profiles".equals(command);
+    return "/delete_profiles".equals(command);
+  }
+
+  /**
+   * Удаляет профиль пользователя и отправляет подтверждение с клавиатурой без профиля.
+   */
+  @Override
+  public void handle(Message message, TelegramLongPollingBot bot) {
+
+    final Long userId = message.getFrom().getId();
+
+    var playerProfileDto = playerProfileService.getPlayerProfileByTelegramId(userId);
+
+    playerProfileService.deletePlayerProfile(playerProfileDto.getId());
+
+    var messageReply = new SendMessage();
+    messageReply.setChatId(message.getChatId().toString());
+    messageReply.setText("❌ Ваш профиль удален.");
+    messageReply.setReplyMarkup(keyboardPlayerProfileUtil.getProfileMenu(false));
+
+    try {
+      bot.execute(messageReply);
+    } catch (TelegramApiException e) {
+      log.error(e.getMessage());
+      e.printStackTrace();
     }
-
-    @Override
-    public void handle(Message message, TelegramLongPollingBot bot) {
-
-        final Long userId = message.getFrom().getId();
-
-        var playerProfileDto = playerProfileService.getPlayerProfileByTelegramId(userId);
-
-        playerProfileService.deletePlayerProfile(playerProfileDto.getId());
-
-        var messageReply = new SendMessage();
-        messageReply.setChatId(message.getChatId().toString());
-        messageReply.setText("❌ Ваш профиль удален.");
-        messageReply.setReplyMarkup(keyboardPlayerProfileUtil.getProfileMenu(false));
-
-        try {
-            bot.execute(messageReply);
-        } catch (TelegramApiException e) {
-            log.error(e.getMessage());
-            e.printStackTrace();
-        }
-    }
+  }
 }

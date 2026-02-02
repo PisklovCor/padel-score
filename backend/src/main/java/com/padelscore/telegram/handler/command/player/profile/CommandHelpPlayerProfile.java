@@ -15,35 +15,41 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @RequiredArgsConstructor
 public class CommandHelpPlayerProfile implements Command {
 
-    @Override
-    public boolean coincidence(String command) {
+  /**
+   * Всегда false — команда не привязана к тексту (deprecated).
+   */
+  @Override
+  public boolean coincidence(String command) {
 
-        return false;
+    return false;
+  }
+
+  /**
+   * Отправляет справку по командам профиля (/profiles, /create_profiles и т.д.).
+   */
+  @Override
+  public void handle(Message message, TelegramLongPollingBot bot) {
+
+    final var text = """
+        📖 Справка по командам профиля:
+        
+        /profiles - Посмотреть профиль
+        /create_profiles - Создать профиль
+        /update_profiles - Обновить профиль
+        /delete_profiles - Удалить профиль
+        /help - Справка
+        
+        Используйте inline-кнопки для быстрого доступа к функциям.""";
+
+    var messageReply = new SendMessage();
+    messageReply.setChatId(message.getChatId().toString());
+    messageReply.setText(text);
+
+    try {
+      bot.execute(messageReply);
+    } catch (TelegramApiException e) {
+      log.error(e.getMessage());
+      e.printStackTrace();
     }
-
-    @Override
-    public void handle(Message message, TelegramLongPollingBot bot) {
-
-        final var text = """
-                📖 Справка по командам профиля:
-                
-                /profiles - Посмотреть профиль
-                /create_profiles - Создать профиль
-                /update_profiles - Обновить профиль
-                /delete_profiles - Удалить профиль
-                /help - Справка
-                
-                Используйте inline-кнопки для быстрого доступа к функциям.""";
-
-        var messageReply  = new SendMessage();
-        messageReply.setChatId(message.getChatId().toString());
-        messageReply.setText(text);
-
-        try {
-            bot.execute(messageReply);
-        } catch (TelegramApiException e) {
-            log.error(e.getMessage());
-            e.printStackTrace();
-        }
-    }
+  }
 }

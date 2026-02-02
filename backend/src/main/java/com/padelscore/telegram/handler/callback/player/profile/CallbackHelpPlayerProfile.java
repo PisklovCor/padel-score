@@ -15,12 +15,18 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @RequiredArgsConstructor
 public class CallbackHelpPlayerProfile implements Callback {
 
+  /**
+   * Всегда false — callback не привязан (deprecated).
+   */
   @Override
   public boolean coincidence(String command) {
 
     return false;
   }
 
+  /**
+   * Отправляет справку по командам профиля (/profiles, /create_profiles и т.д.).
+   */
   @Override
   public void handle(CallbackQuery callbackQuery, TelegramLongPollingBot bot) {
 

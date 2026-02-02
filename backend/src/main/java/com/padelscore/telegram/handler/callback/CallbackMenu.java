@@ -16,12 +16,18 @@ public class CallbackMenu implements Callback {
 
   private final KeyboardUtil keyboardUtil;
 
+  /**
+   * Совпадение для callback data «menu».
+   */
   @Override
   public boolean coincidence(String command) {
 
     return "menu".equals(command);
   }
 
+  /**
+   * Редактирует сообщение на текст «Главное меню» и клавиатуру главного меню.
+   */
   @Override
   public void handle(CallbackQuery callbackQuery, TelegramLongPollingBot bot) {
 

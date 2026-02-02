@@ -97,7 +97,13 @@ public class KeyboardTournamentUtil {
     return markup;
   }
 
-
+  /**
+   * Строит клавиатуру со списком команд турнира и кнопкой «Назад».
+   *
+   * @param teams        список команд
+   * @param tournamentId идентификатор турнира
+   * @return разметка inline-кнопок
+   */
   public InlineKeyboardMarkup getTeamsMenu(List<TeamDto> teams, Integer tournamentId) {
     InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
     List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
@@ -138,6 +144,13 @@ public class KeyboardTournamentUtil {
     return markup;
   }
 
+  /**
+   * Строит клавиатуру команды: Игроки, Добавить игрока, «Назад к командам».
+   *
+   * @param teamId       идентификатор команды
+   * @param tournamentId идентификатор турнира
+   * @return разметка inline-кнопок
+   */
   public InlineKeyboardMarkup getTeamMenu(Integer teamId, Integer tournamentId) {
     InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
     List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
@@ -167,6 +180,13 @@ public class KeyboardTournamentUtil {
     return markup;
   }
 
+  /**
+   * Строит клавиатуру со списком игроков команды, кнопкой «Добавить игрока» и «Назад».
+   *
+   * @param players список игроков
+   * @param teamId  идентификатор команды
+   * @return разметка inline-кнопок
+   */
   public InlineKeyboardMarkup getPlayersMenu(List<TeamPlayerDto> players, Integer teamId) {
     InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
     List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
@@ -198,6 +218,13 @@ public class KeyboardTournamentUtil {
     return markup;
   }
 
+  /**
+   * Строит клавиатуру со списком матчей турнира и кнопкой «Назад».
+   *
+   * @param matches      список матчей
+   * @param tournamentId идентификатор турнира
+   * @return разметка inline-кнопок
+   */
   public InlineKeyboardMarkup getMatchesMenu(List<MatchDto> matches, Integer tournamentId) {
     InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
     List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
@@ -224,6 +251,15 @@ public class KeyboardTournamentUtil {
     return markup;
   }
 
+  /**
+   * Строит клавиатуру матча: для scheduled — «Ввести результат»; для completed — «Просмотр
+   * результата», «Изменить», «Оспорить»; всегда «Назад к матчам».
+   *
+   * @param matchId      идентификатор матча
+   * @param tournamentId идентификатор турнира
+   * @param status       статус матча (scheduled / completed)
+   * @return разметка inline-кнопок
+   */
   public InlineKeyboardMarkup getMatchMenu(Integer matchId, Integer tournamentId, String status) {
     InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
     List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
@@ -267,6 +303,12 @@ public class KeyboardTournamentUtil {
     return markup;
   }
 
+  /**
+   * Строит клавиатуру ввода результата матча: счёт 2-0, 2-1 и «Отмена».
+   *
+   * @param matchId идентификатор матча
+   * @return разметка inline-кнопок
+   */
   public InlineKeyboardMarkup getResultInputMenu(Integer matchId) {
     InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
     List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();

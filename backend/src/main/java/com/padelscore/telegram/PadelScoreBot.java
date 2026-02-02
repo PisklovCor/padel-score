@@ -31,16 +31,26 @@ public class PadelScoreBot extends TelegramLongPollingBot {
 
   private final CallbackHandler callbackHandler;
 
+  /**
+   * Возвращает имя бота в Telegram (без @).
+   */
   @Override
   public String getBotUsername() {
     return botUsername;
   }
 
+  /**
+   * Возвращает токен бота для API Telegram.
+   */
   @Override
   public String getBotToken() {
     return botToken;
   }
 
+  /**
+   * Обрабатывает входящее обновление: текстовые сообщения — через CommandHandler, нажатия
+   * inline-кнопок — через CallbackHandler.
+   */
   @Override
   public void onUpdateReceived(Update update) {
     if (update.hasMessage() && update.getMessage().hasText()) {
@@ -50,6 +60,9 @@ public class PadelScoreBot extends TelegramLongPollingBot {
     }
   }
 
+  /**
+   * Регистрирует команды бота в меню Telegram (/menu, /profiles, /help).
+   */
   @PostConstruct
   public void initBotCommands() {
     List<BotCommand> commands = List.of(
