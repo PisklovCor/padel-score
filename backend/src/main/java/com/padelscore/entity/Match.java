@@ -1,8 +1,11 @@
 package com.padelscore.entity;
 
+import com.padelscore.entity.enums.MatchStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -49,8 +52,9 @@ public class Match {
   @Column(name = "scheduled_date")
   private LocalDateTime scheduledDate;
 
+  @Enumerated(EnumType.STRING)
   @Column(length = 50)
-  private String status;
+  private MatchStatus status;
 
   @Column(length = 50)
   private String format;
@@ -78,7 +82,7 @@ public class Match {
     createdAt = LocalDateTime.now();
     updatedAt = LocalDateTime.now();
     if (status == null) {
-      status = "scheduled";
+      status = MatchStatus.SCHEDULED;
     }
   }
 

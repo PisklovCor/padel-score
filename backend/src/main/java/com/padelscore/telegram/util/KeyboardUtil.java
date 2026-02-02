@@ -267,8 +267,8 @@ public class KeyboardUtil {
     for (MatchDto match : matches) {
       List<InlineKeyboardButton> row = new ArrayList<>();
       InlineKeyboardButton button = new InlineKeyboardButton();
-      String status = "scheduled".equals(match.getStatus()) ? "⏰" :
-          "completed".equals(match.getStatus()) ? "✅" : "🔄";
+      String status = "SCHEDULED".equals(match.getStatus()) ? "⏰" :
+          "COMPLETED".equals(match.getStatus()) ? "✅" : "🔄";
       button.setText(status + " " + match.getTeam1Name() + " vs " + match.getTeam2Name());
       button.setCallbackData("match_" + match.getId());
       row.add(button);
@@ -306,14 +306,14 @@ public class KeyboardUtil {
     InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
     List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
 
-    if ("scheduled".equals(status)) {
+    if ("SCHEDULED".equals(status)) {
       List<InlineKeyboardButton> row1 = new ArrayList<>();
       InlineKeyboardButton submitResult = new InlineKeyboardButton();
       submitResult.setText("📝 Ввести результат");
       submitResult.setCallbackData("match_result_" + matchId);
       row1.add(submitResult);
       keyboard.add(row1);
-    } else if ("completed".equals(status)) {
+    } else if ("COMPLETED".equals(status)) {
       List<InlineKeyboardButton> row1 = new ArrayList<>();
       InlineKeyboardButton viewResult = new InlineKeyboardButton();
       viewResult.setText("📊 Просмотр результата");

@@ -3,6 +3,7 @@ package com.padelscore.service;
 import com.padelscore.dto.MatchDto;
 import com.padelscore.dto.MatchResultDto;
 import com.padelscore.entity.*;
+import com.padelscore.entity.enums.MatchStatus;
 import com.padelscore.repository.*;
 import com.padelscore.util.EntityMapper;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +46,7 @@ public class MatchService {
                 .scheduledDate(scheduledDate)
                 .format(format != null ? format : "best_of_3_sets")
                 .location(location)
-                .status("scheduled")
+                .status(MatchStatus.SCHEDULED)
                 .completed(completed != null ? completed : false)
                 .build();
         
@@ -90,7 +91,7 @@ public class MatchService {
         }
         
         result = matchResultRepository.save(result);
-        match.setStatus("completed");
+        match.setStatus(MatchStatus.COMPLETED);
         match.setCompleted(true);
         matchRepository.save(match);
         

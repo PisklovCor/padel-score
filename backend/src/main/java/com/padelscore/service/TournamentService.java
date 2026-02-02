@@ -4,6 +4,7 @@ import com.padelscore.dto.TeamDto;
 import com.padelscore.dto.TournamentDto;
 import com.padelscore.entity.Tournament;
 import com.padelscore.entity.UserRole;
+import com.padelscore.entity.enums.TournamentStatus;
 import com.padelscore.repository.TournamentRepository;
 import com.padelscore.repository.UserRoleRepository;
 import com.padelscore.util.EntityMapper;
@@ -30,6 +31,17 @@ public class TournamentService {
     public TournamentDto createTournament(String title, String description, Long createdBy, 
                                          String format, String scoringSystem, String prize,
                                          String status, Boolean completed) {
+        TournamentStatus tournamentStatus = null;
+        if (status != null) {
+            try {
+                tournamentStatus = TournamentStatus.valueOf(status.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                tournamentStatus = TournamentStatus.PLANNED;
+            }
+        } else {
+            tournamentStatus = TournamentStatus.PLANNED;
+        }
+        
         Tournament tournament = Tournament.builder()
                 .title(title)
                 .description(description)
@@ -37,7 +49,7 @@ public class TournamentService {
                 .format(format != null ? format : "group")
                 .scoringSystem(scoringSystem != null ? scoringSystem : "points")
                 .prize(prize)
-                .status(status)
+                .status(tournamentStatus)
                 .completed(completed != null ? completed : false)
                 .build();
         
@@ -127,7 +139,11 @@ public class TournamentService {
             tournament.setPrize(prize);
         }
         if (status != null) {
-            tournament.setStatus(status);
+            try {
+                tournament.setStatus(TournamentStatus.valueOf(status.toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                throw new RuntimeException("Invalid tournament status: " + status);
+            }
         }
         if (completed != null) {
             tournament.setCompleted(completed);

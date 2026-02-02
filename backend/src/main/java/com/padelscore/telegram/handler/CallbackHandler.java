@@ -243,8 +243,8 @@ public class CallbackHandler {
     } else {
       StringBuilder text = new StringBuilder("⚽ Матчи турнира:\n\n");
       for (MatchDto match : matches) {
-        String status = "scheduled".equals(match.getStatus()) ? "⏰" :
-            "completed".equals(match.getStatus()) ? "✅" : "🔄";
+        String status = "SCHEDULED".equals(match.getStatus()) ? "⏰" :
+            "COMPLETED".equals(match.getStatus()) ? "✅" : "🔄";
         text.append(
             String.format("%s %s vs %s\n", status, match.getTeam1Name(), match.getTeam2Name()));
       }
@@ -331,7 +331,7 @@ public class CallbackHandler {
           match.getTeam1Name() + " vs " + match.getTeam2Name() + "\n" +
           "Счет: " + score);
       message.setReplyMarkup(
-          keyboardUtil.getMatchMenu(matchId, match.getTournamentId(), "completed"));
+          keyboardUtil.getMatchMenu(matchId, match.getTournamentId(), "COMPLETED"));
       bot.execute(message);
     } catch (Exception e) {
       sendMessage(chatId, "Ошибка при сохранении результата: " + e.getMessage(), bot);
@@ -347,7 +347,7 @@ public class CallbackHandler {
     text.append(match.getTeam1Name()).append(" vs ").append(match.getTeam2Name()).append("\n");
     text.append("Статус: ").append(match.getStatus()).append("\n");
 
-    if ("completed".equals(match.getStatus())) {
+    if ("COMPLETED".equals(match.getStatus())) {
       try {
         com.padelscore.dto.MatchResultDto result = matchService.getMatchResult(matchId);
         text.append("\n🏆 Победитель: ").append(result.getWinnerTeamName()).append("\n");

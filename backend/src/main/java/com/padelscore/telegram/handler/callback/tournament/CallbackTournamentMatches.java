@@ -88,8 +88,8 @@ public class CallbackTournamentMatches implements Callback {
       StringBuilder text = new StringBuilder("⚽ Матчи турнира\n\n");
       DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
       for (MatchDto match : matches) {
-        String status = "scheduled".equals(match.getStatus()) ? "⏰"
-            : "completed".equals(match.getStatus()) ? "✅" : "🔄";
+        String status = "SCHEDULED".equals(match.getStatus()) ? "⏰"
+            : "COMPLETED".equals(match.getStatus()) ? "✅" : "🔄";
         String teams = match.getTeam1Name() + " vs " + match.getTeam2Name();
         String dateStr = match.getScheduledDate() != null
             ? match.getScheduledDate().format(dateFormatter) : "—";
@@ -169,7 +169,7 @@ public class CallbackTournamentMatches implements Callback {
           + match.getTeam1Name() + " vs " + match.getTeam2Name() + "\n"
           + "Счет: " + score);
       message.setReplyMarkup(keyboardTournamentUtil.getMatchMenu(
-          matchId, match.getTournamentId(), "completed"));
+          matchId, match.getTournamentId(), "COMPLETED"));
       bot.execute(message);
     } catch (Exception e) {
       sendMessage(chatId, "Ошибка при сохранении результата: " + e.getMessage(), bot);
@@ -185,7 +185,7 @@ public class CallbackTournamentMatches implements Callback {
     text.append(match.getTeam1Name()).append(" vs ").append(match.getTeam2Name()).append("\n");
     text.append("Статус: ").append(match.getStatus()).append("\n");
 
-    if ("completed".equals(match.getStatus())) {
+    if ("COMPLETED".equals(match.getStatus())) {
       try {
         MatchResultDto result = matchService.getMatchResult(matchId);
         text.append("\n🏆 Победитель: ").append(result.getWinnerTeamName()).append("\n");

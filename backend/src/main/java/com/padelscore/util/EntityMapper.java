@@ -28,7 +28,7 @@ public class EntityMapper {
         .format(tournament.getFormat())
         .scoringSystem(tournament.getScoringSystem())
         .prize(tournament.getPrize())
-        .status(tournament.getStatus())
+        .status(tournament.getStatus() != null ? tournament.getStatus().name() : null)
         .completed(tournament.getCompleted())
         .build();
   }
@@ -79,7 +79,7 @@ public class EntityMapper {
         .team1Name(match.getTeam1().getName())
         .team2Name(match.getTeam2().getName())
         .scheduledDate(match.getScheduledDate())
-        .status(match.getStatus())
+        .status(match.getStatus() != null ? match.getStatus().name() : null)
         .format(match.getFormat())
         .location(match.getLocation())
         .completed(match.getCompleted())
