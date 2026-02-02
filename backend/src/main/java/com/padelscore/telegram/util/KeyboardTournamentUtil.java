@@ -304,7 +304,7 @@ public class KeyboardTournamentUtil {
   }
 
   /**
-   * Строит клавиатуру ввода результата матча: счёт 2-0, 2-1 и «Отмена».
+   * Строит клавиатуру ввода результата матча: счёт 2-0, 2-1, 0-2, 1-2 и «Отмена».
    *
    * @param matchId идентификатор матча
    * @return разметка inline-кнопок
@@ -325,13 +325,25 @@ public class KeyboardTournamentUtil {
     row1.add(score21);
 
     List<InlineKeyboardButton> row2 = new ArrayList<>();
+    InlineKeyboardButton score02 = new InlineKeyboardButton();
+    score02.setText("0-2");
+    score02.setCallbackData("result_quick_" + matchId + "_0-2");
+    row2.add(score02);
+
+    InlineKeyboardButton score12 = new InlineKeyboardButton();
+    score12.setText("1-2");
+    score12.setCallbackData("result_quick_" + matchId + "_1-2");
+    row2.add(score12);
+
+    List<InlineKeyboardButton> row3 = new ArrayList<>();
     InlineKeyboardButton cancel = new InlineKeyboardButton();
     cancel.setText("❌ Отмена");
     cancel.setCallbackData("match_" + matchId);
-    row2.add(cancel);
+    row3.add(cancel);
 
     keyboard.add(row1);
     keyboard.add(row2);
+    keyboard.add(row3);
     markup.setKeyboard(keyboard);
     return markup;
   }

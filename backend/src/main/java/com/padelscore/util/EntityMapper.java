@@ -49,7 +49,7 @@ public class EntityMapper {
     return TeamPlayerDto.builder()
         .id(teamPlayer.getId())
         .teamId(teamPlayer.getTeam().getId())
-        .position(teamPlayer.getPosition())
+        .position(teamPlayer.getPosition() != null ? teamPlayer.getPosition().name() : null)
         .playerProfileId(profile.getId())
         .firstName(profile.getFirstName())
         .lastName(profile.getLastName())

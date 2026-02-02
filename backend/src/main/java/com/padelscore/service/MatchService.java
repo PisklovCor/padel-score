@@ -101,7 +101,7 @@ public class MatchService {
     private ScoreCalculationResult calculateScore(Match match, String finalScore) {
         String[] scores = finalScore.split("-");
         if (scores.length != 2) {
-            throw new RuntimeException("Invalid score format. Use format: 2-0 or 2-1");
+            throw new RuntimeException("Invalid score format. Use format: 2-0, 2-1, 0-2 or 1-2");
         }
         
         int team1Sets = Integer.parseInt(scores[0].trim());
@@ -113,7 +113,7 @@ public class MatchService {
         int winnerPoints = 3;
         int loserPoints = 1;
         
-        if (team1Sets == 2 && team2Sets == 0) {
+        if ((team1Sets == 2 && team2Sets == 0) || (team1Sets == 0 && team2Sets == 2)) {
             winnerPoints = 4;
         }
         

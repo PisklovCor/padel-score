@@ -1,7 +1,10 @@
 package com.padelscore.entity;
 
+import com.padelscore.entity.enums.TeamPlayerPosition;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -41,8 +44,9 @@ public class TeamPlayer {
   @JoinColumn(name = "player_profile_id", nullable = false)
   private PlayerProfile playerProfile;
 
+  @Enumerated(EnumType.STRING)
   @Column(length = 50)
-  private String position; // 'primary', 'reserve', 'coach'
+  private TeamPlayerPosition position;
 
   @Column(name = "joined_at", nullable = false, updatable = false)
   private LocalDateTime joinedAt;
@@ -53,7 +57,7 @@ public class TeamPlayer {
       joinedAt = LocalDateTime.now();
     }
     if (position == null) {
-      position = "primary";
+      position = TeamPlayerPosition.PRIMARY;
     }
   }
 }

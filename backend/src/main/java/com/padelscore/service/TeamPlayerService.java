@@ -4,6 +4,7 @@ import com.padelscore.dto.TeamPlayerDto;
 import com.padelscore.entity.PlayerProfile;
 import com.padelscore.entity.Team;
 import com.padelscore.entity.TeamPlayer;
+import com.padelscore.entity.enums.TeamPlayerPosition;
 import com.padelscore.repository.PlayerProfileRepository;
 import com.padelscore.repository.TeamPlayerRepository;
 import com.padelscore.repository.TeamRepository;
@@ -52,10 +53,12 @@ public class TeamPlayerService {
             throw new RuntimeException("Player already exists in this team");
         }
         
+        TeamPlayerPosition playerPosition = parsePosition(position);
+        
         TeamPlayer teamPlayer = TeamPlayer.builder()
                 .team(team)
                 .playerProfile(profile)
-                .position(position != null ? position : "primary")
+                .position(playerPosition)
                 .build();
         
         teamPlayer = teamPlayerRepository.save(teamPlayer);
@@ -68,7 +71,7 @@ public class TeamPlayerService {
                 .orElseThrow(() -> new RuntimeException("Team player not found"));
         
         if (position != null) {
-            teamPlayer.setPosition(position);
+            teamPlayer.setPosition(parsePosition(position));
             teamPlayer = teamPlayerRepository.save(teamPlayer);
         }
         
@@ -104,10 +107,11 @@ public class TeamPlayerService {
                     throw new RuntimeException("Player already exists in this team");
                 }
                 // Создаем связь с существующим профилем
+                TeamPlayerPosition playerPosition = parsePosition(position);
                 TeamPlayer teamPlayer = TeamPlayer.builder()
                         .team(team)
                         .playerProfile(existingProfile.get())
-                        .position(position != null ? position : "primary")
+                        .position(playerPosition)
                         .build();
                 teamPlayer = teamPlayerRepository.save(teamPlayer);
                 return mapper.toDto(teamPlayer);
@@ -120,10 +124,11 @@ public class TeamPlayerService {
             for (PlayerProfile profile : profilesByName) {
                 if (!teamPlayerRepository.existsByTeamIdAndPlayerProfileId(teamId, profile.getId())) {
                     // Найден профиль с таким именем, создаем связь
+                    TeamPlayerPosition playerPosition = parsePosition(position);
                     TeamPlayer teamPlayer = TeamPlayer.builder()
                             .team(team)
                             .playerProfile(profile)
-                            .position(position != null ? position : "primary")
+                            .position(playerPosition)
                             .build();
                     teamPlayer = teamPlayerRepository.save(teamPlayer);
                     return mapper.toDto(teamPlayer);
@@ -141,10 +146,11 @@ public class TeamPlayerService {
         profile = playerProfileRepository.save(profile);
         
         // Создаем связь с командой
+        TeamPlayerPosition playerPosition = parsePosition(position);
         TeamPlayer teamPlayer = TeamPlayer.builder()
                 .team(team)
                 .playerProfile(profile)
-                .position(position != null ? position : "primary")
+                .position(playerPosition)
                 .build();
         teamPlayer = teamPlayerRepository.save(teamPlayer);
         
@@ -176,10 +182,21 @@ public class TeamPlayerService {
         
         // Обновляем позицию в конкретной команде
         if (position != null) {
-            teamPlayer.setPosition(position);
+            teamPlayer.setPosition(parsePosition(position));
             teamPlayer = teamPlayerRepository.save(teamPlayer);
         }
         
         return mapper.toDto(teamPlayer);
+    }
+    
+    private TeamPlayerPosition parsePosition(String position) {
+        if (position == null) {
+            return TeamPlayerPosition.PRIMARY;
+        }
+        try {
+            return TeamPlayerPosition.valueOf(position.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return TeamPlayerPosition.PRIMARY;
+        }
     }
 }

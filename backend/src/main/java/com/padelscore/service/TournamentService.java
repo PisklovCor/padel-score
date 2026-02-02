@@ -5,6 +5,7 @@ import com.padelscore.dto.TournamentDto;
 import com.padelscore.entity.Tournament;
 import com.padelscore.entity.UserRole;
 import com.padelscore.entity.enums.TournamentStatus;
+import com.padelscore.entity.enums.TournamentUserRole;
 import com.padelscore.repository.TournamentRepository;
 import com.padelscore.repository.UserRoleRepository;
 import com.padelscore.util.EntityMapper;
@@ -58,7 +59,7 @@ public class TournamentService {
         UserRole adminRole = UserRole.builder()
                 .tournament(tournament)
                 .userId(createdBy)
-                .role("admin")
+                .role(TournamentUserRole.ADMIN)
                 .build();
         userRoleRepository.save(adminRole);
         
@@ -95,12 +96,24 @@ public class TournamentService {
     public boolean hasAccess(Long userId, Integer tournamentId, String requiredRole) {
         return userRoleRepository.findByTournamentIdAndUserId(tournamentId, userId)
                 .map(role -> {
-                    if ("admin".equals(role.getRole())) {
+                    if (role.getRole() == TournamentUserRole.ADMIN) {
                         return true;
                     }
-                    return requiredRole.equals(role.getRole());
+                    TournamentUserRole requiredRoleEnum = parseUserRole(requiredRole);
+                    return requiredRoleEnum != null && requiredRoleEnum.equals(role.getRole());
                 })
                 .orElse(false);
+    }
+    
+    private TournamentUserRole parseUserRole(String role) {
+        if (role == null) {
+            return null;
+        }
+        try {
+            return TournamentUserRole.valueOf(role.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
     
     public List<TournamentDto> getAllTournaments() {

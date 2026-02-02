@@ -4,6 +4,7 @@ import com.padelscore.dto.TeamDto;
 import com.padelscore.entity.Team;
 import com.padelscore.entity.Tournament;
 import com.padelscore.entity.UserRole;
+import com.padelscore.entity.enums.TournamentUserRole;
 import com.padelscore.repository.PlayerProfileRepository;
 import com.padelscore.repository.TeamPlayerRepository;
 import com.padelscore.repository.TeamRepository;
@@ -52,7 +53,7 @@ public class TeamService {
             UserRole captainRole = UserRole.builder()
                     .tournament(tournament)
                     .userId(captainId)
-                    .role("captain")
+                    .role(TournamentUserRole.CAPTAIN)
                     .build();
             userRoleRepository.save(captainRole);
         }
