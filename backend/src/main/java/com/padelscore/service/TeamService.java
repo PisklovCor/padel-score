@@ -1,6 +1,7 @@
 package com.padelscore.service;
 
 import com.padelscore.dto.TeamDto;
+import com.padelscore.entity.PlayerProfile;
 import com.padelscore.entity.Team;
 import com.padelscore.entity.Tournament;
 import com.padelscore.entity.UserRole;
@@ -33,15 +34,18 @@ public class TeamService {
     private final EntityMapper mapper;
     
     @Transactional
-    public TeamDto createTeam(Integer tournamentId, String name, Long captainId, 
+    public TeamDto createTeam(Integer tournamentId, String name, Integer captainPlayerProfileId, 
                               String description, String color) {
         Tournament tournament = tournamentRepository.findById(tournamentId)
                 .orElseThrow(() -> new RuntimeException("Tournament not found"));
         
+        PlayerProfile captainProfile = playerProfileRepository.findById(captainPlayerProfileId)
+                .orElseThrow(() -> new RuntimeException("Player profile not found"));
+        
         Team team = Team.builder()
                 .tournament(tournament)
                 .name(name)
-                .captainId(captainId)
+                .captainPlayerProfile(captainProfile)
                 .description(description)
                 .color(color)
                 .build();
@@ -49,10 +53,10 @@ public class TeamService {
         team = teamRepository.save(team);
         
         // Роль captain добавляем только если у пользователя ещё нет роли в турнире (иначе создатель турнира не смог бы быть капитаном)
-        if (userRoleRepository.findByTournamentIdAndUserId(tournament.getId(), captainId).isEmpty()) {
+        if (userRoleRepository.findByTournamentIdAndPlayerProfileId(tournament.getId(), captainPlayerProfileId).isEmpty()) {
             UserRole captainRole = UserRole.builder()
                     .tournament(tournament)
-                    .userId(captainId)
+                    .playerProfile(captainProfile)
                     .role(TournamentUserRole.CAPTAIN)
                     .build();
             userRoleRepository.save(captainRole);
@@ -69,24 +73,22 @@ public class TeamService {
     }
 
     /**
-     * Команды, где пользователь участвует как капитан или как игрок (по telegramId).
+     * Команды, где пользователь участвует как капитан или как игрок (по playerProfileId).
      */
     @Transactional(readOnly = true)
-    public List<TeamDto> getTeamsByUser(Long telegramId) {
+    public List<TeamDto> getTeamsByUser(Integer playerProfileId) {
         Set<Integer> seenIds = new LinkedHashSet<>();
         List<TeamDto> result = new ArrayList<>();
-        for (Team team : teamRepository.findByCaptainId(telegramId)) {
+        for (Team team : teamRepository.findByCaptainPlayerProfileId(playerProfileId)) {
             seenIds.add(team.getId());
             result.add(mapper.toDto(team));
         }
-        playerProfileRepository.findByTelegramId(telegramId).ifPresent(profile -> {
-            for (var tp : teamPlayerRepository.findByPlayerProfileId(profile.getId())) {
-                Team team = tp.getTeam();
-                if (seenIds.add(team.getId())) {
-                    result.add(mapper.toDto(team));
-                }
+        for (var tp : teamPlayerRepository.findByPlayerProfileId(playerProfileId)) {
+            Team team = tp.getTeam();
+            if (seenIds.add(team.getId())) {
+                result.add(mapper.toDto(team));
             }
-        });
+        }
         return result;
     }
     
@@ -98,7 +100,7 @@ public class TeamService {
     }
     
     @Transactional
-    public TeamDto updateTeam(Integer id, String name, Long captainId, 
+    public TeamDto updateTeam(Integer id, String name, Integer captainPlayerProfileId, 
                               String description, String color) {
         Team team = teamRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Team not found"));
@@ -106,8 +108,10 @@ public class TeamService {
         if (name != null) {
             team.setName(name);
         }
-        if (captainId != null) {
-            team.setCaptainId(captainId);
+        if (captainPlayerProfileId != null) {
+            PlayerProfile captainProfile = playerProfileRepository.findById(captainPlayerProfileId)
+                    .orElseThrow(() -> new RuntimeException("Player profile not found"));
+            team.setCaptainPlayerProfile(captainProfile);
         }
         if (description != null) {
             team.setDescription(description);

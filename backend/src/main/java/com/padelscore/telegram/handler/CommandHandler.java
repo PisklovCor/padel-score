@@ -26,6 +26,7 @@ public class CommandHandler {
   private final StatisticsService statisticsService;
   private final KeyboardUtil keyboardUtil;
   private final TeamPlayerService teamPlayerService;
+  private final PlayerProfileService playerProfileService;
   private final List<Command> commands;
 
   /**
@@ -104,8 +105,9 @@ public class CommandHandler {
 
     String tournamentTitle = parts[1].trim();
     try {
+      Integer playerProfileId = playerProfileService.getPlayerProfileByTelegramId(userId).getId();
       TournamentDto tournament = tournamentService.createTournament(
-          tournamentTitle, null, userId, "group", "points", "prize", null, false);
+          tournamentTitle, null, playerProfileId, "group", "points", "prize", null, false);
       String text = String.format(
           "✅ Турнир \"%s\" успешно создан!\n\nID: %d\n\nИспользуйте /my_tournaments для управления.",
           tournament.getTitle(), tournament.getId());
@@ -116,7 +118,8 @@ public class CommandHandler {
   }
 
   private void handleMyTournaments(Long chatId, Long userId, TelegramLongPollingBot bot) {
-    List<TournamentDto> tournaments = tournamentService.getTournamentsByUser(userId);
+    Integer playerProfileId = playerProfileService.getPlayerProfileByTelegramId(userId).getId();
+    List<TournamentDto> tournaments = tournamentService.getTournamentsByUser(playerProfileId);
     if (tournaments.isEmpty()) {
       sendMessage(chatId, "У вас пока нет турниров. Создайте новый через /create_tournament", bot);
     } else {
@@ -153,7 +156,8 @@ public class CommandHandler {
       Integer tournamentId = Integer.parseInt(parts[1].trim());
       String teamName = parts[2].trim();
 
-      TeamDto team = teamService.createTeam(tournamentId, teamName, userId, null, null);
+      Integer playerProfileId = playerProfileService.getPlayerProfileByTelegramId(userId).getId();
+      TeamDto team = teamService.createTeam(tournamentId, teamName, playerProfileId, null, null);
       String text = String.format("✅ Команда \"%s\" успешно добавлена в турнир!\n\nID: %d",
           team.getName(), team.getId());
       sendMessage(chatId, text, bot);

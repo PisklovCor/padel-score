@@ -56,7 +56,7 @@ public class TeamController {
     TeamDto team = teamService.createTeam(
         request.getTournamentId(),
         request.getName(),
-        request.getCaptainId(),
+        request.getCaptainPlayerProfileId(),
         request.getDescription(),
         request.getColor()
     );
@@ -77,7 +77,7 @@ public class TeamController {
     TeamDto team = teamService.updateTeam(
         id,
         request.getName(),
-        request.getCaptainId(),
+        request.getCaptainPlayerProfileId(),
         request.getDescription(),
         request.getColor()
     );

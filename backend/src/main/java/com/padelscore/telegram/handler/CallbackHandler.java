@@ -28,6 +28,7 @@ public class CallbackHandler {
   private final StatisticsService statisticsService;
   private final KeyboardUtil keyboardUtil;
   private final TeamPlayerService teamPlayerService;
+  private final PlayerProfileService playerProfileService;
   private final List<Callback> callbacks;
 
   /**
@@ -100,7 +101,8 @@ public class CallbackHandler {
   private void handleTournamentCallback(String data, Long chatId, Integer messageId, Long userId,
       TelegramLongPollingBot bot) throws TelegramApiException {
     if (data.equals("tournament_list")) {
-      List<TournamentDto> tournaments = tournamentService.getTournamentsByUser(userId);
+      Integer playerProfileId = playerProfileService.getPlayerProfileByTelegramId(userId).getId();
+      List<TournamentDto> tournaments = tournamentService.getTournamentsByUser(playerProfileId);
       EditMessageText message = new EditMessageText();
       message.setChatId(chatId.toString());
       message.setMessageId(messageId);
@@ -138,7 +140,7 @@ public class CallbackHandler {
 
     StringBuilder text = new StringBuilder("👥 Команда: ").append(team.getName()).append("\n\n");
     text.append("ID: ").append(team.getId()).append("\n");
-    text.append("Капитан ID: ").append(team.getCaptainId()).append("\n");
+    text.append("Капитан ID: ").append(team.getCaptainPlayerProfileId()).append("\n");
     if (team.getDescription() != null) {
       text.append("Описание: ").append(team.getDescription()).append("\n");
     }
@@ -321,7 +323,8 @@ public class CallbackHandler {
     String score = parts[3];
 
     try {
-      matchService.submitResult(matchId, score, userId, null);
+      Integer playerProfileId = playerProfileService.getPlayerProfileByTelegramId(userId).getId();
+      matchService.submitResult(matchId, score, playerProfileId, null);
       MatchDto match = matchService.getMatch(matchId);
 
       EditMessageText message = new EditMessageText();

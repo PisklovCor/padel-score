@@ -20,8 +20,8 @@ public class CreateTournamentRequest {
 
   private String description;
 
-  @NotNull(message = "ID создателя обязателен")
-  private Long createdBy;
+  @NotNull(message = "ID профиля создателя обязателен")
+  private Integer createdByPlayerProfileId;
 
   private LocalDateTime startDate;
 

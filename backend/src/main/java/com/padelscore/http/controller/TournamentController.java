@@ -56,7 +56,7 @@ public class TournamentController {
     TournamentDto tournament = tournamentService.createTournament(
         request.getTitle(),
         request.getDescription(),
-        request.getCreatedBy(),
+        request.getCreatedByPlayerProfileId(),
         request.getFormat(),
         request.getScoringSystem(),
         request.getPrize(),

@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface TournamentRepository extends JpaRepository<Tournament, Integer> {
 
-  List<Tournament> findByCreatedBy(Long createdBy);
+  List<Tournament> findByCreatedByPlayerProfileId(Integer playerProfileId);
 }

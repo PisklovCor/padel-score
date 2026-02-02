@@ -4,6 +4,7 @@ import com.padelscore.dto.MatchDto;
 import com.padelscore.dto.MatchResultDto;
 import com.padelscore.dto.TeamDto;
 import com.padelscore.service.MatchService;
+import com.padelscore.service.PlayerProfileService;
 import com.padelscore.service.TeamService;
 import com.padelscore.telegram.handler.callback.Callback;
 import com.padelscore.telegram.util.KeyboardTournamentUtil;
@@ -26,6 +27,7 @@ public class CallbackTournamentMatches implements Callback {
 
   private final MatchService matchService;
   private final TeamService teamService;
+  private final PlayerProfileService playerProfileService;
   private final KeyboardTournamentUtil keyboardTournamentUtil;
 
   /**
@@ -159,7 +161,8 @@ public class CallbackTournamentMatches implements Callback {
     String score = parts[3];
 
     try {
-      matchService.submitResult(matchId, score, userId, null);
+      Integer playerProfileId = playerProfileService.getPlayerProfileByTelegramId(userId).getId();
+      matchService.submitResult(matchId, score, playerProfileId, null);
       MatchDto match = matchService.getMatch(matchId);
 
       EditMessageText message = new EditMessageText();

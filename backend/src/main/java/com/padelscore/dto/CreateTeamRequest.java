@@ -19,8 +19,8 @@ public class CreateTeamRequest {
   @NotBlank(message = "Название команды обязательно")
   private String name;
 
-  @NotNull(message = "ID капитана обязателен")
-  private Long captainId;
+  @NotNull(message = "ID профиля капитана обязателен")
+  private Integer captainPlayerProfileId;
 
   private String description;
 

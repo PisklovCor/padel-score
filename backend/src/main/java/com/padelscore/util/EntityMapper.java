@@ -22,7 +22,7 @@ public class EntityMapper {
         .id(tournament.getId())
         .title(tournament.getTitle())
         .description(tournament.getDescription())
-        .createdBy(tournament.getCreatedBy())
+        .createdByPlayerProfileId(tournament.getCreatedByPlayerProfile() != null ? tournament.getCreatedByPlayerProfile().getId() : null)
         .startDate(tournament.getStartDate())
         .endDate(tournament.getEndDate())
         .format(tournament.getFormat())
@@ -38,7 +38,7 @@ public class EntityMapper {
         .id(team.getId())
         .tournamentId(team.getTournament().getId())
         .name(team.getName())
-        .captainId(team.getCaptainId())
+        .captainPlayerProfileId(team.getCaptainPlayerProfile() != null ? team.getCaptainPlayerProfile().getId() : null)
         .description(team.getDescription())
         .color(team.getColor())
         .build();

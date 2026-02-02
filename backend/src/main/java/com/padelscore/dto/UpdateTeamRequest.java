@@ -15,7 +15,7 @@ public class UpdateTeamRequest {
   @NotBlank(message = "Название команды обязательно")
   private String name;
 
-  private Long captainId;
+  private Integer captainPlayerProfileId;
 
   private String description;
 

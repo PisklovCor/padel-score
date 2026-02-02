@@ -21,9 +21,7 @@ import java.util.List;
 public class CallbackMyTeams implements Callback {
 
   private final TeamService teamService;
-
   private final KeyboardUtil keyboardUtil;
-
   private final PlayerProfileService playerProfileService;
 
   /**
@@ -40,15 +38,13 @@ public class CallbackMyTeams implements Callback {
    */
   @Override
   public void handle(CallbackQuery callbackQuery, TelegramLongPollingBot bot) {
-    String chatId = callbackQuery.getMessage().getChatId().toString();
-    Integer messageId = callbackQuery.getMessage().getMessageId();
-    Long userId = callbackQuery.getFrom().getId();
+    final String chatId = callbackQuery.getMessage().getChatId().toString();
+    final Integer messageId = callbackQuery.getMessage().getMessageId();
+    final Long userTelegramId = callbackQuery.getFrom().getId();
 
-    List<TeamDto> teams = teamService.getTeamsByUser(userId);
+    final boolean isProfileExists = playerProfileService.existsByTelegramId(userTelegramId);
 
-    final boolean isProfileExists = playerProfileService.existsByTelegramId(userId);
-
-    String text = buildListText(teams, userId, isProfileExists);
+    String text = buildListText(userTelegramId, isProfileExists);
 
     EditMessageText message = new EditMessageText();
     message.setChatId(chatId);
@@ -64,19 +60,23 @@ public class CallbackMyTeams implements Callback {
     }
   }
 
-  private static String buildListText(List<TeamDto> teams, Long telegramId,
+  private String buildListText(Long userTelegramId,
       boolean isProfileExists) {
 
     if (!isProfileExists) {
       return "⚠️ У вас пока нет профиля.\n\nВоспользуйтесь пунктом меню для создания профиля.";
     }
 
+    Integer playerProfileId = playerProfileService.getPlayerProfileByTelegramId(userTelegramId).getId();
+    List<TeamDto> teams = teamService.getTeamsByUser(playerProfileId);
+
     if (teams.isEmpty()) {
       return "👥 Мои команды\n\nВы пока не участвуете ни в одной команде (ни как капитан, ни как игрок).";
     }
+
     StringBuilder sb = new StringBuilder("👥 Мои команды\n\n");
     for (TeamDto team : teams) {
-      String role = telegramId.equals(team.getCaptainId()) ? "капитан" : "игрок";
+      String role = playerProfileId.equals(team.getCaptainPlayerProfileId()) ? "капитан" : "игрок";
       sb.append(String.format("• %s — %s (ID: %d)\n", team.getName(), role, team.getId()));
     }
     return sb.toString();

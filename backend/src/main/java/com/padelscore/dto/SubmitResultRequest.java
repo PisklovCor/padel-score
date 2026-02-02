@@ -16,8 +16,8 @@ public class SubmitResultRequest {
   @NotBlank(message = "Финальный счет обязателен (формат: 2-0 или 2-1)")
   private String finalScore;
 
-  @NotNull(message = "ID пользователя, отправившего результат, обязателен")
-  private Long submittedBy;
+  @NotNull(message = "ID профиля пользователя, отправившего результат, обязателен")
+  private Integer submittedByPlayerProfileId;
 
   private String notes;
 }

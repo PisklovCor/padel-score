@@ -67,7 +67,8 @@ public class CallbackTournaments implements Callback {
       }
 
       if ("tournaments".equals(data) || "tournament_list".equals(data)) {
-        List<TournamentDto> tournaments = tournamentService.getTournamentsByUserTeams(userId);
+        Integer playerProfileId = playerProfileService.getPlayerProfileByTelegramId(userId).getId();
+        List<TournamentDto> tournaments = tournamentService.getTournamentsByUserTeams(playerProfileId);
         EditMessageText message = new EditMessageText();
         message.setChatId(chatId);
         message.setMessageId(messageId);

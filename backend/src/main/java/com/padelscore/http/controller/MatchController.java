@@ -94,7 +94,7 @@ public class MatchController {
     MatchResultDto result = matchService.submitResult(
         id,
         request.getFinalScore(),
-        request.getSubmittedBy(),
+        request.getSubmittedByPlayerProfileId(),
         request.getNotes()
     );
     return ResponseEntity.ok(result);

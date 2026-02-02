@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "user_roles", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"tournament_id", "user_id"})
+    @UniqueConstraint(columnNames = {"tournament_id", "player_profile_id"})
 })
 @Data
 @Builder
@@ -39,8 +39,9 @@ public class UserRole {
   @JoinColumn(name = "tournament_id", nullable = false)
   private Tournament tournament;
 
-  @Column(name = "user_id", nullable = false)
-  private Long userId;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "player_profile_id", nullable = false)
+  private PlayerProfile playerProfile;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 50)

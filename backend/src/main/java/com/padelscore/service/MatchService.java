@@ -22,6 +22,7 @@ public class MatchService {
     private final MatchResultRepository matchResultRepository;
     private final TournamentRepository tournamentRepository;
     private final TeamRepository teamRepository;
+    private final PlayerProfileRepository playerProfileRepository;
     private final EntityMapper mapper;
     
     @Transactional
@@ -55,9 +56,12 @@ public class MatchService {
     }
     
     @Transactional
-    public MatchResultDto submitResult(Integer matchId, String finalScore, Long submittedBy, String notes) {
+    public MatchResultDto submitResult(Integer matchId, String finalScore, Integer submittedByPlayerProfileId, String notes) {
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new RuntimeException("Match not found"));
+        
+        PlayerProfile submittedByProfile = playerProfileRepository.findById(submittedByPlayerProfileId)
+                .orElseThrow(() -> new RuntimeException("Player profile not found"));
         
         ScoreCalculationResult calculation = calculateScore(match, finalScore);
         
@@ -72,7 +76,7 @@ public class MatchService {
                     .finalScore(finalScore)
                     .winnerPoints(calculation.winnerPoints())
                     .loserPoints(calculation.loserPoints())
-                    .submittedBy(submittedBy)
+                    .submittedByPlayerProfile(submittedByProfile)
                     .notes(notes)
                     .disputed(false)
                     .build();
@@ -83,7 +87,7 @@ public class MatchService {
             result.setFinalScore(finalScore);
             result.setWinnerPoints(calculation.winnerPoints());
             result.setLoserPoints(calculation.loserPoints());
-            result.setSubmittedBy(submittedBy);
+            result.setSubmittedByPlayerProfile(submittedByProfile);
             if (notes != null) {
                 result.setNotes(notes);
             }

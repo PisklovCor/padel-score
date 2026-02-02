@@ -17,7 +17,7 @@ public class TeamDto {
 
   private String name;
 
-  private Long captainId;
+  private Integer captainPlayerProfileId;
 
   private String description;
 

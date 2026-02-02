@@ -43,8 +43,9 @@ public class Team {
   @Column(nullable = false, length = 255)
   private String name;
 
-  @Column(name = "captain_id", nullable = false)
-  private Long captainId;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "captain_player_profile_id", nullable = false)
+  private PlayerProfile captainPlayerProfile;
 
   @Column(columnDefinition = "TEXT")
   private String description;

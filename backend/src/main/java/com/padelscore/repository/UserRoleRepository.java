@@ -12,7 +12,7 @@ public interface UserRoleRepository extends JpaRepository<UserRole, Integer> {
 
   List<UserRole> findByTournamentId(Integer tournamentId);
 
-  List<UserRole> findByUserId(Long userId);
+  List<UserRole> findByPlayerProfileId(Integer playerProfileId);
 
-  Optional<UserRole> findByTournamentIdAndUserId(Integer tournamentId, Long userId);
+  Optional<UserRole> findByTournamentIdAndPlayerProfileId(Integer tournamentId, Integer playerProfileId);
 }

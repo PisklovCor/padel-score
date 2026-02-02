@@ -2,10 +2,12 @@ package com.padelscore.service;
 
 import com.padelscore.dto.TeamDto;
 import com.padelscore.dto.TournamentDto;
+import com.padelscore.entity.PlayerProfile;
 import com.padelscore.entity.Tournament;
 import com.padelscore.entity.UserRole;
 import com.padelscore.entity.enums.TournamentStatus;
 import com.padelscore.entity.enums.TournamentUserRole;
+import com.padelscore.repository.PlayerProfileRepository;
 import com.padelscore.repository.TournamentRepository;
 import com.padelscore.repository.UserRoleRepository;
 import com.padelscore.util.EntityMapper;
@@ -25,11 +27,12 @@ public class TournamentService {
 
     private final TournamentRepository tournamentRepository;
     private final UserRoleRepository userRoleRepository;
+    private final PlayerProfileRepository playerProfileRepository;
     private final TeamService teamService;
     private final EntityMapper mapper;
     
     @Transactional
-    public TournamentDto createTournament(String title, String description, Long createdBy, 
+    public TournamentDto createTournament(String title, String description, Integer createdByPlayerProfileId, 
                                          String format, String scoringSystem, String prize,
                                          String status, Boolean completed) {
         TournamentStatus tournamentStatus = null;
@@ -43,10 +46,13 @@ public class TournamentService {
             tournamentStatus = TournamentStatus.PLANNED;
         }
         
+        PlayerProfile createdByProfile = playerProfileRepository.findById(createdByPlayerProfileId)
+                .orElseThrow(() -> new RuntimeException("Player profile not found"));
+        
         Tournament tournament = Tournament.builder()
                 .title(title)
                 .description(description)
-                .createdBy(createdBy)
+                .createdByPlayerProfile(createdByProfile)
                 .format(format != null ? format : "group")
                 .scoringSystem(scoringSystem != null ? scoringSystem : "points")
                 .prize(prize)
@@ -58,7 +64,7 @@ public class TournamentService {
         
         UserRole adminRole = UserRole.builder()
                 .tournament(tournament)
-                .userId(createdBy)
+                .playerProfile(createdByProfile)
                 .role(TournamentUserRole.ADMIN)
                 .build();
         userRoleRepository.save(adminRole);
@@ -72,8 +78,8 @@ public class TournamentService {
         return mapper.toDto(tournament);
     }
     
-    public List<TournamentDto> getTournamentsByUser(Long userId) {
-        return tournamentRepository.findByCreatedBy(userId).stream()
+    public List<TournamentDto> getTournamentsByUser(Integer playerProfileId) {
+        return tournamentRepository.findByCreatedByPlayerProfileId(playerProfileId).stream()
                 .map(mapper::toDto)
                 .collect(Collectors.toList());
     }
@@ -82,8 +88,8 @@ public class TournamentService {
      * Турниры, в которых участвуют команды пользователя (как капитан или как игрок).
      */
     @Transactional(readOnly = true)
-    public List<TournamentDto> getTournamentsByUserTeams(Long userId) {
-        List<TeamDto> userTeams = teamService.getTeamsByUser(userId);
+    public List<TournamentDto> getTournamentsByUserTeams(Integer playerProfileId) {
+        List<TeamDto> userTeams = teamService.getTeamsByUser(playerProfileId);
         Set<Integer> tournamentIds = new LinkedHashSet<>();
         for (TeamDto team : userTeams) {
             tournamentIds.add(team.getTournamentId());
@@ -93,8 +99,8 @@ public class TournamentService {
                 .collect(Collectors.toList());
     }
 
-    public boolean hasAccess(Long userId, Integer tournamentId, String requiredRole) {
-        return userRoleRepository.findByTournamentIdAndUserId(tournamentId, userId)
+    public boolean hasAccess(Integer playerProfileId, Integer tournamentId, String requiredRole) {
+        return userRoleRepository.findByTournamentIdAndPlayerProfileId(tournamentId, playerProfileId)
                 .map(role -> {
                     if (role.getRole() == TournamentUserRole.ADMIN) {
                         return true;

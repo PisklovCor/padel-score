@@ -14,7 +14,7 @@
         <constraints nullable="false"/>
       </column>
       <column name="description" type="TEXT"/>
-      <column name="created_by" type="BIGINT">
+      <column name="created_by_player_profile_id" type="INTEGER">
         <constraints nullable="false"/>
       </column>
       <column name="start_date" type="TIMESTAMP"/>
@@ -44,7 +44,7 @@
       <column name="name" type="VARCHAR(255)">
         <constraints nullable="false"/>
       </column>
-      <column name="captain_id" type="BIGINT">
+      <column name="captain_player_profile_id" type="INTEGER">
         <constraints nullable="false"/>
       </column>
       <column name="description" type="TEXT"/>
@@ -96,6 +96,23 @@
       tableName="player_profiles"
       columnNames="nickname"
       constraintName="uk_player_profiles_nickname"/>
+  </changeSet>
+
+  <changeSet id="003-1-add-fk-to-player-profiles" author="padelscore">
+    <addForeignKeyConstraint
+      baseTableName="tournaments"
+      baseColumnNames="created_by_player_profile_id"
+      referencedTableName="player_profiles"
+      referencedColumnNames="id"
+      constraintName="fk_tournaments_created_by"
+      onDelete="RESTRICT"/>
+    <addForeignKeyConstraint
+      baseTableName="teams"
+      baseColumnNames="captain_player_profile_id"
+      referencedTableName="player_profiles"
+      referencedColumnNames="id"
+      constraintName="fk_teams_captain_player_profile"
+      onDelete="RESTRICT"/>
   </changeSet>
 
   <changeSet id="004-create-team-players" author="padelscore">
@@ -213,7 +230,7 @@
       <column name="loser_points" type="INTEGER" defaultValue="1"/>
       <column name="final_score" type="VARCHAR(50)"/>
       <column name="notes" type="TEXT"/>
-      <column name="submitted_by" type="BIGINT">
+      <column name="submitted_by_player_profile_id" type="INTEGER">
         <constraints nullable="false"/>
       </column>
       <column name="submitted_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
@@ -335,7 +352,7 @@
       <column name="tournament_id" type="INTEGER">
         <constraints nullable="false"/>
       </column>
-      <column name="user_id" type="BIGINT">
+      <column name="player_profile_id" type="INTEGER">
         <constraints nullable="false"/>
       </column>
       <column name="role" type="VARCHAR(50)">
@@ -354,8 +371,8 @@
       onDelete="CASCADE"/>
     <addUniqueConstraint
       tableName="user_roles"
-      columnNames="tournament_id, user_id"
-      constraintName="uk_user_roles_tournament_user"/>
+      columnNames="tournament_id, player_profile_id"
+      constraintName="uk_user_roles_tournament_player"/>
   </changeSet>
 
   <changeSet id="010-create-audit-logs" author="padelscore">
@@ -372,7 +389,7 @@
       <column name="action" type="VARCHAR(50)">
         <constraints nullable="false"/>
       </column>
-      <column name="user_id" type="BIGINT">
+      <column name="player_profile_id" type="INTEGER">
         <constraints nullable="false"/>
       </column>
       <column name="old_values" type="jsonb"/>
@@ -392,6 +409,30 @@
       tableName="audit_logs">
       <column name="created_at"/>
     </createIndex>
+  </changeSet>
+
+  <changeSet id="010-1-add-fk-player-profiles-remaining" author="padelscore">
+    <addForeignKeyConstraint
+      baseTableName="match_results"
+      baseColumnNames="submitted_by_player_profile_id"
+      referencedTableName="player_profiles"
+      referencedColumnNames="id"
+      constraintName="fk_match_results_submitted_by"
+      onDelete="RESTRICT"/>
+    <addForeignKeyConstraint
+      baseTableName="user_roles"
+      baseColumnNames="player_profile_id"
+      referencedTableName="player_profiles"
+      referencedColumnNames="id"
+      constraintName="fk_user_roles_player_profile"
+      onDelete="CASCADE"/>
+    <addForeignKeyConstraint
+      baseTableName="audit_logs"
+      baseColumnNames="player_profile_id"
+      referencedTableName="player_profiles"
+      referencedColumnNames="id"
+      constraintName="fk_audit_logs_player_profile"
+      onDelete="RESTRICT"/>
   </changeSet>
 
 </databaseChangeLog>

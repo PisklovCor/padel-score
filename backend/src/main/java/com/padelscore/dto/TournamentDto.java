@@ -19,7 +19,7 @@ public class TournamentDto {
 
   private String description;
 
-  private Long createdBy;
+  private Integer createdByPlayerProfileId;
 
   private LocalDateTime startDate;
 
