@@ -60,7 +60,7 @@ public class CallbackTournaments implements Callback {
         message.setChatId(chatId);
         message.setMessageId(messageId);
         message.setText(
-            "⚠️ У вас пока нет профиля. Воспользуйтесь пунктом меню для создания профиля.");
+            "⚠️ У вас пока нет профиля.\n\nВоспользуйтесь пунктом меню для создания профиля.");
         message.setReplyMarkup(keyboardUtil.getButtonToMenu());
         bot.execute(message);
         return;

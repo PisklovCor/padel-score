@@ -68,7 +68,7 @@ public class CallbackMyTeams implements Callback {
       boolean isProfileExists) {
 
     if (!isProfileExists) {
-      return "⚠️ У вас пока нет профиля. Воспользуйтесь пунктом меню для создания профиля.";
+      return "⚠️ У вас пока нет профиля.\n\nВоспользуйтесь пунктом меню для создания профиля.";
     }
 
     if (teams.isEmpty()) {
