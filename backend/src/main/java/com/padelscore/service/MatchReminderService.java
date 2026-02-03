@@ -41,7 +41,7 @@ public class MatchReminderService {
    * Задача по расписанию: каждый день в 18:00 находит матчи на завтра и отправляет напоминание в
    * Telegram участникам соответствующих команд.
    */
-  @Scheduled(cron = "0 */2 * * * *")
+  @Scheduled(cron = "0 00 18 * * ?")
   @Transactional(readOnly = true)
   public void sendTomorrowMatchReminders() {
     LocalDate tomorrow = LocalDate.now().plusDays(1);
