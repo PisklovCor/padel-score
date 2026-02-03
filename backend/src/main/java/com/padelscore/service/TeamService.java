@@ -45,7 +45,7 @@ public class TeamService {
         Team team = Team.builder()
                 .tournament(tournament)
                 .name(name)
-                .captainPlayerProfile(captainProfile)
+                .captainPlayerProfileId(captainPlayerProfileId)
                 .description(description)
                 .color(color)
                 .build();
@@ -109,9 +109,9 @@ public class TeamService {
             team.setName(name);
         }
         if (captainPlayerProfileId != null) {
-            PlayerProfile captainProfile = playerProfileRepository.findById(captainPlayerProfileId)
+            playerProfileRepository.findById(captainPlayerProfileId)
                     .orElseThrow(() -> new RuntimeException("Player profile not found"));
-            team.setCaptainPlayerProfile(captainProfile);
+            team.setCaptainPlayerProfileId(captainPlayerProfileId);
         }
         if (description != null) {
             team.setDescription(description);

@@ -134,16 +134,15 @@ public class PlayerProfileService {
         return mapper.toDto(profile);
     }
     
+    /**
+     * Удаляет профиль игрока. Гибридный подход: ссылки на player_profiles без FK,
+     * поэтому удаление не блокируется БД. Турниры/команды/результаты остаются с ID
+     * удалённого профиля; при загрузке связь будет null, в DTO — ID или null.
+     */
     @Transactional
     public void deletePlayerProfile(Integer id) {
         PlayerProfile profile = playerProfileRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Player profile not found"));
-        
-        // Проверяем, не состоит ли игрок в командах
-        if (!teamPlayerRepository.findByPlayerProfileId(id).isEmpty()) {
-            throw new RuntimeException("Cannot delete player profile: player is still in teams");
-        }
-        
         playerProfileRepository.delete(profile);
     }
     

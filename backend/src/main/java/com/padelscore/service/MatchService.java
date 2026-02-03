@@ -60,7 +60,7 @@ public class MatchService {
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new RuntimeException("Match not found"));
         
-        PlayerProfile submittedByProfile = playerProfileRepository.findById(submittedByPlayerProfileId)
+        playerProfileRepository.findById(submittedByPlayerProfileId)
                 .orElseThrow(() -> new RuntimeException("Player profile not found"));
         
         ScoreCalculationResult calculation = calculateScore(match, finalScore);
@@ -76,7 +76,7 @@ public class MatchService {
                     .finalScore(finalScore)
                     .winnerPoints(calculation.winnerPoints())
                     .loserPoints(calculation.loserPoints())
-                    .submittedByPlayerProfile(submittedByProfile)
+                    .submittedByPlayerProfileId(submittedByPlayerProfileId)
                     .notes(notes)
                     .disputed(false)
                     .build();
@@ -87,7 +87,7 @@ public class MatchService {
             result.setFinalScore(finalScore);
             result.setWinnerPoints(calculation.winnerPoints());
             result.setLoserPoints(calculation.loserPoints());
-            result.setSubmittedByPlayerProfile(submittedByProfile);
+            result.setSubmittedByPlayerProfileId(submittedByPlayerProfileId);
             if (notes != null) {
                 result.setNotes(notes);
             }

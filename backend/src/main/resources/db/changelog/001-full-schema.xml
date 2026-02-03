@@ -5,6 +5,10 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
     http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
 
+  <!-- Полная схема БД в одном файле.
+       audit_logs, match_results, teams, tournaments: только Integer для профиля, без FK — при удалении профиля ID остаётся для истории.
+       team_players, user_roles: связь на объект профиль, FK на player_profiles ON DELETE CASCADE — при удалении профиля строки удаляются каскадом. -->
+
   <changeSet id="001-create-tournaments" author="padelscore">
     <createTable tableName="tournaments">
       <column name="id" type="SERIAL">
@@ -96,23 +100,6 @@
       tableName="player_profiles"
       columnNames="nickname"
       constraintName="uk_player_profiles_nickname"/>
-  </changeSet>
-
-  <changeSet id="003-1-add-fk-to-player-profiles" author="padelscore">
-    <addForeignKeyConstraint
-      baseTableName="tournaments"
-      baseColumnNames="created_by_player_profile_id"
-      referencedTableName="player_profiles"
-      referencedColumnNames="id"
-      constraintName="fk_tournaments_created_by"
-      onDelete="RESTRICT"/>
-    <addForeignKeyConstraint
-      baseTableName="teams"
-      baseColumnNames="captain_player_profile_id"
-      referencedTableName="player_profiles"
-      referencedColumnNames="id"
-      constraintName="fk_teams_captain_player_profile"
-      onDelete="RESTRICT"/>
   </changeSet>
 
   <changeSet id="004-create-team-players" author="padelscore">
@@ -369,6 +356,13 @@
       referencedColumnNames="id"
       constraintName="fk_user_roles_tournament"
       onDelete="CASCADE"/>
+    <addForeignKeyConstraint
+      baseTableName="user_roles"
+      baseColumnNames="player_profile_id"
+      referencedTableName="player_profiles"
+      referencedColumnNames="id"
+      constraintName="fk_user_roles_player_profile"
+      onDelete="CASCADE"/>
     <addUniqueConstraint
       tableName="user_roles"
       columnNames="tournament_id, player_profile_id"
@@ -409,30 +403,6 @@
       tableName="audit_logs">
       <column name="created_at"/>
     </createIndex>
-  </changeSet>
-
-  <changeSet id="010-1-add-fk-player-profiles-remaining" author="padelscore">
-    <addForeignKeyConstraint
-      baseTableName="match_results"
-      baseColumnNames="submitted_by_player_profile_id"
-      referencedTableName="player_profiles"
-      referencedColumnNames="id"
-      constraintName="fk_match_results_submitted_by"
-      onDelete="RESTRICT"/>
-    <addForeignKeyConstraint
-      baseTableName="user_roles"
-      baseColumnNames="player_profile_id"
-      referencedTableName="player_profiles"
-      referencedColumnNames="id"
-      constraintName="fk_user_roles_player_profile"
-      onDelete="CASCADE"/>
-    <addForeignKeyConstraint
-      baseTableName="audit_logs"
-      baseColumnNames="player_profile_id"
-      referencedTableName="player_profiles"
-      referencedColumnNames="id"
-      constraintName="fk_audit_logs_player_profile"
-      onDelete="RESTRICT"/>
   </changeSet>
 
 </databaseChangeLog>

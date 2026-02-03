@@ -55,9 +55,8 @@ public class MatchResult {
   @Column(columnDefinition = "TEXT")
   private String notes;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "submitted_by_player_profile_id", nullable = false)
-  private PlayerProfile submittedByPlayerProfile;
+  @Column(name = "submitted_by_player_profile_id", nullable = false)
+  private Integer submittedByPlayerProfileId;
 
   @Column(name = "submitted_at")
   private LocalDateTime submittedAt;

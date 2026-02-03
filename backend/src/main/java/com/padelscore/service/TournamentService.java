@@ -52,7 +52,7 @@ public class TournamentService {
         Tournament tournament = Tournament.builder()
                 .title(title)
                 .description(description)
-                .createdByPlayerProfile(createdByProfile)
+                .createdByPlayerProfileId(createdByPlayerProfileId)
                 .format(format != null ? format : "group")
                 .scoringSystem(scoringSystem != null ? scoringSystem : "points")
                 .prize(prize)
