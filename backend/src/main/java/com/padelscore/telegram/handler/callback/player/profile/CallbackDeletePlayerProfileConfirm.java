@@ -1,5 +1,6 @@
 package com.padelscore.telegram.handler.callback.player.profile;
 
+import com.padelscore.service.PlayerProfileService;
 import com.padelscore.telegram.handler.callback.Callback;
 import com.padelscore.telegram.util.KeyboardPlayerProfileUtil;
 import lombok.RequiredArgsConstructor;
@@ -13,32 +14,38 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CallbackDeletePlayerProfile implements Callback {
+public class CallbackDeletePlayerProfileConfirm implements Callback {
+
+  private final PlayerProfileService playerProfileService;
 
   private final KeyboardPlayerProfileUtil keyboardPlayerProfileUtil;
 
   /**
-   * Совпадение для callback data «delete_profiles».
+   * Совпадение для callback data «delete_profiles_confirm».
    */
   @Override
-  public boolean coincidence(String command) {
-    return "delete_profiles".equals(command);
+  public boolean coincidence(final String command) {
+    return "delete_profiles_confirm".equals(command);
   }
 
   /**
-   * Показывает предупреждение об удалении (рейтинг, членство в командах)
-   * и кнопки подтверждения.
+   * Удаляет профиль пользователя и редактирует сообщение с подтверждением
+   * и клавиатурой без профиля.
    */
   @Override
   public void handle(final CallbackQuery callbackQuery, final TelegramLongPollingBot bot) {
+    final long userId = callbackQuery.getFrom().getId();
     final var chatId = callbackQuery.getMessage().getChatId().toString();
     final var messageId = callbackQuery.getMessage().getMessageId();
+
+    var playerProfileDto = playerProfileService.getPlayerProfileByTelegramId(userId);
+    playerProfileService.deletePlayerProfile(playerProfileDto.getId());
 
     final var message = new EditMessageText();
     message.setChatId(chatId);
     message.setMessageId(messageId);
-    message.setText(KeyboardPlayerProfileUtil.DELETE_PROFILE_WARNING);
-    message.setReplyMarkup(keyboardPlayerProfileUtil.getDeleteConfirmKeyboard());
+    message.setText("❌ Ваш профиль удален.");
+    message.setReplyMarkup(keyboardPlayerProfileUtil.getProfileMenu(false));
 
     try {
       bot.execute(message);

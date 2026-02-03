@@ -16,7 +16,9 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @RequiredArgsConstructor
 public class CommandDeletePlayerProfile implements Command {
 
+  /** Сервис профиля игрока. */
   private final PlayerProfileService playerProfileService;
+  /** Утилита клавиатуры меню профиля. */
   private final KeyboardPlayerProfileUtil keyboardPlayerProfileUtil;
 
   /**
@@ -24,26 +26,34 @@ public class CommandDeletePlayerProfile implements Command {
    */
   @Override
   public boolean coincidence(String command) {
-
     return "/delete_profiles".equals(command);
   }
 
   /**
-   * Удаляет профиль пользователя и отправляет подтверждение с клавиатурой без профиля.
+   * Показывает предупреждение об удалении (рейтинг, членство в командах)
+   * и кнопки подтверждения.
    */
   @Override
   public void handle(Message message, TelegramLongPollingBot bot) {
-
-    final Long userId = message.getFrom().getId();
-
-    var playerProfileDto = playerProfileService.getPlayerProfileByTelegramId(userId);
-
-    playerProfileService.deletePlayerProfile(playerProfileDto.getId());
-
+    final long userId = message.getFrom().getId();
+    if (!playerProfileService.existsByTelegramId(userId)) {
+      var noProfile = new SendMessage();
+      noProfile.setChatId(message.getChatId().toString());
+      noProfile.setText("⚠️ У вас пока нет профиля.");
+      noProfile.setReplyMarkup(keyboardPlayerProfileUtil.getProfileMenu(false));
+      try {
+        bot.execute(noProfile);
+      } catch (TelegramApiException e) {
+        log.error(e.getMessage());
+        e.printStackTrace();
+      }
+      return;
+    }
     var messageReply = new SendMessage();
     messageReply.setChatId(message.getChatId().toString());
-    messageReply.setText("❌ Ваш профиль удален.");
-    messageReply.setReplyMarkup(keyboardPlayerProfileUtil.getProfileMenu(false));
+    messageReply.setText(KeyboardPlayerProfileUtil.DELETE_PROFILE_WARNING);
+    messageReply.setReplyMarkup(
+        keyboardPlayerProfileUtil.getDeleteConfirmKeyboard());
 
     try {
       bot.execute(messageReply);

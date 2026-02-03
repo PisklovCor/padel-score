@@ -10,6 +10,14 @@ import java.util.List;
 @Component
 public class KeyboardPlayerProfileUtil {
 
+  /**
+   * Текст предупреждения перед удалением профиля.
+   */
+  public static final String DELETE_PROFILE_WARNING = """
+      ⚠️ Вы уверены?
+      
+      При удалении профиля будут удалены ваш рейтинг
+      и членство во всех командах.""";
 
   /**
    * Добавляет кнопки для профиля пользователя (в зависимости от наличия профиля)
@@ -55,5 +63,28 @@ public class KeyboardPlayerProfileUtil {
       profileRow.add(profile);
       keyboard.add(profileRow);
     }
+  }
+
+  /**
+   * Клавиатура подтверждения удаления профиля: «Да, удалить» и «Отмена».
+   *
+   * @return разметка с кнопками подтверждения и отмены
+   */
+  public InlineKeyboardMarkup getDeleteConfirmKeyboard() {
+    InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+    List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
+    List<InlineKeyboardButton> row = new ArrayList<>();
+    InlineKeyboardButton confirm = new InlineKeyboardButton();
+    confirm.setText("✅ Да, удалить");
+    confirm.setCallbackData("delete_profiles_confirm");
+    row.add(confirm);
+    InlineKeyboardButton cancel = new InlineKeyboardButton();
+    cancel.setText("❌ Отмена");
+    cancel.setCallbackData("profiles");
+    row.add(cancel);
+    keyboard.add(row);
+    markup.setKeyboard(keyboard);
+    return markup;
   }
 }
