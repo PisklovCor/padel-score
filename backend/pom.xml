@@ -14,7 +14,7 @@
 
   <groupId>com.padelscore</groupId>
   <artifactId>padelscore</artifactId>
-  <version>1.14.0-SNAPSHOT</version>
+  <version>1.15.0-SNAPSHOT</version>
   <name>PadelScore Bot</name>
   <description>Telegram bot for padel tournament management</description>
 
