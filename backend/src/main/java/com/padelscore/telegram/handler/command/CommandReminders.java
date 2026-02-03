@@ -1,8 +1,8 @@
 package com.padelscore.telegram.handler.command;
 
+import com.padelscore.config.PropertiesConfiguration;
 import com.padelscore.service.MatchReminderService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -16,11 +16,12 @@ public class CommandReminders implements Command {
 
   private final MatchReminderService matchReminderService;
 
-  @Value("${BOT_ADMIN:}")
-  private String botAdminId;
+  private final PropertiesConfiguration propertiesConfiguration;
 
-  public CommandReminders(@Lazy MatchReminderService matchReminderService) {
+  public CommandReminders(@Lazy MatchReminderService matchReminderService,
+      PropertiesConfiguration propertiesConfiguration) {
     this.matchReminderService = matchReminderService;
+    this.propertiesConfiguration = propertiesConfiguration;
   }
 
   /**
@@ -37,18 +38,20 @@ public class CommandReminders implements Command {
   @Override
   public void handle(Message message, TelegramLongPollingBot bot) {
     Long userId = message.getFrom().getId();
-    
+
+    final String botAdminId = propertiesConfiguration.getBotAdminId();
+
     // Проверка прав доступа
     if (botAdminId == null || botAdminId.isEmpty()) {
       log.warn("BOT_ADMIN не настроен, команда /reminders недоступна");
       sendAccessDeniedMessage(message.getChatId(), bot);
       return;
     }
-    
+
     try {
       Long adminId = Long.parseLong(botAdminId);
       if (!adminId.equals(userId)) {
-        log.warn("Попытка выполнения команды /reminders пользователем {} (разрешен только {})", 
+        log.warn("Попытка выполнения команды /reminders пользователем {} (разрешен только {})",
             userId, adminId);
         sendAccessDeniedMessage(message.getChatId(), bot);
         return;
@@ -58,11 +61,11 @@ public class CommandReminders implements Command {
       sendAccessDeniedMessage(message.getChatId(), bot);
       return;
     }
-    
+
     // Выполнение команды
     try {
       matchReminderService.sendTomorrowMatchReminders();
-      
+
       var messageReply = new SendMessage();
       messageReply.setChatId(message.getChatId().toString());
       messageReply.setText("✅ Напоминания о матчах успешно отправлены");

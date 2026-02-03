@@ -16,7 +16,9 @@ public class TelegramBotConfig {
 
   private final PadelScoreBot padelScoreBot;
 
-  /** Создаёт и регистрирует API ботов Telegram, регистрирует PadelScoreBot. */
+  /**
+   * Создаёт и регистрирует API ботов Telegram, регистрирует PadelScoreBot.
+   */
   @Bean
   public TelegramBotsApi telegramBotsApi() throws TelegramApiException {
     TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);

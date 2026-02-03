@@ -1,11 +1,11 @@
 package com.padelscore.telegram;
 
+import com.padelscore.config.PropertiesConfiguration;
 import com.padelscore.telegram.handler.CommandHandler;
 import com.padelscore.telegram.handler.CallbackHandler;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
@@ -21,22 +21,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PadelScoreBot extends TelegramLongPollingBot {
 
-  @Value("${telegram.bot.token}")
-  private String botToken;
-
-  @Value("${telegram.bot.username}")
-  private String botUsername;
-
   private final CommandHandler commandHandler;
 
   private final CallbackHandler callbackHandler;
+
+  private final PropertiesConfiguration propertiesConfiguration;
 
   /**
    * Возвращает имя бота в Telegram (без @).
    */
   @Override
   public String getBotUsername() {
-    return botUsername;
+    return propertiesConfiguration.getBotUsername();
   }
 
   /**
@@ -44,7 +40,7 @@ public class PadelScoreBot extends TelegramLongPollingBot {
    */
   @Override
   public String getBotToken() {
-    return botToken;
+    return propertiesConfiguration.getBotToken();
   }
 
   /**

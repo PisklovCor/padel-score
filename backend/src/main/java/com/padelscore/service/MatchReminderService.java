@@ -31,7 +31,7 @@ public class MatchReminderService {
 
   private static final DateTimeFormatter TIME_FORMAT =
       DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
-  private static final String HEADER = "🎾 Напоминание: завтра у вас запланированы матчи:\n\n";
+  private static final String HEADER = "🎾 Напоминание\n Завтра у вас запланированы матчи:\n\n";
 
   private final MatchRepository matchRepository;
   private final TeamPlayerRepository teamPlayerRepository;
@@ -41,7 +41,7 @@ public class MatchReminderService {
    * Задача по расписанию: каждый день в 18:00 находит матчи на завтра и отправляет напоминание в
    * Telegram участникам соответствующих команд.
    */
-  @Scheduled(cron = "0 00 18 * * ?")
+  @Scheduled(cron = "0 */2 * * * *")
   @Transactional(readOnly = true)
   public void sendTomorrowMatchReminders() {
     LocalDate tomorrow = LocalDate.now().plusDays(1);
@@ -51,6 +51,7 @@ public class MatchReminderService {
 
     List<Match> matches = matchRepository.findByScheduledDateBetween(start, end);
     if (matches.isEmpty()) {
+      log.info("Матчей для уведомлений на {} нет", tomorrow);
       return;
     }
 
@@ -112,6 +113,7 @@ public class MatchReminderService {
     message.setText(text);
     try {
       padelScoreBot.execute(message);
+      log.info("Уведомления успешно отправлены");
     } catch (TelegramApiException ex) {
       log.error("Не удалось отправить напоминание о матче пользователю {}: {}",
           telegramId, ex.getMessage());

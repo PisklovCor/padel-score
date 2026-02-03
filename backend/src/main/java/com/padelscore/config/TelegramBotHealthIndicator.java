@@ -15,8 +15,8 @@ public class TelegramBotHealthIndicator implements HealthIndicator {
   private final PadelScoreBot padelScoreBot;
 
   /**
-   * Проверяет доступность бота через GetMe: при успехе — UP с данными бота,
-   * при ошибке API — DOWN с деталями исключения.
+   * Проверяет доступность бота через GetMe: при успехе — UP с данными бота, при ошибке API — DOWN с
+   * деталями исключения.
    */
   @Override
   public Health health() {
