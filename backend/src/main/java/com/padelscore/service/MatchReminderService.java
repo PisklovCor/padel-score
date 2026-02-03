@@ -21,8 +21,8 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 /**
- * Сервис напоминаний о запланированных матчах: раз в день в 20:00 отправляет
- * в Telegram участникам команд уведомление о матчах на завтра.
+ * Сервис напоминаний о запланированных матчах: раз в день в 20:00 отправляет в Telegram участникам
+ * команд уведомление о матчах на завтра.
  */
 @Slf4j
 @Service
@@ -38,8 +38,8 @@ public class MatchReminderService {
   private final PadelScoreBot padelScoreBot;
 
   /**
-   * Задача по расписанию: каждый день в 18:00 находит матчи на завтра и
-   * отправляет напоминание в Telegram участникам соответствующих команд.
+   * Задача по расписанию: каждый день в 18:00 находит матчи на завтра и отправляет напоминание в
+   * Telegram участникам соответствующих команд.
    */
   @Scheduled(cron = "0 00 18 * * ?")
   @Transactional(readOnly = true)
@@ -89,9 +89,7 @@ public class MatchReminderService {
     addLinesForTeamPlayers(team2Players, lineTeam2, remindersByUser);
   }
 
-  private void addLinesForTeamPlayers(
-      List<TeamPlayer> players,
-      String line,
+  private void addLinesForTeamPlayers(List<TeamPlayer> players, String line,
       Map<Long, List<String>> remindersByUser) {
     for (TeamPlayer tp : players) {
       Long tid = tp.getPlayerProfile().getTelegramId();
