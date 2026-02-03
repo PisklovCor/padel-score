@@ -5,6 +5,7 @@ import com.padelscore.dto.MatchResultDto;
 import com.padelscore.entity.*;
 import com.padelscore.entity.enums.MatchStatus;
 import com.padelscore.repository.*;
+import com.padelscore.service.TournamentService;
 import com.padelscore.util.EntityMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class MatchService {
     private final TournamentRepository tournamentRepository;
     private final TeamRepository teamRepository;
     private final PlayerProfileRepository playerProfileRepository;
+    private final TournamentService tournamentService;
     private final EntityMapper mapper;
     
     @Transactional
@@ -62,6 +64,11 @@ public class MatchService {
         
         playerProfileRepository.findById(submittedByPlayerProfileId)
                 .orElseThrow(() -> new RuntimeException("Player profile not found"));
+        
+        // Проверка прав: только создатель турнира может редактировать результаты
+        if (!tournamentService.isTournamentCreator(submittedByPlayerProfileId, match.getTournament().getId())) {
+            throw new RuntimeException("Только создатель турнира может редактировать результаты матчей");
+        }
         
         ScoreCalculationResult calculation = calculateScore(match, finalScore);
         

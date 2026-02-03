@@ -110,6 +110,20 @@ public class TournamentService {
                 })
                 .orElse(false);
     }
+
+    /**
+     * Проверяет, является ли пользователь создателем турнира.
+     *
+     * @param playerProfileId идентификатор профиля игрока
+     * @param tournamentId идентификатор турнира
+     * @return true, если пользователь является создателем турнира
+     */
+    @Transactional(readOnly = true)
+    public boolean isTournamentCreator(Integer playerProfileId, Integer tournamentId) {
+        Tournament tournament = tournamentRepository.findById(tournamentId)
+                .orElseThrow(() -> new RuntimeException("Tournament not found"));
+        return tournament.getCreatedByPlayerProfileId().equals(playerProfileId);
+    }
     
     private TournamentUserRole parseUserRole(String role) {
         if (role == null) {

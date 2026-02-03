@@ -6,6 +6,7 @@ import com.padelscore.dto.TeamDto;
 import com.padelscore.service.MatchService;
 import com.padelscore.service.PlayerProfileService;
 import com.padelscore.service.TeamService;
+import com.padelscore.service.TournamentService;
 import com.padelscore.telegram.handler.callback.Callback;
 import com.padelscore.telegram.util.KeyboardTournamentUtil;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ public class CallbackTournamentMatches implements Callback {
   private final MatchService matchService;
   private final TeamService teamService;
   private final PlayerProfileService playerProfileService;
+  private final TournamentService tournamentService;
   private final KeyboardTournamentUtil keyboardTournamentUtil;
 
   /**
@@ -57,7 +59,7 @@ public class CallbackTournamentMatches implements Callback {
       if (data.startsWith("matches_list_")) {
         handleMatchesList(data, chatId, messageId, bot);
       } else if (data.startsWith("match_result_")) {
-        handleMatchResultInput(data, chatId, messageId, bot);
+        handleMatchResultInput(data, chatId, messageId, userId, bot);
       } else if (data.startsWith("result_quick_")) {
         handleQuickResult(data, chatId, messageId, userId, bot);
       } else if (data.startsWith("match_view_")) {
@@ -140,18 +142,35 @@ public class CallbackTournamentMatches implements Callback {
     bot.execute(message);
   }
 
-  private void handleMatchResultInput(String data, String chatId, Integer messageId,
+  private void handleMatchResultInput(String data, String chatId, Integer messageId, Long userId,
       TelegramLongPollingBot bot) throws TelegramApiException {
     Integer matchId = Integer.parseInt(data.split("_")[2]);
     MatchDto match = matchService.getMatch(matchId);
 
-    EditMessageText message = new EditMessageText();
-    message.setChatId(chatId);
-    message.setMessageId(messageId);
-    message.setText("Выберите результат матча:\n\n"
-        + match.getTeam1Name() + " vs " + match.getTeam2Name());
-    message.setReplyMarkup(keyboardTournamentUtil.getResultInputMenu(matchId));
-    bot.execute(message);
+    try {
+      Integer playerProfileId = playerProfileService.getPlayerProfileByTelegramId(userId).getId();
+      if (!tournamentService.isTournamentCreator(playerProfileId, match.getTournamentId())) {
+        EditMessageText message = new EditMessageText();
+        message.setChatId(chatId);
+        message.setMessageId(messageId);
+        message.setText("❌ У вас нет прав для редактирования результатов матчей.\n\n"
+            + "Только создатель турнира может редактировать результаты.");
+        message.setReplyMarkup(keyboardTournamentUtil.getMatchMenu(
+            matchId, match.getTournamentId(), match.getStatus()));
+        bot.execute(message);
+        return;
+      }
+
+      EditMessageText message = new EditMessageText();
+      message.setChatId(chatId);
+      message.setMessageId(messageId);
+      message.setText("Выберите результат матча:\n\n"
+          + match.getTeam1Name() + " vs " + match.getTeam2Name());
+      message.setReplyMarkup(keyboardTournamentUtil.getResultInputMenu(matchId));
+      bot.execute(message);
+    } catch (Exception e) {
+      sendMessage(chatId, "Ошибка: " + e.getMessage(), bot);
+    }
   }
 
   private void handleQuickResult(String data, String chatId, Integer messageId, Long userId,
@@ -162,8 +181,22 @@ public class CallbackTournamentMatches implements Callback {
 
     try {
       Integer playerProfileId = playerProfileService.getPlayerProfileByTelegramId(userId).getId();
-      matchService.submitResult(matchId, score, playerProfileId, null);
       MatchDto match = matchService.getMatch(matchId);
+      
+      if (!tournamentService.isTournamentCreator(playerProfileId, match.getTournamentId())) {
+        EditMessageText message = new EditMessageText();
+        message.setChatId(chatId);
+        message.setMessageId(messageId);
+        message.setText("❌ У вас нет прав для редактирования результатов матчей.\n\n"
+            + "Только создатель турнира может редактировать результаты.");
+        message.setReplyMarkup(keyboardTournamentUtil.getMatchMenu(
+            matchId, match.getTournamentId(), match.getStatus()));
+        bot.execute(message);
+        return;
+      }
+
+      matchService.submitResult(matchId, score, playerProfileId, null);
+      match = matchService.getMatch(matchId);
 
       EditMessageText message = new EditMessageText();
       message.setChatId(chatId);
