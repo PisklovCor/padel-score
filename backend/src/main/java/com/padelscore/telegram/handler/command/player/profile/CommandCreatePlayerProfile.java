@@ -1,5 +1,6 @@
 package com.padelscore.telegram.handler.command.player.profile;
 
+import com.padelscore.exception.NicknameNotUniqueException;
 import com.padelscore.service.PlayerProfileService;
 import com.padelscore.telegram.handler.command.Command;
 import com.padelscore.telegram.util.KeyboardPlayerProfileUtil;
@@ -65,29 +66,43 @@ public class CommandCreatePlayerProfile implements Command {
 
     log.info("UserId=[{}], nickname=[{}]", user.getId(), nickname);
 
-    final var playerProfileDto = playerProfileService.createPlayerProfile(user.getFirstName(),
-        user.getLastName(), nickname, user.getId(), 0);
+    final String chatId = message.getChatId().toString();
+    try {
+      final var dto = playerProfileService.createPlayerProfile(user.getFirstName(),
+          user.getLastName(), nickname, user.getId(), 0);
+      sendProfileCreated(chatId, dto.getNickname(), dto.getFirstName(), dto.getRating(), bot);
+    } catch (NicknameNotUniqueException e) {
+      sendNicknameTakenHint(chatId, bot);
+    } catch (TelegramApiException e) {
+      log.error(e.getMessage());
+      e.printStackTrace();
+    }
+  }
 
+  private void sendProfileCreated(String chatId, String nick, String firstName, int rating,
+                                  TelegramLongPollingBot bot) throws TelegramApiException {
     final var text = """
         ✅ Профиль создан:
         
         Ник - %s
         Имя - %s
-        Рейтинг - %d""".formatted(
-        playerProfileDto.getNickname(),
-        playerProfileDto.getFirstName(),
-        playerProfileDto.getRating());
+        Рейтинг - %d""".formatted(nick, firstName, rating);
+    var msg = new SendMessage();
+    msg.setChatId(chatId);
+    msg.setText(text);
+    msg.setReplyMarkup(keyboardPlayerProfileUtil.getProfileMenu(true));
+    bot.execute(msg);
+  }
 
-    var messageReply = new SendMessage();
-    messageReply.setChatId(message.getChatId().toString());
-    messageReply.setText(text);
-    messageReply.setReplyMarkup(keyboardPlayerProfileUtil.getProfileMenu(true));
-
+  private void sendNicknameTakenHint(String chatId, TelegramLongPollingBot bot) {
+    var msg = new SendMessage();
+    msg.setChatId(chatId);
+    msg.setText("Ник уже занят. Введите ник вручную командой: /create_profiles ник");
+    msg.setReplyMarkup(keyboardPlayerProfileUtil.getProfileMenu(false));
     try {
-      bot.execute(messageReply);
-    } catch (TelegramApiException e) {
-      log.error(e.getMessage());
-      e.printStackTrace();
+      bot.execute(msg);
+    } catch (TelegramApiException ex) {
+      log.error(ex.getMessage());
     }
   }
 }

@@ -3,6 +3,7 @@ package com.padelscore.service;
 import com.padelscore.dto.PlayerProfileDto;
 import com.padelscore.dto.TeamPlayerDto;
 import com.padelscore.entity.PlayerProfile;
+import com.padelscore.exception.NicknameNotUniqueException;
 import com.padelscore.repository.PlayerProfileRepository;
 import com.padelscore.repository.TeamPlayerRepository;
 import com.padelscore.util.EntityMapper;
@@ -64,8 +65,8 @@ public class PlayerProfileService {
         }
         
         if (nickname != null && !nickname.trim().isEmpty()) {
-            playerProfileRepository.findByNicknameIgnoreCase(nickname).ifPresent(existing -> {
-                throw new RuntimeException("Player profile with this nickname already exists");
+            playerProfileRepository.findByNicknameIgnoreCase(nickname.trim()).ifPresent(existing -> {
+                throw new NicknameNotUniqueException("Player profile with this nickname already exists");
             });
         }
         
@@ -98,9 +99,9 @@ public class PlayerProfileService {
             String currentNickname = profile.getNickname();
             boolean nicknameChanged = currentNickname == null || !currentNickname.equalsIgnoreCase(nickname);
             if (nicknameChanged && !nickname.trim().isEmpty()) {
-                playerProfileRepository.findByNicknameIgnoreCase(nickname).ifPresent(existing -> {
+                playerProfileRepository.findByNicknameIgnoreCase(nickname.trim()).ifPresent(existing -> {
                     if (!existing.getId().equals(id)) {
-                        throw new RuntimeException("Player profile with this nickname already exists");
+                        throw new NicknameNotUniqueException("Player profile with this nickname already exists");
                     }
                 });
             }

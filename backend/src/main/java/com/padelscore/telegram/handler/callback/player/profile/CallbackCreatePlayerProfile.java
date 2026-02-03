@@ -1,5 +1,6 @@
 package com.padelscore.telegram.handler.callback.player.profile;
 
+import com.padelscore.exception.NicknameNotUniqueException;
 import com.padelscore.service.PlayerProfileService;
 import com.padelscore.telegram.handler.callback.Callback;
 import com.padelscore.telegram.util.KeyboardPlayerProfileUtil;
@@ -47,30 +48,36 @@ public class CallbackCreatePlayerProfile implements Callback {
 
     log.info("UserId=[{}], nickname=[{}]", user.getId(), nickname);
 
-    final var playerProfileDto = playerProfileService.createPlayerProfile(user.getFirstName(),
-        user.getLastName(), nickname, user.getId(), 0);
-
-    final var text = """
-        ✅ Профиль создан:
-        
-        Ник - %s
-        Имя - %s
-        Рейтинг - %d""".formatted(
-        playerProfileDto.getNickname(),
-        playerProfileDto.getFirstName(),
-        playerProfileDto.getRating());
-
-    final var message = new EditMessageText();
-    message.setChatId(chatId);
-    message.setMessageId(callbackQuery.getMessage().getMessageId());
-    message.setText(text);
-    message.setReplyMarkup(keyboardPlayerProfileUtil.getProfileMenu(true));
+    final var editMessage = new EditMessageText();
+    editMessage.setChatId(chatId);
+    editMessage.setMessageId(callbackQuery.getMessage().getMessageId());
 
     try {
-      bot.execute(message);
+      final var dto = playerProfileService.createPlayerProfile(user.getFirstName(),
+          user.getLastName(), nickname, user.getId(), 0);
+      setProfileCreatedText(editMessage, dto.getNickname(), dto.getFirstName(), dto.getRating());
+      editMessage.setReplyMarkup(keyboardPlayerProfileUtil.getProfileMenu(true));
+      bot.execute(editMessage);
+    } catch (NicknameNotUniqueException e) {
+      editMessage.setText("Ник уже занят. Введите ник вручную командой: /create_profiles ник");
+      editMessage.setReplyMarkup(keyboardPlayerProfileUtil.getProfileMenu(false));
+      try {
+        bot.execute(editMessage);
+      } catch (TelegramApiException ex) {
+        log.error(ex.getMessage());
+      }
     } catch (TelegramApiException e) {
       log.error(e.getMessage());
       e.printStackTrace();
     }
+  }
+
+  private void setProfileCreatedText(EditMessageText msg, String nick, String firstName, int rating) {
+    msg.setText("""
+        ✅ Профиль создан:
+        
+        Ник - %s
+        Имя - %s
+        Рейтинг - %d""".formatted(nick, firstName, rating));
   }
 }
