@@ -1,5 +1,6 @@
 package com.padelscore.telegram.util;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Component;
@@ -229,12 +230,15 @@ public class KeyboardTournamentUtil {
     InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
     List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
 
+    DateTimeFormatter shortDate = DateTimeFormatter.ofPattern("dd.MM HH:mm");
     for (MatchDto match : matches) {
       List<InlineKeyboardButton> row = new ArrayList<>();
       InlineKeyboardButton button = new InlineKeyboardButton();
       String status = "SCHEDULED".equals(match.getStatus()) ? "⏰" :
           "COMPLETED".equals(match.getStatus()) ? "✅" : "🔄";
-      button.setText(status + " " + match.getTeam1Name() + " vs " + match.getTeam2Name());
+      String dateStr = match.getScheduledDate() != null
+          ? match.getScheduledDate().format(shortDate) : "—";
+      button.setText(status + " " + match.getTeam1Name() + " vs " + match.getTeam2Name() + " · " + dateStr);
       button.setCallbackData("match_" + match.getId());
       row.add(button);
       keyboard.add(row);
