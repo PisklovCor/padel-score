@@ -1,5 +1,13 @@
-package com.padelscore.telegram.handler.callback.tournament;
+package com.padelscore.telegram.handler.callback.match;
 
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import com.padelscore.dto.MatchDto;
 import com.padelscore.dto.MatchResultDto;
 import com.padelscore.dto.TeamDto;
@@ -11,20 +19,11 @@ import com.padelscore.telegram.handler.callback.Callback;
 import com.padelscore.telegram.util.KeyboardTournamentUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-
-import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CallbackTournamentMatches implements Callback {
+public class CallbackMatchesForTournament implements Callback {
 
   private final MatchService matchService;
   private final TeamService teamService;
@@ -182,7 +181,7 @@ public class CallbackTournamentMatches implements Callback {
     try {
       Integer playerProfileId = playerProfileService.getPlayerProfileByTelegramId(userId).getId();
       MatchDto match = matchService.getMatch(matchId);
-      
+
       if (!tournamentService.isTournamentCreator(playerProfileId, match.getTournamentId())) {
         EditMessageText message = new EditMessageText();
         message.setChatId(chatId);

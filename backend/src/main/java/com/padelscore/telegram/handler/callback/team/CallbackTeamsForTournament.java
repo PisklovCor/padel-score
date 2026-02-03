@@ -1,23 +1,22 @@
-package com.padelscore.telegram.handler.callback.tournament;
+package com.padelscore.telegram.handler.callback.team;
 
+import java.util.List;
+import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import com.padelscore.dto.TeamDto;
 import com.padelscore.service.TeamService;
 import com.padelscore.telegram.handler.callback.Callback;
 import com.padelscore.telegram.util.KeyboardTournamentUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-
-import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CallbackTournamentTeams implements Callback {
+public class CallbackTeamsForTournament implements Callback {
 
   private final TeamService teamService;
 
