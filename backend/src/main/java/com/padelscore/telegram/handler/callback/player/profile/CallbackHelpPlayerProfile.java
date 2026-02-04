@@ -16,7 +16,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 public class CallbackHelpPlayerProfile implements Callback {
 
   /**
-   * Всегда false — callback не привязан (deprecated).
+   * Совпадение для команды «/help_profiles». Всегда false — callback не привязан (deprecated).
    */
   @Override
   public boolean coincidence(String command) {

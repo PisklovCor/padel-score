@@ -16,7 +16,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 public class CommandHelpPlayerProfile implements Command {
 
   /**
-   * Всегда false — команда не привязана к тексту (deprecated).
+   * Совпадение для команды «/help_profiles». Всегда false — команда не привязана к тексту
+   * (deprecated).
    */
   @Override
   public boolean coincidence(String command) {

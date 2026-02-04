@@ -12,6 +12,7 @@ import com.padelscore.telegram.handler.callback.Callback;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+@Deprecated
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -20,11 +21,12 @@ public class CallbackMatchCreate implements Callback {
   private final TeamService teamService;
 
   /**
-   * Совпадение для callback data «match_create_<tournamentId>».
+   * Совпадение для callback data «match_create_<tournamentId>». Всегда false — команда не привязана
+   * к тексту (deprecated).
    */
   @Override
   public boolean coincidence(String command) {
-    return command != null && command.startsWith("match_create_");
+    return false;
   }
 
   /**
