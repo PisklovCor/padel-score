@@ -13,7 +13,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 public class CommandUpdatePlayerProfile implements Command {
 
   /**
-   * Совпадение для команды /update_profiles.
+   * Совпадение для команды «/update_profiles».
    */
   @Override
   public boolean coincidence(String command) {

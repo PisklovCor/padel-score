@@ -25,7 +25,7 @@ public class CommandReminders implements Command {
   }
 
   /**
-   * Совпадение для команды /reminders.
+   * Совпадение для команды «/reminders».
    */
   @Override
   public boolean coincidence(String command) {

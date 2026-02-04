@@ -62,7 +62,7 @@ public class Tournament {
   private TournamentStatus status;
 
   @Column(nullable = false)
-  private Boolean completed = false;
+  private Boolean completed;
 
   @Column(name = "created_at", nullable = false, updatable = false)
   private LocalDateTime createdAt;

@@ -63,7 +63,7 @@ public class Match {
   private String location;
 
   @Column(nullable = false)
-  private Boolean completed = false;
+  private Boolean completed;
 
   @Column(name = "created_at", nullable = false, updatable = false)
   private LocalDateTime createdAt;

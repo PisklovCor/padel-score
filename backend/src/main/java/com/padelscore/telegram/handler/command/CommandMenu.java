@@ -17,7 +17,7 @@ public class CommandMenu implements Command {
   private final KeyboardUtil keyboardUtil;
 
   /**
-   * Совпадение для команды /menu.
+   * Совпадение для команды «/menu».
    */
   @Override
   public boolean coincidence(String command) {

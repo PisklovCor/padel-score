@@ -16,13 +16,12 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @RequiredArgsConstructor
 public class CommandDeletePlayerProfile implements Command {
 
-  /** Сервис профиля игрока. */
   private final PlayerProfileService playerProfileService;
-  /** Утилита клавиатуры меню профиля. */
+
   private final KeyboardPlayerProfileUtil keyboardPlayerProfileUtil;
 
   /**
-   * Совпадение для команды /delete_profiles.
+   * Совпадение для команды «/delete_profiles».
    */
   @Override
   public boolean coincidence(String command) {

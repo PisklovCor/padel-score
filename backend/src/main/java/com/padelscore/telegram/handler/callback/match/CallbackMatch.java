@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CallbackMatchesForTournament implements Callback {
+public class CallbackMatch implements Callback {
 
   private final MatchService matchService;
   private final TeamService teamService;
@@ -32,20 +32,15 @@ public class CallbackMatchesForTournament implements Callback {
   private final KeyboardTournamentUtil keyboardTournamentUtil;
 
   /**
-   * Совпадение для matches_list_, match_, match_result_, result_quick_, match_view_,
-   * match_dispute_, match_create_.
+   * Совпадение для callback data с префиксом «match_<id>».
    */
   @Override
   public boolean coincidence(String command) {
-    return command != null
-        && (command.startsWith("matches_list_")
-        || command.startsWith("match_")
-        || command.startsWith("result_quick_"));
+    return command != null && command.startsWith("match_");
   }
 
   /**
-   * Обрабатывает матчи турнира: список матчей, карточка матча, ввод результата, просмотр,
-   * оспаривание, создание.
+   * Обрабатывает команды матча: карточка матча, ввод результата, просмотр, оспаривание, создание.
    */
   @Override
   public void handle(CallbackQuery callbackQuery, TelegramLongPollingBot bot) {
@@ -55,12 +50,8 @@ public class CallbackMatchesForTournament implements Callback {
     Long userId = callbackQuery.getFrom().getId();
 
     try {
-      if (data.startsWith("matches_list_")) {
-        handleMatchesList(data, chatId, messageId, bot);
-      } else if (data.startsWith("match_result_")) {
+      if (data.startsWith("match_result_")) {
         handleMatchResultInput(data, chatId, messageId, userId, bot);
-      } else if (data.startsWith("result_quick_")) {
-        handleQuickResult(data, chatId, messageId, userId, bot);
       } else if (data.startsWith("match_view_")) {
         handleMatchView(data, chatId, messageId, bot);
       } else if (data.startsWith("match_dispute_")) {
@@ -73,37 +64,6 @@ public class CallbackMatchesForTournament implements Callback {
     } catch (TelegramApiException e) {
       log.error(e.getMessage());
     }
-  }
-
-  private void handleMatchesList(String data, String chatId, Integer messageId,
-      TelegramLongPollingBot bot) throws TelegramApiException {
-    Integer tournamentId = Integer.parseInt(data.split("_")[2]);
-    List<MatchDto> matches = matchService.getMatchesByTournament(tournamentId);
-
-    EditMessageText message = new EditMessageText();
-    message.setChatId(chatId);
-    message.setMessageId(messageId);
-
-    if (matches.isEmpty()) {
-      message.setText(
-          "⚽ Матчи турнира\n\nВ этом турнире пока нет матчей.\n\nИспользуйте кнопку ниже, чтобы создать матч.");
-    } else {
-      StringBuilder text = new StringBuilder("⚽ Матчи турнира\n\n");
-      DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
-      for (MatchDto match : matches) {
-        String status = "SCHEDULED".equals(match.getStatus()) ? "⏰"
-            : "COMPLETED".equals(match.getStatus()) ? "✅" : "🔄";
-        String teams = match.getTeam1Name() + " vs " + match.getTeam2Name();
-        String dateStr = match.getScheduledDate() != null
-            ? match.getScheduledDate().format(dateFormatter) : "—";
-        String location = match.getLocation() != null && !match.getLocation().isBlank()
-            ? match.getLocation().trim() : "—";
-        text.append(String.format("%s %s — %s — %s\n", status, teams, dateStr, location));
-      }
-      message.setText(text.toString());
-    }
-    message.setReplyMarkup(keyboardTournamentUtil.getMatchesMenu(matches, tournamentId));
-    bot.execute(message);
   }
 
   private void handleMatchCard(String data, String chatId, Integer messageId,
@@ -169,45 +129,6 @@ public class CallbackMatchesForTournament implements Callback {
       bot.execute(message);
     } catch (Exception e) {
       sendMessage(chatId, "Ошибка: " + e.getMessage(), bot);
-    }
-  }
-
-  private void handleQuickResult(String data, String chatId, Integer messageId, Long userId,
-      TelegramLongPollingBot bot) throws TelegramApiException {
-    String[] parts = data.split("_");
-    Integer matchId = Integer.parseInt(parts[2]);
-    String score = parts[3];
-
-    try {
-      Integer playerProfileId = playerProfileService.getPlayerProfileByTelegramId(userId).getId();
-      MatchDto match = matchService.getMatch(matchId);
-
-      if (!tournamentService.isTournamentCreator(playerProfileId, match.getTournamentId())) {
-        EditMessageText message = new EditMessageText();
-        message.setChatId(chatId);
-        message.setMessageId(messageId);
-        message.setText("❌ У вас нет прав для редактирования результатов матчей.\n\n"
-            + "Только создатель турнира может редактировать результаты.");
-        message.setReplyMarkup(keyboardTournamentUtil.getMatchMenu(
-            matchId, match.getTournamentId(), match.getStatus()));
-        bot.execute(message);
-        return;
-      }
-
-      matchService.submitResult(matchId, score, playerProfileId, null);
-      match = matchService.getMatch(matchId);
-
-      EditMessageText message = new EditMessageText();
-      message.setChatId(chatId);
-      message.setMessageId(messageId);
-      message.setText("✅ Результат матча сохранен!\n\n"
-          + match.getTeam1Name() + " vs " + match.getTeam2Name() + "\n"
-          + "Счет: " + score);
-      message.setReplyMarkup(keyboardTournamentUtil.getMatchMenu(
-          matchId, match.getTournamentId(), "COMPLETED"));
-      bot.execute(message);
-    } catch (Exception e) {
-      sendMessage(chatId, "Ошибка при сохранении результата: " + e.getMessage(), bot);
     }
   }
 

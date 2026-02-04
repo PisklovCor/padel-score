@@ -22,7 +22,7 @@ public class CommandPlayerProfile implements Command {
   private final KeyboardPlayerProfileUtil keyboardPlayerProfileUtil;
 
   /**
-   * Совпадение для команды /profiles.
+   * Совпадение для команды «/profiles».
    */
   @Override
   public boolean coincidence(String command) {

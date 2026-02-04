@@ -23,7 +23,7 @@ public class CommandCreatePlayerProfile implements Command {
   private final KeyboardPlayerProfileUtil keyboardPlayerProfileUtil;
 
   /**
-   * Совпадение для команды /create_profiles (с опциональным ником).
+   * Совпадение для команды «/create_profiles» (с опциональным ником).
    */
   @Override
   public boolean coincidence(String command) {

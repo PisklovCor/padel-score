@@ -23,7 +23,7 @@ public class CallbackTeamsForTournament implements Callback {
   private final KeyboardTournamentUtil keyboardUtil;
 
   /**
-   * Совпадение для callback data вида «teams_list_&lt;tournamentId&gt;».
+   * Совпадение для callback data вида «teams_list_<tournamentId>».
    */
   @Override
   public boolean coincidence(String command) {

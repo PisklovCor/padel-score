@@ -17,7 +17,7 @@ public class CommandStart implements Command {
   private final KeyboardUtil keyboardUtil;
 
   /**
-   * Совпадение для команды /start.
+   * Совпадение для команды «/start».
    */
   @Override
   public boolean coincidence(String command) {

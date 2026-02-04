@@ -14,7 +14,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 public class CommandHelp implements Command {
 
   /**
-   * Совпадение для команды /help.
+   * Совпадение для команды «/help».
    */
   @Override
   public boolean coincidence(String command) {

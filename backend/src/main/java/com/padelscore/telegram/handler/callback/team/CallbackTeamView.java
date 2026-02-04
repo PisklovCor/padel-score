@@ -30,7 +30,7 @@ public class CallbackTeamView implements Callback {
   private final KeyboardTournamentUtil keyboardUtil;
 
   /**
-   * Совпадение для callback data вида «team_&lt;id&gt;».
+   * Совпадение для callback data вида «team_<id>».
    */
   @Override
   public boolean coincidence(String command) {
