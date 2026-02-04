@@ -21,7 +21,7 @@ public class CallbackTournamentCard implements Callback {
   private final KeyboardTournamentUtil keyboardTournamentUtil;
 
   /**
-   * Совпадение для callback data «tournament_card_&lt;tournamentId&gt;».
+   * Совпадение для callback data «tournament_card_<tournamentId>».
    */
   @Override
   public boolean coincidence(String command) {
