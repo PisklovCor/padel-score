@@ -32,7 +32,7 @@ public class CallbackMatchesList implements Callback {
   }
 
   /**
-   * Редактирует сообщение: список матчей турнира и клавиатуру с матчами.
+   * Список матчей турнира и клавиатуру с матчами.
    */
   @Override
   public void handle(CallbackQuery callbackQuery, TelegramLongPollingBot bot) {

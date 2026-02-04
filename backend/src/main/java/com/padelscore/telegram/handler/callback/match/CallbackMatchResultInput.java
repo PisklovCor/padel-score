@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CallbackQuickResult implements Callback {
+public class CallbackMatchResultInput implements Callback {
 
   private final MatchService matchService;
   private final PlayerProfileService playerProfileService;
@@ -26,15 +26,15 @@ public class CallbackQuickResult implements Callback {
   private final KeyboardTournamentUtil keyboardTournamentUtil;
 
   /**
-   * Совпадение для callback data «result_quick_<matchId>_<score>».
+   * Совпадение для callback data «match_result_<matchId>».
    */
   @Override
   public boolean coincidence(String command) {
-    return command != null && command.startsWith("result_quick_");
+    return command != null && command.startsWith("match_result_");
   }
 
   /**
-   * Сохраняет результат матча по быстрой кнопке, редактирует сообщение с подтверждением и клавиатурой.
+   * Выбор результата матча (только для создателя турнира) и клавиатура с вариантами счёта.
    */
   @Override
   public void handle(CallbackQuery callbackQuery, TelegramLongPollingBot bot) {
@@ -44,13 +44,10 @@ public class CallbackQuickResult implements Callback {
     Long userId = callbackQuery.getFrom().getId();
 
     try {
-      String[] parts = data.split("_");
-      Integer matchId = Integer.parseInt(parts[2]);
-      String score = parts[3];
-
-      Integer playerProfileId = playerProfileService.getPlayerProfileByTelegramId(userId).getId();
+      Integer matchId = Integer.parseInt(data.split("_")[2]);
       MatchDto match = matchService.getMatch(matchId);
 
+      Integer playerProfileId = playerProfileService.getPlayerProfileByTelegramId(userId).getId();
       if (!tournamentService.isTournamentCreator(playerProfileId, match.getTournamentId())) {
         EditMessageText message = new EditMessageText();
         message.setChatId(chatId);
@@ -63,20 +60,17 @@ public class CallbackQuickResult implements Callback {
         return;
       }
 
-      matchService.submitResult(matchId, score, playerProfileId, null);
-      match = matchService.getMatch(matchId);
-
       EditMessageText message = new EditMessageText();
       message.setChatId(chatId);
       message.setMessageId(messageId);
-      message.setText("✅ Результат матча сохранен!\n\n"
-          + match.getTeam1Name() + " vs " + match.getTeam2Name() + "\n"
-          + "Счет: " + score);
-      message.setReplyMarkup(keyboardTournamentUtil.getMatchMenu(
-          matchId, match.getTournamentId(), "COMPLETED"));
+      message.setText("Выберите результат матча:\n\n"
+          + match.getTeam1Name() + " vs " + match.getTeam2Name());
+      message.setReplyMarkup(keyboardTournamentUtil.getResultInputMenu(matchId));
       bot.execute(message);
+    } catch (TelegramApiException e) {
+      log.error(e.getMessage());
     } catch (Exception e) {
-      sendMessage(chatId, "Ошибка при сохранении результата: " + e.getMessage(), bot);
+      sendMessage(chatId, "Ошибка: " + e.getMessage(), bot);
     }
   }
 

@@ -1,0 +1,73 @@
+package com.padelscore.telegram.handler.callback.match;
+
+import java.time.format.DateTimeFormatter;
+import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import com.padelscore.dto.MatchDto;
+import com.padelscore.service.MatchService;
+import com.padelscore.telegram.handler.callback.Callback;
+import com.padelscore.telegram.util.KeyboardTournamentUtil;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class CallbackMatchCard implements Callback {
+
+  private final MatchService matchService;
+  private final KeyboardTournamentUtil keyboardTournamentUtil;
+
+  /**
+   * Совпадение для callback data «match_<matchId>».
+   */
+  @Override
+  public boolean coincidence(String command) {
+    return command != null && command.matches("match_\\d+");
+  }
+
+  /**
+   * Карточка матча (команды, статус, дата, место) и клавиатура с действиями.
+   */
+  @Override
+  public void handle(CallbackQuery callbackQuery, TelegramLongPollingBot bot) {
+    String data = callbackQuery.getData();
+    String chatId = callbackQuery.getMessage().getChatId().toString();
+    Integer messageId = callbackQuery.getMessage().getMessageId();
+
+    try {
+      Integer matchId = Integer.parseInt(data.split("_")[1]);
+      MatchDto match = matchService.getMatch(matchId);
+
+      StringBuilder text = new StringBuilder("⚽ Матч: ")
+          .append(match.getTeam1Name())
+          .append(" vs ")
+          .append(match.getTeam2Name())
+          .append("\n\n");
+      text.append("ID: ").append(match.getId()).append("\n");
+      text.append("Статус: ").append(match.getStatus()).append("\n");
+      text.append("Формат: ").append(match.getFormat()).append("\n");
+      if (match.getScheduledDate() != null) {
+        text.append("Дата: ")
+            .append(match.getScheduledDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")))
+            .append("\n");
+      }
+      if (match.getLocation() != null && !match.getLocation().isBlank()) {
+        text.append("Место: ").append(match.getLocation().trim()).append("\n");
+      }
+
+      EditMessageText message = new EditMessageText();
+      message.setChatId(chatId);
+      message.setMessageId(messageId);
+      message.setText(text.toString());
+      message.setReplyMarkup(keyboardTournamentUtil.getMatchMenu(
+          matchId, match.getTournamentId(), match.getStatus()));
+      bot.execute(message);
+    } catch (TelegramApiException e) {
+      log.error(e.getMessage());
+    }
+  }
+}
