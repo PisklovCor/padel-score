@@ -239,7 +239,7 @@ public class KeyboardTournamentUtil {
       String dateStr = match.getScheduledDate() != null
           ? match.getScheduledDate().format(shortDate) : "—";
       button.setText(status + " " + match.getTeam1Name() + " vs " + match.getTeam2Name() + " · " + dateStr);
-      button.setCallbackData("match_" + match.getId());
+      button.setCallbackData("match_card_" + match.getId());
       row.add(button);
       keyboard.add(row);
     }
@@ -342,7 +342,7 @@ public class KeyboardTournamentUtil {
     List<InlineKeyboardButton> row3 = new ArrayList<>();
     InlineKeyboardButton cancel = new InlineKeyboardButton();
     cancel.setText("❌ Отмена");
-    cancel.setCallbackData("match_" + matchId);
+    cancel.setCallbackData("match_card_" + matchId);
     row3.add(cancel);
 
     keyboard.add(row1);

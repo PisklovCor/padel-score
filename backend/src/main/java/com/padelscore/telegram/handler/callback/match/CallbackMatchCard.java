@@ -22,11 +22,11 @@ public class CallbackMatchCard implements Callback {
   private final KeyboardTournamentUtil keyboardTournamentUtil;
 
   /**
-   * Совпадение для callback data «match_<matchId>».
+   * Совпадение для callback data «match_card_<matchId>».
    */
   @Override
   public boolean coincidence(String command) {
-    return command != null && command.matches("match_\\d+");
+    return command != null && command.startsWith("match_card_");
   }
 
   /**
@@ -39,7 +39,7 @@ public class CallbackMatchCard implements Callback {
     Integer messageId = callbackQuery.getMessage().getMessageId();
 
     try {
-      Integer matchId = Integer.parseInt(data.split("_")[1]);
+      Integer matchId = Integer.parseInt(data.split("_")[2]);
       MatchDto match = matchService.getMatch(matchId);
 
       StringBuilder text = new StringBuilder("⚽ Матч: ")
