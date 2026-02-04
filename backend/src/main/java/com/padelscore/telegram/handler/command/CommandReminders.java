@@ -37,28 +37,12 @@ public class CommandReminders implements Command {
    */
   @Override
   public void handle(Message message, TelegramLongPollingBot bot) {
-    Long userId = message.getFrom().getId();
+    final Long userId = message.getFrom().getId();
 
     final String botAdminId = propertiesConfiguration.getBotAdminId();
 
     // Проверка прав доступа
-    if (botAdminId == null || botAdminId.isEmpty()) {
-      log.warn("BOT_ADMIN не настроен, команда /reminders недоступна");
-      sendAccessDeniedMessage(message.getChatId(), bot);
-      return;
-    }
-
-    try {
-      Long adminId = Long.parseLong(botAdminId);
-      if (!adminId.equals(userId)) {
-        log.warn("Попытка выполнения команды /reminders пользователем {} (разрешен только {})",
-            userId, adminId);
-        sendAccessDeniedMessage(message.getChatId(), bot);
-        return;
-      }
-    } catch (NumberFormatException e) {
-      log.error("Неверный формат BOT_ADMIN: {}", botAdminId);
-      sendAccessDeniedMessage(message.getChatId(), bot);
+    if (checkingAdministratorRights(message, userId, botAdminId, bot)) {
       return;
     }
 
@@ -95,5 +79,31 @@ public class CommandReminders implements Command {
     } catch (TelegramApiException e) {
       log.error("Не удалось отправить сообщение об отказе в доступе: {}", e.getMessage(), e);
     }
+  }
+
+  private boolean checkingAdministratorRights(Message message, Long userId, String botAdminId,
+      TelegramLongPollingBot bot) {
+
+    if (botAdminId == null || botAdminId.isEmpty()) {
+      log.warn("BOT_ADMIN не настроен, команда /reminders недоступна");
+      sendAccessDeniedMessage(message.getChatId(), bot);
+      return true;
+    }
+
+    try {
+      Long adminId = Long.parseLong(botAdminId);
+      if (!adminId.equals(userId)) {
+        log.warn("Попытка выполнения команды /reminders пользователем {} (разрешен только {})",
+            userId, adminId);
+        sendAccessDeniedMessage(message.getChatId(), bot);
+        return true;
+      }
+    } catch (NumberFormatException e) {
+      log.error("Неверный формат BOT_ADMIN: {}", botAdminId);
+      sendAccessDeniedMessage(message.getChatId(), bot);
+      return true;
+    }
+
+    return false;
   }
 }
