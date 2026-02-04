@@ -28,7 +28,7 @@ public class KeyboardTournamentUtil {
       List<InlineKeyboardButton> row = new ArrayList<>();
       InlineKeyboardButton button = new InlineKeyboardButton();
       button.setText("🏆 " + tournament.getTitle());
-      button.setCallbackData("tournament_" + tournament.getId());
+      button.setCallbackData("tournament_card_" + tournament.getId());
       row.add(button);
       keyboard.add(row);
     }
@@ -121,7 +121,7 @@ public class KeyboardTournamentUtil {
     List<InlineKeyboardButton> backRow = new ArrayList<>();
     InlineKeyboardButton back = new InlineKeyboardButton();
     back.setText("◀️ Назад");
-    back.setCallbackData("tournament_" + tournamentId);
+    back.setCallbackData("tournament_card_" + tournamentId);
     backRow.add(back);
     keyboard.add(backRow);
 
@@ -247,7 +247,7 @@ public class KeyboardTournamentUtil {
     List<InlineKeyboardButton> backRow = new ArrayList<>();
     InlineKeyboardButton back = new InlineKeyboardButton();
     back.setText("◀️ Назад");
-    back.setCallbackData("tournament_" + tournamentId);
+    back.setCallbackData("tournament_card_" + tournamentId);
     backRow.add(back);
     keyboard.add(backRow);
 
