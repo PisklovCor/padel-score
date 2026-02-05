@@ -6,7 +6,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 
 import java.util.ArrayList;
 import java.util.List;
-import com.padelscore.util.KeyboardUtils;
+import com.padelscore.util.KeyboardUtil;
 
 @Component
 public class KeyboardPlayerProfileUtil {
@@ -41,7 +41,7 @@ public class KeyboardPlayerProfileUtil {
     InlineKeyboardMarkup markupProfileMenu = new InlineKeyboardMarkup();
     List<List<InlineKeyboardButton>> keyboardProfileMenu = new ArrayList<>();
 
-    keyboardProfileMenu.add(KeyboardUtils.singleButtonRow("📑 Главное меню", MENU));
+    keyboardProfileMenu.add(KeyboardUtil.singleButtonRow("📑 Главное меню", MENU));
 
     addKeyboardByIsProfileExists(isProfileExists, keyboardProfileMenu);
 
@@ -54,10 +54,10 @@ public class KeyboardPlayerProfileUtil {
 
     if (isProfileExists) {
 
-      keyboardProfileMenu.add(KeyboardUtils.singleButtonRow("🗑 Удалить профиль", DELETE_PROFILES));
+      keyboardProfileMenu.add(KeyboardUtil.singleButtonRow("🗑 Удалить профиль", DELETE_PROFILES));
     } else {
 
-      keyboardProfileMenu.add(KeyboardUtils.singleButtonRow("➕ Создать профиль", CREATE_PROFILES));
+      keyboardProfileMenu.add(KeyboardUtil.singleButtonRow("➕ Создать профиль", CREATE_PROFILES));
     }
   }
 
@@ -72,8 +72,8 @@ public class KeyboardPlayerProfileUtil {
     List<InlineKeyboardButton> rowDeleteConfirmKeyboard = new ArrayList<>();
 
     rowDeleteConfirmKeyboard.add(
-        KeyboardUtils.createButton("✅ Да, удалить", DELETE_PROFILES_CONFIRM));
-    rowDeleteConfirmKeyboard.add(KeyboardUtils.createButton("❌ Отмена", PROFILES));
+        KeyboardUtil.createButton("✅ Да, удалить", DELETE_PROFILES_CONFIRM));
+    rowDeleteConfirmKeyboard.add(KeyboardUtil.createButton("❌ Отмена", PROFILES));
 
     keyboardDeleteConfirmKeyboard.add(rowDeleteConfirmKeyboard);
     markupDeleteConfirmKeyboard.setKeyboard(keyboardDeleteConfirmKeyboard);

@@ -6,7 +6,7 @@ import lombok.experimental.UtilityClass;
 import java.util.List;
 
 @UtilityClass
-public class KeyboardUtils {
+public class KeyboardUtil {
 
 
   /**

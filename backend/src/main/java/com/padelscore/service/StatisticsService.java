@@ -1,15 +1,22 @@
 package com.padelscore.service;
 
 import com.padelscore.dto.LeaderboardEntryDto;
+import com.padelscore.dto.PlayerProfileDto;
 import com.padelscore.entity.Match;
+import com.padelscore.entity.PlayerProfile;
 import com.padelscore.entity.Team;
 import com.padelscore.repository.MatchRepository;
 import com.padelscore.repository.MatchResultRepository;
+import com.padelscore.repository.PlayerProfileRepository;
 import com.padelscore.repository.TeamRepository;
+import com.padelscore.util.EntityMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import static com.padelscore.entity.enums.MatchStatus.COMPLETED;
 
@@ -22,6 +29,10 @@ public class StatisticsService {
   private final MatchRepository matchRepository;
 
   private final MatchResultRepository matchResultRepository;
+
+  private final PlayerProfileRepository playerProfileRepository;
+
+  private final EntityMapper entityMapper;
 
   public List<LeaderboardEntryDto> getLeaderboard(Integer tournamentId) {
     List<Team> teams = teamRepository.findByTournamentId(tournamentId);
@@ -122,5 +133,19 @@ public class StatisticsService {
         "totalMatches", totalMatches,
         "leaderboard", leaderboard
     );
+  }
+
+  /**
+   * Топ игроков по личному рейтингу (для главного меню и других экранов).
+   *
+   * @param limit максимальное количество игроков (например, 10)
+   * @return список DTO, отсортированный по убыванию рейтинга
+   */
+  public List<PlayerProfileDto> getTopPlayersByRating(int limit) {
+    List<PlayerProfile> top = playerProfileRepository.findByRatingIsNotNullOrderByRatingDesc(
+        PageRequest.of(0, limit));
+    return top.stream()
+        .map(entityMapper::toDto)
+        .collect(Collectors.toList());
   }
 }

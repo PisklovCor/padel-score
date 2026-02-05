@@ -3,7 +3,6 @@ package com.padelscore.telegram.util;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import com.padelscore.util.KeyboardUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +20,8 @@ public class KeyboardUtil {
 
   public static final String MENU = "menu";
 
+  public static final String PLAYER_RATING = "player_rating";
+
   /**
    * Добавляет кнопки главного меню
    *
@@ -30,10 +31,12 @@ public class KeyboardUtil {
     InlineKeyboardMarkup markupMenu = new InlineKeyboardMarkup();
     List<List<InlineKeyboardButton>> keyboardMenu = new ArrayList<>();
 
-    keyboardMenu.add(KeyboardUtils.singleButtonRow("🏆 Турниры", TOURNAMENTS));
-    keyboardMenu.add(KeyboardUtils.singleButtonRow("🎭 Мои команды", MY_TEAMS));
-    keyboardMenu.add(KeyboardUtils.singleButtonRow("👤 Профиль", PROFILES));
-    keyboardMenu.add(KeyboardUtils.singleButtonRow("❓ Помощь", HELP));
+    keyboardMenu.add(com.padelscore.util.KeyboardUtil.singleButtonRow("🏆 Турниры", TOURNAMENTS));
+    keyboardMenu.add(com.padelscore.util.KeyboardUtil.singleButtonRow("🎭 Мои команды", MY_TEAMS));
+    keyboardMenu.add(
+        com.padelscore.util.KeyboardUtil.singleButtonRow("📊 Рейтинг игроков", PLAYER_RATING));
+    keyboardMenu.add(com.padelscore.util.KeyboardUtil.singleButtonRow("👤 Профиль", PROFILES));
+    keyboardMenu.add(com.padelscore.util.KeyboardUtil.singleButtonRow("❓ Помощь", HELP));
     markupMenu.setKeyboard(keyboardMenu);
     return markupMenu;
   }
@@ -47,7 +50,7 @@ public class KeyboardUtil {
     InlineKeyboardMarkup markupButtonToMenu = new InlineKeyboardMarkup();
     List<List<InlineKeyboardButton>> keyboardButtonToMenu = new ArrayList<>();
 
-    keyboardButtonToMenu.add(KeyboardUtils.singleButtonRow("📑 Главное меню", MENU));
+    keyboardButtonToMenu.add(com.padelscore.util.KeyboardUtil.singleButtonRow("📑 Главное меню", MENU));
     markupButtonToMenu.setKeyboard(keyboardButtonToMenu);
     return markupButtonToMenu;
   }

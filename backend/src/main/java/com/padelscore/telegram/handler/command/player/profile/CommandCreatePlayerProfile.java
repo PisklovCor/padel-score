@@ -46,23 +46,7 @@ public class CommandCreatePlayerProfile implements Command {
     String nickname = user.getUserName();
 
     if (nickname == null || nickname.isBlank()) {
-      String[] parts = input.trim().split("\\s+", 2);
-
-      if (parts.length < 2) {
-        throw new IllegalArgumentException(
-            "После команды должен быть ник т.к. у вас он не заполнен в телеграмме." +
-                " Пример: /create_profiles Сахарок");
-      }
-
-      final String rest = parts[1];
-
-      String[] args = rest.trim().split("\\s+");
-      if (args.length != 1) {
-        throw new IllegalArgumentException("После команды должен быть ник в одно слово");
-      }
-
-      nickname = args[0];
-
+      nickname = commandCheck(input);
     }
 
     log.info("UserId=[{}], nickname=[{}]", user.getId(), nickname);
@@ -78,6 +62,26 @@ public class CommandCreatePlayerProfile implements Command {
       TelegramExceptionHandler.handle(e);
     }
   }
+
+  private String commandCheck(String commandInput) {
+    String[] parts = commandInput.trim().split("\\s+", 2);
+
+    if (parts.length < 2) {
+      throw new IllegalArgumentException(
+          "После команды должен быть ник т.к. у вас он не заполнен в телеграмме." +
+              " Пример: /create_profiles Сахарок");
+    }
+
+    final String rest = parts[1];
+
+    String[] args = rest.trim().split("\\s+");
+    if (args.length != 1) {
+      throw new IllegalArgumentException("После команды должен быть ник в одно слово");
+    }
+
+    return args[0];
+  }
+
 
   private void sendProfileCreated(String chatId, String nick, String firstName, int rating,
                                   TelegramLongPollingBot bot) throws TelegramApiException {

@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import com.padelscore.dto.TournamentDto;
-import com.padelscore.util.KeyboardUtils;
+import com.padelscore.util.KeyboardUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,11 +35,11 @@ public class KeyboardTournamentUtil {
     List<List<InlineKeyboardButton>> keyboardTournamentsMenu = new ArrayList<>();
 
     for (TournamentDto tournament : tournaments) {
-      keyboardTournamentsMenu.add(KeyboardUtils.singleButtonRow("🏆 " + tournament.getTitle(),
+      keyboardTournamentsMenu.add(KeyboardUtil.singleButtonRow("🏆 " + tournament.getTitle(),
           TOURNAMENT_CARD + tournament.getId()));
     }
 
-    keyboardTournamentsMenu.add(KeyboardUtils.singleButtonRow("📑 Главное меню", MENU));
+    keyboardTournamentsMenu.add(KeyboardUtil.singleButtonRow("📑 Главное меню", MENU));
 
     markupTournamentsMenu.setKeyboard(keyboardTournamentsMenu);
     return markupTournamentsMenu;
@@ -56,8 +56,8 @@ public class KeyboardTournamentUtil {
     List<List<InlineKeyboardButton>> keyboardTournamentMenu = new ArrayList<>();
 
     List<InlineKeyboardButton> matchComposition = new ArrayList<>();
-    matchComposition.add(KeyboardUtils.createButton("👥 Команды", TEAMS_LIST + tournamentId));
-    matchComposition.add(KeyboardUtils.createButton("⚽ Матчи", MATCHES_LIST + tournamentId));
+    matchComposition.add(KeyboardUtil.createButton("👥 Команды", TEAMS_LIST + tournamentId));
+    matchComposition.add(KeyboardUtil.createButton("⚽ Матчи", MATCHES_LIST + tournamentId));
 //        List<InlineKeyboardButton> row3 = new ArrayList<>();
 //        InlineKeyboardButton addTeam = new InlineKeyboardButton();
 //        addTeam.setText("➕ Добавить команду");
@@ -70,9 +70,9 @@ public class KeyboardTournamentUtil {
 //        row4.add(addMatch);
     keyboardTournamentMenu.add(matchComposition);
     keyboardTournamentMenu.add(
-        KeyboardUtils.singleButtonRow("📊 Таблица", LEADERBOARD + tournamentId));
+        KeyboardUtil.singleButtonRow("📊 Таблица", LEADERBOARD + tournamentId));
     keyboardTournamentMenu.add(
-        KeyboardUtils.singleButtonRow("◀️ Назад к турнирам", TOURNAMENT_LIST));
+        KeyboardUtil.singleButtonRow("◀️ Назад к турнирам", TOURNAMENT_LIST));
     markupTournamentMenu.setKeyboard(keyboardTournamentMenu);
     return markupTournamentMenu;
   }
@@ -88,7 +88,7 @@ public class KeyboardTournamentUtil {
     List<List<InlineKeyboardButton>> keyboardBackToTournamentMenu = new ArrayList<>();
 
     keyboardBackToTournamentMenu.add(
-        KeyboardUtils.singleButtonRow("◀️ Назад к турниру", TOURNAMENT_CARD + tournamentId));
+        KeyboardUtil.singleButtonRow("◀️ Назад к турниру", TOURNAMENT_CARD + tournamentId));
 
     markupBackToTournamentMenu.setKeyboard(keyboardBackToTournamentMenu);
     return markupBackToTournamentMenu;

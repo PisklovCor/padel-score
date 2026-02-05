@@ -1,6 +1,7 @@
 package com.padelscore.repository;
 
 import com.padelscore.entity.PlayerProfile;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -22,4 +23,9 @@ public interface PlayerProfileRepository extends JpaRepository<PlayerProfile, In
 
   List<PlayerProfile> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(
       String firstName, String lastName);
+
+  /**
+   * Игроки с рейтингом по убыванию рейтинга. Лимит задаётся через {@link Pageable}.
+   */
+  List<PlayerProfile> findByRatingIsNotNullOrderByRatingDesc(Pageable pageable);
 }

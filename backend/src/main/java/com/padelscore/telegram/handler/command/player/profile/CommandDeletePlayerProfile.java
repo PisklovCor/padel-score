@@ -3,12 +3,12 @@ package com.padelscore.telegram.handler.command.player.profile;
 import com.padelscore.service.PlayerProfileService;
 import com.padelscore.telegram.handler.command.Command;
 import com.padelscore.telegram.util.KeyboardPlayerProfileUtil;
+import com.padelscore.util.MessageUtil;
 import com.padelscore.util.TelegramExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -30,33 +30,27 @@ public class CommandDeletePlayerProfile implements Command {
   }
 
   /**
-   * Показывает предупреждение об удалении (рейтинг, членство в командах)
-   * и кнопки подтверждения.
+   * Показывает предупреждение об удалении (рейтинг, членство в командах) и кнопки подтверждения.
    */
   @Override
   public void handle(Message message, TelegramLongPollingBot bot) {
     final long userId = message.getFrom().getId();
+    final var chatId = message.getChatId().toString();
+
     if (!playerProfileService.existsByTelegramId(userId)) {
-      var noProfile = new SendMessage();
-      noProfile.setChatId(message.getChatId().toString());
-      noProfile.setText("⚠️ У вас пока нет профиля.");
-      noProfile.setReplyMarkup(keyboardPlayerProfileUtil.getProfileMenu(false));
       try {
-        bot.execute(noProfile);
+        bot.execute(MessageUtil.createdSendMessage(chatId, "⚠️ У вас пока нет профиля.",
+            keyboardPlayerProfileUtil.getProfileMenu(false)));
       } catch (TelegramApiException e) {
         TelegramExceptionHandler.handle(e);
       }
       return;
     }
 
-    var messageReply = new SendMessage();
-    messageReply.setChatId(message.getChatId().toString());
-    messageReply.setText(KeyboardPlayerProfileUtil.DELETE_PROFILE_WARNING);
-    messageReply.setReplyMarkup(
-        keyboardPlayerProfileUtil.getDeleteConfirmKeyboard());
-
     try {
-      bot.execute(messageReply);
+      bot.execute(
+          MessageUtil.createdSendMessage(chatId, KeyboardPlayerProfileUtil.DELETE_PROFILE_WARNING,
+              keyboardPlayerProfileUtil.getProfileMenu(false)));
     } catch (TelegramApiException e) {
       TelegramExceptionHandler.handle(e);
     }

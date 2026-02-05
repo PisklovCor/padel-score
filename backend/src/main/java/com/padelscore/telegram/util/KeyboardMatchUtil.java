@@ -1,7 +1,7 @@
 package com.padelscore.telegram.util;
 
 import com.padelscore.dto.MatchDto;
-import com.padelscore.util.KeyboardUtils;
+import com.padelscore.util.KeyboardUtil;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -54,7 +54,7 @@ public class KeyboardMatchUtil {
     }
 
     keyboardMatchesMenu.add(
-        KeyboardUtils.singleButtonRow("◀️ Назад к турниру", TOURNAMENT_CARD + tournamentId));
+        KeyboardUtil.singleButtonRow("◀️ Назад к турниру", TOURNAMENT_CARD + tournamentId));
 
     markupMatchesMenu.setKeyboard(keyboardMatchesMenu);
     return markupMatchesMenu;
@@ -75,20 +75,20 @@ public class KeyboardMatchUtil {
 
     if ("SCHEDULED".equals(status)) {
       keyboardMatchMenu.add(
-          KeyboardUtils.singleButtonRow("📝 Ввести результат", MATCH_RESULT + matchId));
+          KeyboardUtil.singleButtonRow("📝 Ввести результат", MATCH_RESULT + matchId));
     } else if ("COMPLETED".equals(status)) {
       List<InlineKeyboardButton> completedMatchRow = new ArrayList<>();
       completedMatchRow.add(
-          KeyboardUtils.createButton("📊 Просмотр результата", MATCH_VIEW + matchId));
+          KeyboardUtil.createButton("📊 Просмотр результата", MATCH_VIEW + matchId));
       completedMatchRow.add(
-          KeyboardUtils.createButton("✏️ Изменить результат", MATCH_RESULT + matchId));
+          KeyboardUtil.createButton("✏️ Изменить результат", MATCH_RESULT + matchId));
       keyboardMatchMenu.add(completedMatchRow);
       keyboardMatchMenu.add(
-          KeyboardUtils.singleButtonRow("⚠️ Оспорить результат", MATCH_DISPUTE + matchId));
+          KeyboardUtil.singleButtonRow("⚠️ Оспорить результат", MATCH_DISPUTE + matchId));
     }
 
     keyboardMatchMenu.add(
-        KeyboardUtils.singleButtonRow("◀️ Назад к матчам", MATCHES_LIST + tournamentId));
+        KeyboardUtil.singleButtonRow("◀️ Назад к матчам", MATCHES_LIST + tournamentId));
 
     markupMatchMenu.setKeyboard(keyboardMatchMenu);
     return markupMatchMenu;
@@ -105,16 +105,16 @@ public class KeyboardMatchUtil {
     List<List<InlineKeyboardButton>> keyboardResultInputMenu = new ArrayList<>();
 
     List<InlineKeyboardButton> firstResultRow = new ArrayList<>();
-    firstResultRow.add(KeyboardUtils.createButton("2-0", RESULT_QUICK + matchId + "_2-0"));
-    firstResultRow.add(KeyboardUtils.createButton("2-1", RESULT_QUICK + matchId + "_2-1"));
+    firstResultRow.add(KeyboardUtil.createButton("2-0", RESULT_QUICK + matchId + "_2-0"));
+    firstResultRow.add(KeyboardUtil.createButton("2-1", RESULT_QUICK + matchId + "_2-1"));
 
     List<InlineKeyboardButton> secondResultRow = new ArrayList<>();
-    secondResultRow.add(KeyboardUtils.createButton("0-2", RESULT_QUICK + matchId + "_0-2"));
-    secondResultRow.add(KeyboardUtils.createButton("1-2", RESULT_QUICK + matchId + "_1-2"));
+    secondResultRow.add(KeyboardUtil.createButton("0-2", RESULT_QUICK + matchId + "_0-2"));
+    secondResultRow.add(KeyboardUtil.createButton("1-2", RESULT_QUICK + matchId + "_1-2"));
 
     keyboardResultInputMenu.add(firstResultRow);
     keyboardResultInputMenu.add(secondResultRow);
-    keyboardResultInputMenu.add(KeyboardUtils.singleButtonRow("❌ Отмена", MATCH_CARD + matchId));
+    keyboardResultInputMenu.add(KeyboardUtil.singleButtonRow("❌ Отмена", MATCH_CARD + matchId));
     markupResultInputMenu.setKeyboard(keyboardResultInputMenu);
     return markupResultInputMenu;
   }

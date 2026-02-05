@@ -1,7 +1,7 @@
 package com.padelscore.telegram.util;
 
 import com.padelscore.dto.TeamDto;
-import com.padelscore.util.KeyboardUtils;
+import com.padelscore.util.KeyboardUtil;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -31,11 +31,11 @@ public class KeyboardTeamUtil {
 
     for (TeamDto team : teams) {
       keyboardTeamsMenu.add(
-          KeyboardUtils.singleButtonRow("👥 " + team.getName(), TEAM + team.getId()));
+          KeyboardUtil.singleButtonRow("👥 " + team.getName(), TEAM + team.getId()));
     }
 
     keyboardTeamsMenu.add(
-        KeyboardUtils.singleButtonRow("◀️ Назад к турниру", TOURNAMENT_CARD + tournamentId));
+        KeyboardUtil.singleButtonRow("◀️ Назад к турниру", TOURNAMENT_CARD + tournamentId));
 
     markupTeamsMenu.setKeyboard(keyboardTeamsMenu);
     return markupTeamsMenu;
@@ -51,7 +51,7 @@ public class KeyboardTeamUtil {
     InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
     List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
 
-    keyboard.add(KeyboardUtils.singleButtonRow("◀️ Назад к командам", TEAMS_LIST + tournamentId));
+    keyboard.add(KeyboardUtil.singleButtonRow("◀️ Назад к командам", TEAMS_LIST + tournamentId));
     markup.setKeyboard(keyboard);
     return markup;
   }
