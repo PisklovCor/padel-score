@@ -2,17 +2,23 @@ package com.padelscore.telegram.handler.command;
 
 import com.padelscore.config.PropertiesConfiguration;
 import com.padelscore.service.MatchReminderService;
+import com.padelscore.util.MessageUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @Slf4j
 @Service
 public class CommandReminders implements Command {
+
+  public static final String SUCCESSFUL_SENDING = "✅ Напоминания о матчах успешно отправлены";
+
+  public static final String UNSUCCESSFUL_SENDING = "❌ Произошла ошибка при отправке напоминаний";
+
+  public static final String NO_ACCESS_RIGHTS = "❌ У вас нет прав для выполнения этой команды";
 
   private final MatchReminderService matchReminderService;
 
@@ -38,6 +44,7 @@ public class CommandReminders implements Command {
   @Override
   public void handle(Message message, TelegramLongPollingBot bot) {
     final Long userId = message.getFrom().getId();
+    final String chatId = message.getChatId().toString();
 
     final String botAdminId = propertiesConfiguration.getBotAdminId();
 
@@ -46,22 +53,15 @@ public class CommandReminders implements Command {
     }
 
     try {
+
       matchReminderService.sendTomorrowMatchReminders();
-
-      var messageReply = new SendMessage();
-      messageReply.setChatId(message.getChatId().toString());
-      messageReply.setText("✅ Напоминания о матчах успешно отправлены");
-
-      bot.execute(messageReply);
+      bot.execute(MessageUtil.createdSendMessage(chatId, SUCCESSFUL_SENDING, null));
     } catch (TelegramApiException e) {
       log.error("Ошибка при отправке ответа на команду /reminders: {}", e.getMessage(), e);
     } catch (Exception e) {
       log.error("Ошибка при выполнении команды /reminders: {}", e.getMessage(), e);
       try {
-        var errorReply = new SendMessage();
-        errorReply.setChatId(message.getChatId().toString());
-        errorReply.setText("❌ Произошла ошибка при отправке напоминаний");
-        bot.execute(errorReply);
+        bot.execute(MessageUtil.createdSendMessage(chatId, UNSUCCESSFUL_SENDING, null));
       } catch (TelegramApiException ex) {
         log.error("Не удалось отправить сообщение об ошибке: {}", ex.getMessage(), ex);
       }
@@ -96,10 +96,7 @@ public class CommandReminders implements Command {
 
   private void sendAccessDeniedMessage(Long chatId, TelegramLongPollingBot bot) {
     try {
-      var messageReply = new SendMessage();
-      messageReply.setChatId(chatId.toString());
-      messageReply.setText("❌ У вас нет прав для выполнения этой команды");
-      bot.execute(messageReply);
+      bot.execute(MessageUtil.createdSendMessage(chatId.toString(), NO_ACCESS_RIGHTS, null));
     } catch (TelegramApiException e) {
       log.error("Не удалось отправить сообщение об отказе в доступе: {}", e.getMessage(), e);
     }

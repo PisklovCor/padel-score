@@ -2,10 +2,8 @@ package com.padelscore.telegram.handler.callback.match;
 
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import com.padelscore.dto.MatchDto;
 import com.padelscore.service.MatchService;
 import com.padelscore.service.PlayerProfileService;

@@ -53,7 +53,10 @@ public class MessageUtil {
     SendMessage sendMessage = new SendMessage();
     sendMessage.setChatId(chatId);
     sendMessage.setText(text);
-    sendMessage.setReplyMarkup(inlineKeyboardMarkup);
+
+    if (inlineKeyboardMarkup != null) {
+      sendMessage.setReplyMarkup(inlineKeyboardMarkup);
+    }
     return sendMessage;
   }
 }

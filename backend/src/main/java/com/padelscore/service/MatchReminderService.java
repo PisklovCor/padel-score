@@ -118,7 +118,7 @@ public class MatchReminderService {
       padelScoreBot.execute(message);
       log.info("Уведомления успешно отправлены");
     } catch (TelegramApiException ex) {
-      log.error("Не удалось отправить напоминание о матче пользователю {}: {}",
+      log.error("Не удалось отправить напоминание о матче пользователю [{}}: {}",
           telegramId, ex.getMessage());
     }
   }
