@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+  <!-- Boot defaults: CONSOLE_LOG_PATTERN и CONSOLE аппендер -->
+  <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+  <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+
+  <property name="LOG_PATH" value="logs"/>
+  <property name="APP_NAME" value="padelscore"/>
+
+  <!-- Общий rolling-file аппендер -->
+  <appender name="ROLLING-FILE"
+    class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${LOG_PATH}/${APP_NAME}.log</file>
+
+    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <fileNamePattern>${LOG_PATH}/${APP_NAME}-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+      <maxFileSize>100MB</maxFileSize>
+      <maxHistory>7</maxHistory>
+      <totalSizeCap>2GB</totalSizeCap>
+    </rollingPolicy>
+
+    <encoder>
+      <!-- файл всегда чёрно‑белый -->
+      <pattern>
+        %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n%wEx
+      </pattern>
+    </encoder>
+  </appender>
+
+  <!-- ===== БАЗА (fallback для других профилей) ===== -->
+  <logger name="com.padelscore" level="DEBUG" additivity="false">
+    <appender-ref ref="CONSOLE"/>
+  </logger>
+
+  <logger name="org.springframework.web" level="INFO"/>
+  <root level="INFO">
+    <appender-ref ref="CONSOLE"/>
+  </root>
+
+  <!-- ===== DEV: цветной как у Boot ===== -->
+  <springProfile name="dev">
+
+    <!-- Копия дефолтного CONSOLE_LOG_PATTERN Boot (можно подправлять под себя) -->
+    <property name="CONSOLE_LOG_PATTERN"
+      value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx"/>
+
+    <logger name="com.padelscore" level="DEBUG" additivity="false">
+      <appender-ref ref="CONSOLE"/>
+    </logger>
+
+    <logger name="org.hibernate.SQL" level="DEBUG"/>
+    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE"/>
+
+    <logger name="org.springframework.web" level="INFO"/>
+
+    <root level="INFO">
+      <appender-ref ref="CONSOLE"/>
+    </root>
+  </springProfile>
+
+  <!-- ===== PROD (и staging): чёрно‑белая консоль + файл ===== -->
+  <springProfile name="prod | staging">
+
+    <!-- переопределяем паттерн консоли на монохромный -->
+    <property name="CONSOLE_LOG_PATTERN"
+      value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%15.15t] %-40.40logger{39} - %msg%n%wEx"/>
+
+    <!-- твой пакет: и в консоль, и в файл -->
+    <logger name="com.padelscore" level="DEBUG" additivity="false">
+      <appender-ref ref="CONSOLE"/>
+      <appender-ref ref="ROLLING-FILE"/>
+    </logger>
+
+    <!-- менее болтливый Hibernate -->
+    <logger name="org.hibernate.SQL" level="INFO"/>
+    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="WARN"/>
+
+    <logger name="org.springframework.web" level="INFO"/>
+
+    <root level="INFO">
+      <appender-ref ref="CONSOLE"/>
+      <appender-ref ref="ROLLING-FILE"/>
+    </root>
+  </springProfile>
+
+</configuration>
