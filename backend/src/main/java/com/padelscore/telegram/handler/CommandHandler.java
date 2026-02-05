@@ -2,6 +2,7 @@ package com.padelscore.telegram.handler;
 
 import com.padelscore.telegram.handler.command.Command;
 import com.padelscore.telegram.util.KeyboardUtil;
+import com.padelscore.telegram.util.KeyboardTournamentUtil;
 import com.padelscore.dto.MatchDto;
 import com.padelscore.dto.TeamPlayerDto;
 import com.padelscore.dto.TeamDto;
@@ -25,6 +26,7 @@ public class CommandHandler {
   private final MatchService matchService;
   private final StatisticsService statisticsService;
   private final KeyboardUtil keyboardUtil;
+  private final KeyboardTournamentUtil keyboardTournamentUtil;
   private final TeamPlayerService teamPlayerService;
   private final PlayerProfileService playerProfileService;
   private final List<Command> commands;
@@ -131,7 +133,7 @@ public class CommandHandler {
       SendMessage message = new SendMessage();
       message.setChatId(chatId.toString());
       message.setText(text.toString());
-      message.setReplyMarkup(keyboardUtil.getTournamentsMenu(tournaments));
+      message.setReplyMarkup(keyboardTournamentUtil.getTournamentsMenu(tournaments));
       try {
         bot.execute(message);
       } catch (TelegramApiException e) {

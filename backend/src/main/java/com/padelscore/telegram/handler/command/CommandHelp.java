@@ -7,11 +7,14 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import com.padelscore.telegram.util.KeyboardUtil;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class CommandHelp implements Command {
+
+  private final KeyboardUtil keyboardUtil;
 
   /**
    * Совпадение для команды «/help».
@@ -40,6 +43,7 @@ public class CommandHelp implements Command {
     var messageReply = new SendMessage();
     messageReply.setChatId(message.getChatId().toString());
     messageReply.setText(text);
+    message.setReplyMarkup(keyboardUtil.getButtonToMenu());
 
     try {
       bot.execute(messageReply);

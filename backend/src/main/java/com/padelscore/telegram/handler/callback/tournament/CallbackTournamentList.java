@@ -21,8 +21,11 @@ import lombok.extern.slf4j.Slf4j;
 public class CallbackTournamentList implements Callback {
 
   private final TournamentService tournamentService;
+
   private final KeyboardTournamentUtil keyboardTournamentUtil;
+
   private final KeyboardUtil keyboardUtil;
+
   private final PlayerProfileService playerProfileService;
 
   /**

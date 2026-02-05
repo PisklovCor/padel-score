@@ -9,7 +9,7 @@ import com.padelscore.dto.MatchDto;
 import com.padelscore.dto.MatchResultDto;
 import com.padelscore.service.MatchService;
 import com.padelscore.telegram.handler.callback.Callback;
-import com.padelscore.telegram.util.KeyboardTournamentUtil;
+import com.padelscore.telegram.util.KeyboardMatchUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,7 +19,8 @@ import lombok.extern.slf4j.Slf4j;
 public class CallbackMatchView implements Callback {
 
   private final MatchService matchService;
-  private final KeyboardTournamentUtil keyboardTournamentUtil;
+
+  private final KeyboardMatchUtil keyboardMatchUtil;
 
   /**
    * Совпадение для callback data «match_view_<matchId>».
@@ -62,7 +63,7 @@ public class CallbackMatchView implements Callback {
       message.setChatId(chatId);
       message.setMessageId(messageId);
       message.setText(text.toString());
-      message.setReplyMarkup(keyboardTournamentUtil.getMatchMenu(
+      message.setReplyMarkup(keyboardMatchUtil.getMatchMenu(
           matchId, match.getTournamentId(), match.getStatus()));
       bot.execute(message);
     } catch (TelegramApiException e) {

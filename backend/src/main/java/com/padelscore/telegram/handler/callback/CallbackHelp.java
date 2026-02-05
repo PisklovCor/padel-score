@@ -7,11 +7,14 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import com.padelscore.telegram.util.KeyboardUtil;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class CallbackHelp implements Callback {
+
+  private final KeyboardUtil keyboardUtil;
 
   /**
    * Совпадение для callback data «help».
@@ -42,6 +45,7 @@ public class CallbackHelp implements Callback {
     var messageReply = new SendMessage();
     messageReply.setChatId(chatId);
     messageReply.setText(text);
+    messageReply.setReplyMarkup(keyboardUtil.getButtonToMenu());
 
     try {
       bot.execute(messageReply);

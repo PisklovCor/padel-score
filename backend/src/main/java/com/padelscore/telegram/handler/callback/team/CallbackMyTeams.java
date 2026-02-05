@@ -21,7 +21,9 @@ import java.util.List;
 public class CallbackMyTeams implements Callback {
 
   private final TeamService teamService;
+
   private final KeyboardUtil keyboardUtil;
+
   private final PlayerProfileService playerProfileService;
 
   /**

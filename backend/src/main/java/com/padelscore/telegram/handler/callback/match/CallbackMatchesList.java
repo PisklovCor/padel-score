@@ -10,7 +10,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import com.padelscore.dto.MatchDto;
 import com.padelscore.service.MatchService;
 import com.padelscore.telegram.handler.callback.Callback;
-import com.padelscore.telegram.util.KeyboardTournamentUtil;
+import com.padelscore.telegram.util.KeyboardMatchUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,7 +21,7 @@ public class CallbackMatchesList implements Callback {
 
   private final MatchService matchService;
 
-  private final KeyboardTournamentUtil keyboardTournamentUtil;
+  private final KeyboardMatchUtil keyboardMatchUtil;
 
   /**
    * Совпадение для callback data «matches_list_<tournamentId>».
@@ -66,7 +66,7 @@ public class CallbackMatchesList implements Callback {
         }
         message.setText(text.toString());
       }
-      message.setReplyMarkup(keyboardTournamentUtil.getMatchesMenu(matches, tournamentId));
+      message.setReplyMarkup(keyboardMatchUtil.getMatchesMenu(matches, tournamentId));
       bot.execute(message);
     } catch (TelegramApiException e) {
       log.error(e.getMessage());

@@ -5,7 +5,7 @@ import com.padelscore.dto.TeamPlayerDto;
 import com.padelscore.service.TeamPlayerService;
 import com.padelscore.service.TeamService;
 import com.padelscore.telegram.handler.callback.Callback;
-import com.padelscore.telegram.util.KeyboardTournamentUtil;
+import com.padelscore.telegram.util.KeyboardTeamUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,8 +26,10 @@ import java.util.List;
 public class CallbackTeamView implements Callback {
 
   private final TeamService teamService;
+
   private final TeamPlayerService teamPlayerService;
-  private final KeyboardTournamentUtil keyboardUtil;
+
+  private final KeyboardTeamUtil keyboardTeamUtil;
 
   /**
    * Совпадение для callback data вида «team_<id>».
@@ -56,7 +58,7 @@ public class CallbackTeamView implements Callback {
     message.setChatId(chatId);
     message.setMessageId(messageId);
     message.setText(text);
-    message.setReplyMarkup(keyboardUtil.getTeamViewMenu(team.getTournamentId()));
+    message.setReplyMarkup(keyboardTeamUtil.getTeamViewMenu(team.getTournamentId()));
 
     try {
       bot.execute(message);

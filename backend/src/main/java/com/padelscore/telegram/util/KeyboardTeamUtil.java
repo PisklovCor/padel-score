@@ -1,0 +1,138 @@
+package com.padelscore.telegram.util;
+
+import com.padelscore.dto.TeamDto;
+import com.padelscore.dto.TeamPlayerDto;
+import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Component
+public class KeyboardTeamUtil {
+
+  /**
+   * Строит клавиатуру со списком команд турнира и кнопкой «Назад к турниру».
+   *
+   * @param teams        список команд
+   * @param tournamentId идентификатор турнира
+   * @return разметка inline-кнопок
+   */
+  public InlineKeyboardMarkup getTeamsMenu(List<TeamDto> teams, Integer tournamentId) {
+    InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+    List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
+    for (TeamDto team : teams) {
+      List<InlineKeyboardButton> row = new ArrayList<>();
+      InlineKeyboardButton button = new InlineKeyboardButton();
+      button.setText("👥 " + team.getName());
+      button.setCallbackData("team_" + team.getId());
+      row.add(button);
+      keyboard.add(row);
+    }
+
+    List<InlineKeyboardButton> backRow = new ArrayList<>();
+    InlineKeyboardButton back = new InlineKeyboardButton();
+    back.setText("◀️ Назад к турниру");
+    back.setCallbackData("tournament_card_" + tournamentId);
+    backRow.add(back);
+    keyboard.add(backRow);
+
+    markup.setKeyboard(keyboard);
+    return markup;
+  }
+
+  /**
+   * Меню просмотра состава команды: только кнопка «Назад к командам».
+   *
+   * @param tournamentId идентификатор турнира
+   * @return разметка inline-кнопок
+   */
+  public InlineKeyboardMarkup getTeamViewMenu(Integer tournamentId) {
+    InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+    List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+    List<InlineKeyboardButton> backRow = new ArrayList<>();
+    InlineKeyboardButton back = new InlineKeyboardButton();
+    back.setText("◀️ Назад к командам");
+    back.setCallbackData("teams_list_" + tournamentId);
+    backRow.add(back);
+    keyboard.add(backRow);
+    markup.setKeyboard(keyboard);
+    return markup;
+  }
+
+  /**
+   * Строит клавиатуру команды: Игроки, Добавить игрока, «Назад к командам».
+   *
+   * @param teamId       идентификатор команды
+   * @param tournamentId идентификатор турнира
+   * @return разметка inline-кнопок
+   */
+  public InlineKeyboardMarkup getTeamMenu(Integer teamId, Integer tournamentId) {
+    InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+    List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
+    List<InlineKeyboardButton> row1 = new ArrayList<>();
+    InlineKeyboardButton players = new InlineKeyboardButton();
+    players.setText("👤 Игроки");
+    players.setCallbackData("players_list_" + teamId);
+    row1.add(players);
+
+    List<InlineKeyboardButton> row2 = new ArrayList<>();
+    InlineKeyboardButton addPlayer = new InlineKeyboardButton();
+    addPlayer.setText("➕ Добавить игрока");
+    addPlayer.setCallbackData("player_create_" + teamId);
+    row2.add(addPlayer);
+
+    List<InlineKeyboardButton> row3 = new ArrayList<>();
+    InlineKeyboardButton back = new InlineKeyboardButton();
+    back.setText("◀️ Назад к командам");
+    back.setCallbackData("teams_list_" + tournamentId);
+    row3.add(back);
+
+    keyboard.add(row1);
+    keyboard.add(row2);
+    keyboard.add(row3);
+    markup.setKeyboard(keyboard);
+    return markup;
+  }
+
+  /**
+   * Строит клавиатуру со списком игроков команды, кнопкой «Добавить игрока» и «Назад».
+   *
+   * @param players список игроков
+   * @param teamId  идентификатор команды
+   * @return разметка inline-кнопок
+   */
+  public InlineKeyboardMarkup getPlayersMenu(List<TeamPlayerDto> players, Integer teamId) {
+    InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+    List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
+    for (TeamPlayerDto player : players) {
+      List<InlineKeyboardButton> row = new ArrayList<>();
+      InlineKeyboardButton button = new InlineKeyboardButton();
+      button.setText("👤 " + player.getFirstName() + " " + player.getLastName());
+      button.setCallbackData("player_" + player.getId());
+      row.add(button);
+      keyboard.add(row);
+    }
+
+    List<InlineKeyboardButton> addRow = new ArrayList<>();
+    InlineKeyboardButton addPlayer = new InlineKeyboardButton();
+    addPlayer.setText("➕ Добавить игрока");
+    addPlayer.setCallbackData("player_create_" + teamId);
+    addRow.add(addPlayer);
+    keyboard.add(addRow);
+
+    List<InlineKeyboardButton> backRow = new ArrayList<>();
+    InlineKeyboardButton back = new InlineKeyboardButton();
+    back.setText("◀️ Назад");
+    back.setCallbackData("team_" + teamId);
+    backRow.add(back);
+    keyboard.add(backRow);
+
+    markup.setKeyboard(keyboard);
+    return markup;
+  }
+}

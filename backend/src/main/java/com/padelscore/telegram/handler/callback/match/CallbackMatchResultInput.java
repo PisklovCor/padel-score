@@ -11,7 +11,7 @@ import com.padelscore.service.MatchService;
 import com.padelscore.service.PlayerProfileService;
 import com.padelscore.service.TournamentService;
 import com.padelscore.telegram.handler.callback.Callback;
-import com.padelscore.telegram.util.KeyboardTournamentUtil;
+import com.padelscore.telegram.util.KeyboardMatchUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,9 +21,12 @@ import lombok.extern.slf4j.Slf4j;
 public class CallbackMatchResultInput implements Callback {
 
   private final MatchService matchService;
+
   private final PlayerProfileService playerProfileService;
+
   private final TournamentService tournamentService;
-  private final KeyboardTournamentUtil keyboardTournamentUtil;
+
+  private final KeyboardMatchUtil keyboardMatchUtil;
 
   /**
    * Совпадение для callback data «match_result_<matchId>».
@@ -54,7 +57,7 @@ public class CallbackMatchResultInput implements Callback {
         message.setMessageId(messageId);
         message.setText("❌ У вас нет прав для редактирования результатов матчей.\n\n"
             + "Только создатель турнира может редактировать результаты.");
-        message.setReplyMarkup(keyboardTournamentUtil.getMatchMenu(
+        message.setReplyMarkup(keyboardMatchUtil.getMatchMenu(
             matchId, match.getTournamentId(), match.getStatus()));
         bot.execute(message);
         return;
@@ -65,7 +68,7 @@ public class CallbackMatchResultInput implements Callback {
       message.setMessageId(messageId);
       message.setText("Выберите результат матча:\n\n"
           + match.getTeam1Name() + " vs " + match.getTeam2Name());
-      message.setReplyMarkup(keyboardTournamentUtil.getResultInputMenu(matchId));
+      message.setReplyMarkup(keyboardMatchUtil.getResultInputMenu(matchId));
       bot.execute(message);
     } catch (TelegramApiException e) {
       log.error(e.getMessage());
