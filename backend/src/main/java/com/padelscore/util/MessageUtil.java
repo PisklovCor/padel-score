@@ -23,7 +23,7 @@ public class MessageUtil {
    * @return сконфигурированный объект {@link EditMessageText}, готовый к отправке через Telegram
    * Bot API
    */
-  public EditMessageText createdMessageText(String chatId, int messageId, String text,
+  public EditMessageText createdEditMessageText(String chatId, int messageId, String text,
       InlineKeyboardMarkup inlineKeyboardMarkup) {
 
     EditMessageText editMessageText = new EditMessageText();

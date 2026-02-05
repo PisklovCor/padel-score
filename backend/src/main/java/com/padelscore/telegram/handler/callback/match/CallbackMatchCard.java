@@ -10,6 +10,7 @@ import com.padelscore.dto.MatchDto;
 import com.padelscore.service.MatchService;
 import com.padelscore.telegram.handler.callback.Callback;
 import com.padelscore.telegram.util.KeyboardMatchUtil;
+import com.padelscore.util.MessageUtil;
 import com.padelscore.util.TelegramExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,32 +45,33 @@ public class CallbackMatchCard implements Callback {
       Integer matchId = Integer.parseInt(data.split("_")[2]);
       MatchDto match = matchService.getMatch(matchId);
 
-      StringBuilder text = new StringBuilder("⚽ Матч: ")
-          .append(match.getTeam1Name())
-          .append(" vs ")
-          .append(match.getTeam2Name())
-          .append("\n\n");
-      text.append("ID: ").append(match.getId()).append("\n");
-      text.append("Статус: ").append(match.getStatus()).append("\n");
-      text.append("Формат: ").append(match.getFormat()).append("\n");
-      if (match.getScheduledDate() != null) {
-        text.append("Дата: ")
-            .append(match.getScheduledDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")))
-            .append("\n");
-      }
-      if (match.getLocation() != null && !match.getLocation().isBlank()) {
-        text.append("Место: ").append(match.getLocation().trim()).append("\n");
-      }
-
-      EditMessageText message = new EditMessageText();
-      message.setChatId(chatId);
-      message.setMessageId(messageId);
-      message.setText(text.toString());
-      message.setReplyMarkup(keyboardMatchUtil.getMatchMenu(
-          matchId, match.getTournamentId(), match.getStatus()));
-      bot.execute(message);
+      bot.execute(MessageUtil.createdEditMessageText(chatId, messageId, builderText(match),
+          keyboardMatchUtil.getMatchMenu(
+              matchId, match.getTournamentId(), match.getStatus())));
     } catch (TelegramApiException e) {
       TelegramExceptionHandler.handle(e);
     }
+  }
+
+  private String builderText(MatchDto match) {
+
+    StringBuilder text = new StringBuilder("⚽ Матч: ")
+        .append(match.getTeam1Name())
+        .append(" vs ")
+        .append(match.getTeam2Name())
+        .append("\n\n");
+    text.append("ID: ").append(match.getId()).append("\n");
+    text.append("Статус: ").append(match.getStatus()).append("\n");
+    text.append("Формат: ").append(match.getFormat()).append("\n");
+    if (match.getScheduledDate() != null) {
+      text.append("Дата: ")
+          .append(match.getScheduledDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")))
+          .append("\n");
+    }
+    if (match.getLocation() != null && !match.getLocation().isBlank()) {
+      text.append("Место: ").append(match.getLocation().trim()).append("\n");
+    }
+
+    return text.toString();
   }
 }

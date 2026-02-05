@@ -41,7 +41,7 @@ public class CallbackPlayerRating implements Callback {
 
     try {
       bot.execute(
-          MessageUtil.createdMessageText(chatId, messageId, text, keyboardUtil.getButtonToMenu()));
+          MessageUtil.createdEditMessageText(chatId, messageId, text, keyboardUtil.getButtonToMenu()));
     } catch (TelegramApiException e) {
       TelegramExceptionHandler.handle(e);
     }
