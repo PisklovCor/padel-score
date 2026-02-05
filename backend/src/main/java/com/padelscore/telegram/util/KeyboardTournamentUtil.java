@@ -1,14 +1,28 @@
 package com.padelscore.telegram.util;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import com.padelscore.dto.TournamentDto;
+import com.padelscore.util.KeyboardUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class KeyboardTournamentUtil {
+
+  public static final String TOURNAMENT_CARD = "tournament_card_";
+
+  public static final String MENU = "menu";
+
+  public static final String TEAMS_LIST = "teams_list_";
+
+  public static final String MATCHES_LIST = "matches_list_";
+
+  public static final String LEADERBOARD = "leaderboard_";
+
+  public static final String TOURNAMENT_LIST = "tournament_list";
 
   /**
    * Добавляет кнопки для меня турниров
@@ -17,27 +31,18 @@ public class KeyboardTournamentUtil {
    * @return кнопки формы турниров
    */
   public InlineKeyboardMarkup getTournamentsMenu(List<TournamentDto> tournaments) {
-    InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-    List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+    InlineKeyboardMarkup markupTournamentsMenu = new InlineKeyboardMarkup();
+    List<List<InlineKeyboardButton>> keyboardTournamentsMenu = new ArrayList<>();
 
     for (TournamentDto tournament : tournaments) {
-      List<InlineKeyboardButton> row = new ArrayList<>();
-      InlineKeyboardButton button = new InlineKeyboardButton();
-      button.setText("🏆 " + tournament.getTitle());
-      button.setCallbackData("tournament_card_" + tournament.getId());
-      row.add(button);
-      keyboard.add(row);
+      keyboardTournamentsMenu.add(KeyboardUtils.singleButtonRow("🏆 " + tournament.getTitle(),
+          TOURNAMENT_CARD + tournament.getId()));
     }
 
-    List<InlineKeyboardButton> backRow = new ArrayList<>();
-    InlineKeyboardButton back = new InlineKeyboardButton();
-    back.setText("📑 Главное меню");
-    back.setCallbackData("menu");
-    backRow.add(back);
-    keyboard.add(backRow);
+    keyboardTournamentsMenu.add(KeyboardUtils.singleButtonRow("📑 Главное меню", MENU));
 
-    markup.setKeyboard(keyboard);
-    return markup;
+    markupTournamentsMenu.setKeyboard(keyboardTournamentsMenu);
+    return markupTournamentsMenu;
   }
 
   /**
@@ -47,51 +52,29 @@ public class KeyboardTournamentUtil {
    * @return кнопки формы турниров
    */
   public InlineKeyboardMarkup getTournamentMenu(Integer tournamentId) {
-    InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-    List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+    InlineKeyboardMarkup markupTournamentMenu = new InlineKeyboardMarkup();
+    List<List<InlineKeyboardButton>> keyboardTournamentMenu = new ArrayList<>();
 
-    List<InlineKeyboardButton> row1 = new ArrayList<>();
-    InlineKeyboardButton teams = new InlineKeyboardButton();
-    teams.setText("👥 Команды");
-    teams.setCallbackData("teams_list_" + tournamentId);
-    row1.add(teams);
-
-    InlineKeyboardButton matches = new InlineKeyboardButton();
-    matches.setText("⚽ Матчи");
-    matches.setCallbackData("matches_list_" + tournamentId);
-    row1.add(matches);
-
-    List<InlineKeyboardButton> row2 = new ArrayList<>();
-    InlineKeyboardButton leaderboard = new InlineKeyboardButton();
-    leaderboard.setText("📊 Таблица");
-    leaderboard.setCallbackData("leaderboard_" + tournamentId);
-    row2.add(leaderboard);
-
+    List<InlineKeyboardButton> matchComposition = new ArrayList<>();
+    matchComposition.add(KeyboardUtils.createButton("👥 Команды", TEAMS_LIST + tournamentId));
+    matchComposition.add(KeyboardUtils.createButton("⚽ Матчи", MATCHES_LIST + tournamentId));
 //        List<InlineKeyboardButton> row3 = new ArrayList<>();
 //        InlineKeyboardButton addTeam = new InlineKeyboardButton();
 //        addTeam.setText("➕ Добавить команду");
 //        addTeam.setCallbackData("team_create_" + tournamentId);
 //        row3.add(addTeam);
-//
 //        List<InlineKeyboardButton> row4 = new ArrayList<>();
 //        InlineKeyboardButton addMatch = new InlineKeyboardButton();
 //        addMatch.setText("➕ Создать матч");
 //        addMatch.setCallbackData("match_create_" + tournamentId);
 //        row4.add(addMatch);
-
-    List<InlineKeyboardButton> row5 = new ArrayList<>();
-    InlineKeyboardButton back = new InlineKeyboardButton();
-    back.setText("◀️ Назад к турнирам");
-    back.setCallbackData("tournament_list");
-    row5.add(back);
-
-    keyboard.add(row1);
-    keyboard.add(row2);
-//        keyboard.add(row3);
-//        keyboard.add(row4);
-    keyboard.add(row5);
-    markup.setKeyboard(keyboard);
-    return markup;
+    keyboardTournamentMenu.add(matchComposition);
+    keyboardTournamentMenu.add(
+        KeyboardUtils.singleButtonRow("📊 Таблица", LEADERBOARD + tournamentId));
+    keyboardTournamentMenu.add(
+        KeyboardUtils.singleButtonRow("◀️ Назад к турнирам", TOURNAMENT_LIST));
+    markupTournamentMenu.setKeyboard(keyboardTournamentMenu);
+    return markupTournamentMenu;
   }
 
   /**
@@ -101,17 +84,13 @@ public class KeyboardTournamentUtil {
    * @return разметка inline-кнопок
    */
   public InlineKeyboardMarkup getBackToTournamentMenu(Integer tournamentId) {
-    InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-    List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+    InlineKeyboardMarkup markupBackToTournamentMenu = new InlineKeyboardMarkup();
+    List<List<InlineKeyboardButton>> keyboardBackToTournamentMenu = new ArrayList<>();
 
-    List<InlineKeyboardButton> row = new ArrayList<>();
-    InlineKeyboardButton back = new InlineKeyboardButton();
-    back.setText("◀️ Назад к турниру");
-    back.setCallbackData("tournament_card_" + tournamentId);
-    row.add(back);
-    keyboard.add(row);
+    keyboardBackToTournamentMenu.add(
+        KeyboardUtils.singleButtonRow("◀️ Назад к турниру", TOURNAMENT_CARD + tournamentId));
 
-    markup.setKeyboard(keyboard);
-    return markup;
+    markupBackToTournamentMenu.setKeyboard(keyboardBackToTournamentMenu);
+    return markupBackToTournamentMenu;
   }
 }

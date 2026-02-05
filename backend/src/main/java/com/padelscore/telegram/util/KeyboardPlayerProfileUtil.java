@@ -6,6 +6,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 
 import java.util.ArrayList;
 import java.util.List;
+import com.padelscore.util.KeyboardUtils;
 
 @Component
 public class KeyboardPlayerProfileUtil {
@@ -19,6 +20,16 @@ public class KeyboardPlayerProfileUtil {
       При удалении профиля будут удалены ваш рейтинг
       и членство во всех командах.""";
 
+  public static final String MENU = "menu";
+
+  public static final String DELETE_PROFILES = "delete_profiles";
+
+  public static final String CREATE_PROFILES = "create_profiles";
+
+  public static final String DELETE_PROFILES_CONFIRM = "delete_profiles_confirm";
+
+  public static final String PROFILES = "profiles";
+
   /**
    * Добавляет кнопки для профиля пользователя (в зависимости от наличия профиля)
    *
@@ -27,41 +38,26 @@ public class KeyboardPlayerProfileUtil {
    */
   public InlineKeyboardMarkup getProfileMenu(boolean isProfileExists) {
 
-    InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-    List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+    InlineKeyboardMarkup markupProfileMenu = new InlineKeyboardMarkup();
+    List<List<InlineKeyboardButton>> keyboardProfileMenu = new ArrayList<>();
 
-    List<InlineKeyboardButton> mainMenuRow = new ArrayList<>();
-    InlineKeyboardButton mainMenu = new InlineKeyboardButton();
-    mainMenu.setText("📑 Главное меню");
-    mainMenu.setCallbackData("menu");
-    mainMenuRow.add(mainMenu);
-    keyboard.add(mainMenuRow);
+    keyboardProfileMenu.add(KeyboardUtils.singleButtonRow("📑 Главное меню", MENU));
 
-    addKeyboardByIsProfileExists(isProfileExists, keyboard);
+    addKeyboardByIsProfileExists(isProfileExists, keyboardProfileMenu);
 
-    markup.setKeyboard(keyboard);
-    return markup;
+    markupProfileMenu.setKeyboard(keyboardProfileMenu);
+    return markupProfileMenu;
   }
 
   private void addKeyboardByIsProfileExists(boolean isProfileExists,
-      List<List<InlineKeyboardButton>> keyboard) {
+      List<List<InlineKeyboardButton>> keyboardProfileMenu) {
 
     if (isProfileExists) {
 
-      List<InlineKeyboardButton> deleteRow = new ArrayList<>();
-      InlineKeyboardButton deleteProfile = new InlineKeyboardButton();
-      deleteProfile.setText("🗑 Удалить профиль");
-      deleteProfile.setCallbackData("delete_profiles");
-      deleteRow.add(deleteProfile);
-      keyboard.add(deleteRow);
+      keyboardProfileMenu.add(KeyboardUtils.singleButtonRow("🗑 Удалить профиль", DELETE_PROFILES));
     } else {
 
-      List<InlineKeyboardButton> profileRow = new ArrayList<>();
-      InlineKeyboardButton profile = new InlineKeyboardButton();
-      profile.setText("➕ Создать профиль");
-      profile.setCallbackData("create_profiles");
-      profileRow.add(profile);
-      keyboard.add(profileRow);
+      keyboardProfileMenu.add(KeyboardUtils.singleButtonRow("➕ Создать профиль", CREATE_PROFILES));
     }
   }
 
@@ -71,20 +67,16 @@ public class KeyboardPlayerProfileUtil {
    * @return разметка с кнопками подтверждения и отмены
    */
   public InlineKeyboardMarkup getDeleteConfirmKeyboard() {
-    InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-    List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+    InlineKeyboardMarkup markupDeleteConfirmKeyboard = new InlineKeyboardMarkup();
+    List<List<InlineKeyboardButton>> keyboardDeleteConfirmKeyboard = new ArrayList<>();
+    List<InlineKeyboardButton> rowDeleteConfirmKeyboard = new ArrayList<>();
 
-    List<InlineKeyboardButton> row = new ArrayList<>();
-    InlineKeyboardButton confirm = new InlineKeyboardButton();
-    confirm.setText("✅ Да, удалить");
-    confirm.setCallbackData("delete_profiles_confirm");
-    row.add(confirm);
-    InlineKeyboardButton cancel = new InlineKeyboardButton();
-    cancel.setText("❌ Отмена");
-    cancel.setCallbackData("profiles");
-    row.add(cancel);
-    keyboard.add(row);
-    markup.setKeyboard(keyboard);
-    return markup;
+    rowDeleteConfirmKeyboard.add(
+        KeyboardUtils.createButton("✅ Да, удалить", DELETE_PROFILES_CONFIRM));
+    rowDeleteConfirmKeyboard.add(KeyboardUtils.createButton("❌ Отмена", PROFILES));
+
+    keyboardDeleteConfirmKeyboard.add(rowDeleteConfirmKeyboard);
+    markupDeleteConfirmKeyboard.setKeyboard(keyboardDeleteConfirmKeyboard);
+    return markupDeleteConfirmKeyboard;
   }
 }
