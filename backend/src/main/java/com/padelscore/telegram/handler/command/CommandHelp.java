@@ -14,8 +14,6 @@ import com.padelscore.telegram.util.KeyboardUtil;
 @RequiredArgsConstructor
 public class CommandHelp implements Command {
 
-  private final KeyboardUtil keyboardUtil;
-
   /**
    * Совпадение для команды «/help».
    */
@@ -43,7 +41,6 @@ public class CommandHelp implements Command {
     var messageReply = new SendMessage();
     messageReply.setChatId(message.getChatId().toString());
     messageReply.setText(text);
-    message.setReplyMarkup(keyboardUtil.getButtonToMenu());
 
     try {
       bot.execute(messageReply);

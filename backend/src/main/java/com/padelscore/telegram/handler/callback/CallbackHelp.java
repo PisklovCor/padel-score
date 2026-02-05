@@ -14,8 +14,6 @@ import com.padelscore.telegram.util.KeyboardUtil;
 @RequiredArgsConstructor
 public class CallbackHelp implements Callback {
 
-  private final KeyboardUtil keyboardUtil;
-
   /**
    * Совпадение для callback data «help».
    */
@@ -45,7 +43,6 @@ public class CallbackHelp implements Callback {
     var messageReply = new SendMessage();
     messageReply.setChatId(chatId);
     messageReply.setText(text);
-    messageReply.setReplyMarkup(keyboardUtil.getButtonToMenu());
 
     try {
       bot.execute(messageReply);
