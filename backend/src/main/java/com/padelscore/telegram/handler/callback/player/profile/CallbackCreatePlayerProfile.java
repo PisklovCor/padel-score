@@ -4,6 +4,7 @@ import com.padelscore.exception.NicknameNotUniqueException;
 import com.padelscore.service.PlayerProfileService;
 import com.padelscore.telegram.handler.callback.Callback;
 import com.padelscore.telegram.util.KeyboardPlayerProfileUtil;
+import com.padelscore.util.TelegramExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -38,8 +39,8 @@ public class CallbackCreatePlayerProfile implements Callback {
   public void handle(CallbackQuery callbackQuery, TelegramLongPollingBot bot) {
 
     final var chatId = callbackQuery.getMessage().getChatId().toString();
-    final User user = callbackQuery.getFrom();
-    final String nickname = user.getUserName();
+    final var user = callbackQuery.getFrom();
+    final var nickname = user.getUserName();
 
     if (nickname == null || nickname.isBlank()) {
       throw new IllegalArgumentException(
@@ -64,11 +65,10 @@ public class CallbackCreatePlayerProfile implements Callback {
       try {
         bot.execute(editMessage);
       } catch (TelegramApiException ex) {
-        log.error(ex.getMessage());
+        TelegramExceptionHandler.handle(e);
       }
     } catch (TelegramApiException e) {
-      log.error(e.getMessage());
-      e.printStackTrace();
+      TelegramExceptionHandler.handle(e);
     }
   }
 

@@ -1,6 +1,7 @@
 package com.padelscore.telegram.handler.command;
 
 import com.padelscore.telegram.util.KeyboardUtil;
+import com.padelscore.util.TelegramExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -49,8 +50,7 @@ public class CommandStart implements Command {
     try {
       bot.execute(messageReply);
     } catch (TelegramApiException e) {
-      log.error(e.getMessage());
-      e.printStackTrace();
+      TelegramExceptionHandler.handle(e);
     }
   }
 }

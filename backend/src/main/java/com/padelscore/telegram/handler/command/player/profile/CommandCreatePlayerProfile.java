@@ -4,6 +4,7 @@ import com.padelscore.exception.NicknameNotUniqueException;
 import com.padelscore.service.PlayerProfileService;
 import com.padelscore.telegram.handler.command.Command;
 import com.padelscore.telegram.util.KeyboardPlayerProfileUtil;
+import com.padelscore.util.TelegramExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -74,8 +75,7 @@ public class CommandCreatePlayerProfile implements Command {
     } catch (NicknameNotUniqueException e) {
       sendNicknameTakenHint(chatId, bot);
     } catch (TelegramApiException e) {
-      log.error(e.getMessage());
-      e.printStackTrace();
+      TelegramExceptionHandler.handle(e);
     }
   }
 
@@ -101,8 +101,8 @@ public class CommandCreatePlayerProfile implements Command {
     msg.setReplyMarkup(keyboardPlayerProfileUtil.getProfileMenu(false));
     try {
       bot.execute(msg);
-    } catch (TelegramApiException ex) {
-      log.error(ex.getMessage());
+    } catch (TelegramApiException e) {
+      TelegramExceptionHandler.handle(e);
     }
   }
 }

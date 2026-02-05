@@ -1,34 +1,22 @@
 package com.padelscore.telegram.handler;
 
 import com.padelscore.telegram.handler.callback.Callback;
-import com.padelscore.telegram.util.KeyboardUtil;
-import com.padelscore.dto.LeaderboardEntryDto;
-import com.padelscore.dto.MatchDto;
-import com.padelscore.dto.TeamPlayerDto;
-import com.padelscore.dto.TeamDto;
-import com.padelscore.dto.TournamentDto;
-import com.padelscore.service.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.List;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class CallbackHandler {
 
-  private final TournamentService tournamentService;
-  private final TeamService teamService;
-  private final MatchService matchService;
-  private final StatisticsService statisticsService;
-  private final KeyboardUtil keyboardUtil;
-  private final TeamPlayerService teamPlayerService;
-  private final PlayerProfileService playerProfileService;
   private final List<Callback> callbacks;
 
   /**
@@ -36,10 +24,8 @@ public class CallbackHandler {
    * отсутствии совпадения отправляет сообщение об неизвестной команде.
    */
   public void handle(CallbackQuery callbackQuery, TelegramLongPollingBot bot) {
-    String data = callbackQuery.getData();
-    Long chatId = callbackQuery.getMessage().getChatId();
-    Integer messageId = callbackQuery.getMessage().getMessageId();
-    Long userId = callbackQuery.getFrom().getId();
+    final var data = callbackQuery.getData();
+    final var chatId = callbackQuery.getMessage().getChatId();
 
     try {
 
@@ -53,48 +39,23 @@ public class CallbackHandler {
               )
           );
 
-//            if (data.startsWith("tournament_")) {
-//                handleTournamentCallback(data, chatId, messageId, userId, bot);
-//            } else if (data.startsWith("teams_list_")) {
-//                handleTeamsList(data, chatId, messageId, bot);
-//            } else if (data.startsWith("team_")) {
-//                handleTeamCallback(data, chatId, messageId, userId, bot);
-//            } else if (data.startsWith("team_create_")) {
-//                handleTeamCreate(data, chatId, userId, bot);
-//            } else if (data.startsWith("players_list_")) {
-//                handlePlayersList(data, chatId, messageId, bot);
-//            } else if (data.startsWith("player_")) {
-//                handlePlayerCallback(data, chatId, messageId, bot);
-//            } else if (data.startsWith("player_create_")) {
-//                handlePlayerCreate(data, chatId, userId, bot);
-//            } else if (data.startsWith("matches_list_")) {
-//                handleMatchesList(data, chatId, messageId, bot);
-//            } else if (data.startsWith("match_")) {
-//                handleMatchCallback(data, chatId, messageId, userId, bot);
-//            } else if (data.startsWith("match_create_")) {
-//                handleMatchCreate(data, chatId, userId, bot);
-//            } else if (data.startsWith("match_result_")) {
-//                handleMatchResultInput(data, chatId, messageId, userId, bot);
-//            } else if (data.startsWith("result_quick_")) {
-//                handleQuickResult(data, chatId, messageId, userId, bot);
-//            } else if (data.startsWith("match_view_")) {
-//                handleMatchView(data, chatId, messageId, bot);
-//            } else if (data.startsWith("match_dispute_")) {
-//                handleMatchDispute(data, chatId, messageId, userId, bot);
-//            } else if (data.equals("main_menu")) {
-//                handleMainMenu(chatId, messageId, bot);
-//            } else if (data.startsWith("leaderboard_")) {
-//                handleLeaderboard(data, chatId, messageId, bot);
-//            } else if (data.startsWith("help")) {
-//                handleHelp(chatId, bot);
-//            }
-
-      bot.execute(org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery.builder()
+      bot.execute(AnswerCallbackQuery.builder()
           .callbackQueryId(callbackQuery.getId())
           .build());
 
     } catch (Exception e) {
       sendMessage(chatId, "Ошибка: " + e.getMessage(), bot);
+    }
+  }
+
+  private void sendMessage(Long chatId, String text, TelegramLongPollingBot bot) {
+    SendMessage message = new SendMessage();
+    message.setChatId(chatId.toString());
+    message.setText(text);
+    try {
+      bot.execute(message);
+    } catch (TelegramApiException e) {
+      log.error("Критическая ошибка при отправке!!!");
     }
   }
 
@@ -433,16 +394,6 @@ public class CallbackHandler {
 //    bot.execute(message);
 //  }
 //
-  private void sendMessage(Long chatId, String text, TelegramLongPollingBot bot) {
-    SendMessage message = new SendMessage();
-    message.setChatId(chatId.toString());
-    message.setText(text);
-    try {
-      bot.execute(message);
-    } catch (TelegramApiException e) {
-      e.printStackTrace();
-    }
-  }
 //
 //  private void handleHelp(Long chatId, TelegramLongPollingBot bot) {
 //    String text = "📖 Справка по командам:\n\n" +

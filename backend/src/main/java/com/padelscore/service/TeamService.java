@@ -27,10 +27,15 @@ import java.util.stream.Collectors;
 public class TeamService {
 
     private final TeamRepository teamRepository;
+
     private final TournamentRepository tournamentRepository;
+
     private final UserRoleRepository userRoleRepository;
+
     private final TeamPlayerRepository teamPlayerRepository;
+
     private final PlayerProfileRepository playerProfileRepository;
+
     private final EntityMapper mapper;
     
     @Transactional

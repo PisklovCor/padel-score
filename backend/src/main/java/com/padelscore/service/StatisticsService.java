@@ -18,7 +18,9 @@ import static com.padelscore.entity.enums.MatchStatus.COMPLETED;
 public class StatisticsService {
 
   private final TeamRepository teamRepository;
+
   private final MatchRepository matchRepository;
+
   private final MatchResultRepository matchResultRepository;
 
   public List<LeaderboardEntryDto> getLeaderboard(Integer tournamentId) {

@@ -6,6 +6,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import com.padelscore.telegram.util.KeyboardUtil;
+import com.padelscore.util.TelegramExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,8 +40,7 @@ public class CommandMenu implements Command {
     try {
       bot.execute(messageReply);
     } catch (TelegramApiException e) {
-      log.error(e.getMessage());
-      e.printStackTrace();
+      TelegramExceptionHandler.handle(e);
     }
   }
 }

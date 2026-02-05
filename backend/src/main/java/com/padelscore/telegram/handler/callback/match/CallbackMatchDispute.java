@@ -10,6 +10,7 @@ import com.padelscore.dto.MatchDto;
 import com.padelscore.service.MatchService;
 import com.padelscore.telegram.handler.callback.Callback;
 import com.padelscore.telegram.util.KeyboardMatchUtil;
+import com.padelscore.util.TelegramExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,9 +36,9 @@ public class CallbackMatchDispute implements Callback {
    */
   @Override
   public void handle(CallbackQuery callbackQuery, TelegramLongPollingBot bot) {
-    String data = callbackQuery.getData();
-    String chatId = callbackQuery.getMessage().getChatId().toString();
-    Integer messageId = callbackQuery.getMessage().getMessageId();
+    final var data = callbackQuery.getData();
+    final var chatId = callbackQuery.getMessage().getChatId().toString();
+    final var messageId = callbackQuery.getMessage().getMessageId();
 
     try {
       Integer matchId = Integer.parseInt(data.split("_")[2]);
@@ -53,20 +54,7 @@ public class CallbackMatchDispute implements Callback {
           matchId, match.getTournamentId(), match.getStatus()));
       bot.execute(message);
     } catch (TelegramApiException e) {
-      log.error(e.getMessage());
-    } catch (Exception e) {
-      sendMessage(chatId, "Ошибка: " + e.getMessage(), bot);
-    }
-  }
-
-  private void sendMessage(String chatId, String text, TelegramLongPollingBot bot) {
-    SendMessage message = new SendMessage();
-    message.setChatId(chatId);
-    message.setText(text);
-    try {
-      bot.execute(message);
-    } catch (TelegramApiException e) {
-      log.error(e.getMessage());
+      TelegramExceptionHandler.handle(e);
     }
   }
 }

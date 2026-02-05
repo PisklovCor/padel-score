@@ -3,6 +3,7 @@ package com.padelscore.telegram.handler.callback.player.profile;
 import com.padelscore.service.PlayerProfileService;
 import com.padelscore.telegram.handler.callback.Callback;
 import com.padelscore.telegram.util.KeyboardPlayerProfileUtil;
+import com.padelscore.util.TelegramExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -50,8 +51,7 @@ public class CallbackDeletePlayerProfileConfirm implements Callback {
     try {
       bot.execute(message);
     } catch (TelegramApiException e) {
-      log.error(e.getMessage());
-      e.printStackTrace();
+      TelegramExceptionHandler.handle(e);
     }
   }
 }

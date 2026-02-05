@@ -4,6 +4,7 @@ import com.padelscore.dto.PlayerProfileDto;
 import com.padelscore.service.PlayerProfileService;
 import com.padelscore.telegram.handler.command.Command;
 import com.padelscore.telegram.util.KeyboardPlayerProfileUtil;
+import com.padelscore.util.TelegramExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -55,8 +56,7 @@ public class CommandPlayerProfile implements Command {
     try {
       bot.execute(messageReply);
     } catch (TelegramApiException e) {
-      log.error(e.getMessage());
-      e.printStackTrace();
+      TelegramExceptionHandler.handle(e);
     }
   }
 

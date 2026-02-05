@@ -1,6 +1,7 @@
 package com.padelscore.telegram.handler.callback;
 
 import com.padelscore.telegram.util.KeyboardUtil;
+import com.padelscore.util.TelegramExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -43,8 +44,7 @@ public class CallbackMenu implements Callback {
     try {
       bot.execute(message);
     } catch (TelegramApiException e) {
-      log.error(e.getMessage());
-      e.printStackTrace();
+      TelegramExceptionHandler.handle(e);
     }
   }
 }

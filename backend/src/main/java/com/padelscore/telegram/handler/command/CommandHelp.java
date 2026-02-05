@@ -7,12 +7,21 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import com.padelscore.telegram.util.KeyboardUtil;
+import com.padelscore.util.TelegramExceptionHandler;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class CommandHelp implements Command {
+
+  public static final String COMMAND_REFERENCE = """
+        📖 Справка по командам:
+        
+        /menu - Главное меню
+        /profiles - Профиль
+        /help - Это справка
+        
+        Используйте inline-кнопки для быстрого доступа к функциям.""";
 
   /**
    * Совпадение для команды «/help».
@@ -29,24 +38,14 @@ public class CommandHelp implements Command {
   @Override
   public void handle(Message message, TelegramLongPollingBot bot) {
 
-    final var text = """
-        📖 Справка по командам:
-        
-        /menu - Главное меню
-        /profiles - Профиль
-        /help - Это справка
-        
-        Используйте inline-кнопки для быстрого доступа к функциям.""";
-
     var messageReply = new SendMessage();
     messageReply.setChatId(message.getChatId().toString());
-    messageReply.setText(text);
+    messageReply.setText(COMMAND_REFERENCE);
 
     try {
       bot.execute(messageReply);
     } catch (TelegramApiException e) {
-      log.error(e.getMessage());
-      e.printStackTrace();
+      TelegramExceptionHandler.handle(e);
     }
   }
 }

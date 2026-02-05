@@ -9,6 +9,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import com.padelscore.dto.TeamDto;
 import com.padelscore.service.TeamService;
 import com.padelscore.telegram.handler.callback.Callback;
+import com.padelscore.util.TelegramExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,8 +35,8 @@ public class CallbackMatchCreate implements Callback {
    */
   @Override
   public void handle(CallbackQuery callbackQuery, TelegramLongPollingBot bot) {
-    String data = callbackQuery.getData();
-    String chatId = callbackQuery.getMessage().getChatId().toString();
+    final var data = callbackQuery.getData();
+    final var chatId = callbackQuery.getMessage().getChatId().toString();
 
     Integer tournamentId = Integer.parseInt(data.split("_")[2]);
     List<TeamDto> teams = teamService.getTeamsByTournament(tournamentId);
@@ -65,7 +66,7 @@ public class CallbackMatchCreate implements Callback {
     try {
       bot.execute(message);
     } catch (TelegramApiException e) {
-      log.error(e.getMessage());
+      TelegramExceptionHandler.handle(e);
     }
   }
 }

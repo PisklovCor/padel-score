@@ -41,12 +41,10 @@ public class CommandReminders implements Command {
 
     final String botAdminId = propertiesConfiguration.getBotAdminId();
 
-    // Проверка прав доступа
     if (checkingAdministratorRights(message, userId, botAdminId, bot)) {
       return;
     }
 
-    // Выполнение команды
     try {
       matchReminderService.sendTomorrowMatchReminders();
 
@@ -67,17 +65,6 @@ public class CommandReminders implements Command {
       } catch (TelegramApiException ex) {
         log.error("Не удалось отправить сообщение об ошибке: {}", ex.getMessage(), ex);
       }
-    }
-  }
-
-  private void sendAccessDeniedMessage(Long chatId, TelegramLongPollingBot bot) {
-    try {
-      var messageReply = new SendMessage();
-      messageReply.setChatId(chatId.toString());
-      messageReply.setText("❌ У вас нет прав для выполнения этой команды");
-      bot.execute(messageReply);
-    } catch (TelegramApiException e) {
-      log.error("Не удалось отправить сообщение об отказе в доступе: {}", e.getMessage(), e);
     }
   }
 
@@ -105,5 +92,16 @@ public class CommandReminders implements Command {
     }
 
     return false;
+  }
+
+  private void sendAccessDeniedMessage(Long chatId, TelegramLongPollingBot bot) {
+    try {
+      var messageReply = new SendMessage();
+      messageReply.setChatId(chatId.toString());
+      messageReply.setText("❌ У вас нет прав для выполнения этой команды");
+      bot.execute(messageReply);
+    } catch (TelegramApiException e) {
+      log.error("Не удалось отправить сообщение об отказе в доступе: {}", e.getMessage(), e);
+    }
   }
 }

@@ -3,6 +3,7 @@ package com.padelscore.telegram.handler.callback.player.profile;
 import com.padelscore.service.PlayerProfileService;
 import com.padelscore.telegram.handler.callback.Callback;
 import com.padelscore.telegram.util.KeyboardPlayerProfileUtil;
+import com.padelscore.util.TelegramExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,10 +37,10 @@ public class CallbackPlayerProfile implements Callback {
   @Override
   public void handle(CallbackQuery callbackQuery, TelegramLongPollingBot bot) {
 
-    final long userId = callbackQuery.getFrom().getId();
+    final var userId = callbackQuery.getFrom().getId();
     final var chatId = callbackQuery.getMessage().getChatId().toString();
     String text;
-    final boolean isProfileExists = playerProfileService.existsByTelegramId(userId);
+    final var isProfileExists = playerProfileService.existsByTelegramId(userId);
 
     if (isProfileExists) {
 
@@ -70,8 +71,7 @@ public class CallbackPlayerProfile implements Callback {
     try {
       bot.execute(message);
     } catch (TelegramApiException e) {
-      log.error(e.getMessage());
-      e.printStackTrace();
+      TelegramExceptionHandler.handle(e);
     }
   }
 }

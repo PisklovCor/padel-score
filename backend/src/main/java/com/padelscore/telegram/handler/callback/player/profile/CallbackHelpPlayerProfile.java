@@ -1,6 +1,7 @@
 package com.padelscore.telegram.handler.callback.player.profile;
 
 import com.padelscore.telegram.handler.callback.Callback;
+import com.padelscore.util.TelegramExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,17 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @Service
 @RequiredArgsConstructor
 public class CallbackHelpPlayerProfile implements Callback {
+
+  public static final String PROFILE_COMMAND_REFERENCE = """
+      📖 Справка по командам профиля:
+      
+      /profiles - Посмотреть профиль
+      /create_profiles - Создать профиль
+      /update_profiles - Обновить профиль
+      /delete_profiles - Удалить профиль
+      /help - Справка
+      
+      Используйте inline-кнопки для быстрого доступа к функциям.""";
 
   /**
    * Совпадение для команды «/help_profiles». Всегда false — callback не привязан (deprecated).
@@ -32,26 +44,14 @@ public class CallbackHelpPlayerProfile implements Callback {
 
     final var chatId = callbackQuery.getMessage().getChatId();
 
-    final var text = """
-        📖 Справка по командам профиля:
-        
-        /profiles - Посмотреть профиль
-        /create_profiles - Создать профиль
-        /update_profiles - Обновить профиль
-        /delete_profiles - Удалить профиль
-        /help - Справка
-        
-        Используйте inline-кнопки для быстрого доступа к функциям.""";
-
     var messageReply = new SendMessage();
     messageReply.setChatId(chatId);
-    messageReply.setText(text);
+    messageReply.setText(PROFILE_COMMAND_REFERENCE);
 
     try {
       bot.execute(messageReply);
     } catch (TelegramApiException e) {
-      log.error(e.getMessage());
-      e.printStackTrace();
+      TelegramExceptionHandler.handle(e);
     }
   }
 }

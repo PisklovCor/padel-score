@@ -20,11 +20,17 @@ import java.util.stream.Collectors;
 public class MatchService {
     
     private final MatchRepository matchRepository;
+
     private final MatchResultRepository matchResultRepository;
+
     private final TournamentRepository tournamentRepository;
+
     private final TeamRepository teamRepository;
+
     private final PlayerProfileRepository playerProfileRepository;
+
     private final TournamentService tournamentService;
+
     private final EntityMapper mapper;
     
     @Transactional

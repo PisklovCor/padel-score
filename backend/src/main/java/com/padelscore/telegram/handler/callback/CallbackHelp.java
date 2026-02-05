@@ -7,12 +7,21 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import com.padelscore.telegram.util.KeyboardUtil;
+import com.padelscore.util.TelegramExceptionHandler;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class CallbackHelp implements Callback {
+
+  public static final String COMMAND_REFERENCE = """
+        📖 Справка по командам:
+        
+        /menu - Главное меню
+        /profiles - Профиль
+        /help - Это справка
+        
+        Используйте inline-кнопки для быстрого доступа к функциям.""";
 
   /**
    * Совпадение для callback data «help».
@@ -31,24 +40,14 @@ public class CallbackHelp implements Callback {
 
     final var chatId = callbackQuery.getMessage().getChatId();
 
-    final var text = """
-        📖 Справка по командам:
-        
-        /menu - Главное меню
-        /profiles - Профиль
-        /help - Это справка
-        
-        Используйте inline-кнопки для быстрого доступа к функциям.""";
-
     var messageReply = new SendMessage();
     messageReply.setChatId(chatId);
-    messageReply.setText(text);
+    messageReply.setText(COMMAND_REFERENCE);
 
     try {
       bot.execute(messageReply);
     } catch (TelegramApiException e) {
-      log.error(e.getMessage());
-      e.printStackTrace();
+      TelegramExceptionHandler.handle(e);
     }
   }
 }

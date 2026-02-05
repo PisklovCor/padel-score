@@ -22,8 +22,11 @@ import java.util.stream.Collectors;
 public class TeamPlayerService {
     
     private final TeamPlayerRepository teamPlayerRepository;
+
     private final TeamRepository teamRepository;
+
     private final PlayerProfileRepository playerProfileRepository;
+
     private final EntityMapper mapper;
     
     @Transactional(readOnly = true)

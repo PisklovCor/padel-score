@@ -12,6 +12,7 @@ import com.padelscore.service.TournamentService;
 import com.padelscore.telegram.handler.callback.Callback;
 import com.padelscore.telegram.util.KeyboardTournamentUtil;
 import com.padelscore.telegram.util.KeyboardUtil;
+import com.padelscore.util.TelegramExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,9 +43,9 @@ public class CallbackTournamentList implements Callback {
    */
   @Override
   public void handle(CallbackQuery callbackQuery, TelegramLongPollingBot bot) {
-    String chatId = callbackQuery.getMessage().getChatId().toString();
-    Integer messageId = callbackQuery.getMessage().getMessageId();
-    Long userId = callbackQuery.getFrom().getId();
+    final var chatId = callbackQuery.getMessage().getChatId().toString();
+    final var messageId = callbackQuery.getMessage().getMessageId();
+    final var userId = callbackQuery.getFrom().getId();
 
     try {
       if (!playerProfileService.existsByTelegramId(userId)) {
@@ -78,7 +79,7 @@ public class CallbackTournamentList implements Callback {
       }
       bot.execute(message);
     } catch (TelegramApiException e) {
-      log.error(e.getMessage());
+      TelegramExceptionHandler.handle(e);
     }
   }
 }

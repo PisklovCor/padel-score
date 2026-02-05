@@ -3,6 +3,7 @@ package com.padelscore.telegram.handler.command.player.profile;
 import com.padelscore.service.PlayerProfileService;
 import com.padelscore.telegram.handler.command.Command;
 import com.padelscore.telegram.util.KeyboardPlayerProfileUtil;
+import com.padelscore.util.TelegramExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -43,11 +44,11 @@ public class CommandDeletePlayerProfile implements Command {
       try {
         bot.execute(noProfile);
       } catch (TelegramApiException e) {
-        log.error(e.getMessage());
-        e.printStackTrace();
+        TelegramExceptionHandler.handle(e);
       }
       return;
     }
+
     var messageReply = new SendMessage();
     messageReply.setChatId(message.getChatId().toString());
     messageReply.setText(KeyboardPlayerProfileUtil.DELETE_PROFILE_WARNING);
@@ -57,8 +58,7 @@ public class CommandDeletePlayerProfile implements Command {
     try {
       bot.execute(messageReply);
     } catch (TelegramApiException e) {
-      log.error(e.getMessage());
-      e.printStackTrace();
+      TelegramExceptionHandler.handle(e);
     }
   }
 }
