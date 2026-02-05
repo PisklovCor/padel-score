@@ -96,6 +96,7 @@ public class EntityMapper {
         .finalScore(result.getFinalScore())
         .winnerPoints(result.getWinnerPoints())
         .loserPoints(result.getLoserPoints())
+        .disputed(result.getDisputed())
         .build();
   }
 }

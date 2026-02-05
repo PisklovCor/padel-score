@@ -36,4 +36,7 @@ public class MatchResultDto {
 
   @Schema(description = "Очки команды-проигравшего", example = "15")
   private Integer loserPoints;
+
+  @Schema(description = "Результат оспорен", example = "false")
+  private Boolean disputed;
 }
