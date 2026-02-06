@@ -45,6 +45,22 @@ services:
       resources:
         limits:
           memory: 1G
+    labels:
+      # Разрешаем Watchtower обновлять этот контейнер
+      com.centurylinklabs.watchtower.enable: "true"
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      # чистим старые образы после обновления
+      WATCHTOWER_CLEANUP: "true"
+      # проверяем раз в час (можешь поставить меньше/больше)
+      WATCHTOWER_POLL_INTERVAL: "3600"
+      # включаем фильтр по label, чтобы не трогать postgres
+      WATCHTOWER_LABEL_ENABLE: "true"
 
 volumes:
   postgres_data:

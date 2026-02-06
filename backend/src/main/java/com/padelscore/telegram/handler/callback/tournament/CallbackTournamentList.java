@@ -12,6 +12,7 @@ import com.padelscore.service.TournamentService;
 import com.padelscore.telegram.handler.callback.Callback;
 import com.padelscore.telegram.util.KeyboardTournamentUtil;
 import com.padelscore.telegram.util.KeyboardUtil;
+import com.padelscore.util.ProfileRequiredGuard;
 import com.padelscore.util.TelegramExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,8 @@ public class CallbackTournamentList implements Callback {
   private final KeyboardUtil keyboardUtil;
 
   private final PlayerProfileService playerProfileService;
+
+  private final ProfileRequiredGuard profileRequiredGuard;
 
   /**
    * Совпадение для callback data «tournaments» или «tournament_list».
@@ -48,17 +51,9 @@ public class CallbackTournamentList implements Callback {
     final var userId = callbackQuery.getFrom().getId();
 
     try {
-      if (!playerProfileService.existsByTelegramId(userId)) {
-        EditMessageText message = new EditMessageText();
-        message.setChatId(chatId);
-        message.setMessageId(messageId);
-        message.setText(
-            "⚠️ У вас пока нет профиля.\n\nВоспользуйтесь пунктом меню для создания профиля.");
-        message.setReplyMarkup(keyboardUtil.getButtonToMenu());
-        bot.execute(message);
+      if (profileRequiredGuard.requireProfileForCallback(userId, callbackQuery, bot)) {
         return;
       }
-
       Integer playerProfileId = playerProfileService.getPlayerProfileByTelegramId(userId).getId();
       List<TournamentDto> tournaments =
           tournamentService.getTournamentsByUserTeams(playerProfileId);

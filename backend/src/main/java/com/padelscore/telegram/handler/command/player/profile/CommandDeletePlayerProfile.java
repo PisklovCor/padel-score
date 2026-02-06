@@ -1,8 +1,8 @@
 package com.padelscore.telegram.handler.command.player.profile;
 
-import com.padelscore.service.PlayerProfileService;
 import com.padelscore.telegram.handler.command.Command;
 import com.padelscore.telegram.util.KeyboardPlayerProfileUtil;
+import com.padelscore.util.ProfileRequiredGuard;
 import com.padelscore.util.MessageUtil;
 import com.padelscore.util.TelegramExceptionHandler;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @RequiredArgsConstructor
 public class CommandDeletePlayerProfile implements Command {
 
-  private final PlayerProfileService playerProfileService;
+  private final ProfileRequiredGuard profileRequiredGuard;
 
   private final KeyboardPlayerProfileUtil keyboardPlayerProfileUtil;
 
@@ -37,13 +37,7 @@ public class CommandDeletePlayerProfile implements Command {
     final long userId = message.getFrom().getId();
     final var chatId = message.getChatId().toString();
 
-    if (!playerProfileService.existsByTelegramId(userId)) {
-      try {
-        bot.execute(MessageUtil.createdSendMessage(chatId, "⚠️ У вас пока нет профиля.",
-            keyboardPlayerProfileUtil.getProfileMenu(false)));
-      } catch (TelegramApiException e) {
-        TelegramExceptionHandler.handle(e);
-      }
+    if (profileRequiredGuard.requireProfileForCommand(userId, chatId, bot)) {
       return;
     }
 

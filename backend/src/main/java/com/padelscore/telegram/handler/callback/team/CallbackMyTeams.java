@@ -5,12 +5,13 @@ import com.padelscore.service.PlayerProfileService;
 import com.padelscore.service.TeamService;
 import com.padelscore.telegram.handler.callback.Callback;
 import com.padelscore.telegram.util.KeyboardUtil;
+import com.padelscore.util.MessageUtil;
+import com.padelscore.util.ProfileRequiredGuard;
 import com.padelscore.util.TelegramExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -26,6 +27,8 @@ public class CallbackMyTeams implements Callback {
   private final KeyboardUtil keyboardUtil;
 
   private final PlayerProfileService playerProfileService;
+
+  private final ProfileRequiredGuard profileRequiredGuard;
 
   /**
    * Совпадение для callback data «my_teams».
@@ -45,31 +48,21 @@ public class CallbackMyTeams implements Callback {
     final var messageId = callbackQuery.getMessage().getMessageId();
     final var userTelegramId = callbackQuery.getFrom().getId();
 
-    final var isProfileExists = playerProfileService.existsByTelegramId(userTelegramId);
-
-    String text = buildListText(userTelegramId, isProfileExists);
-
-    EditMessageText message = new EditMessageText();
-    message.setChatId(chatId);
-    message.setMessageId(messageId);
-    message.setText(text);
-    message.setReplyMarkup(keyboardUtil.getButtonToMenu());
-
     try {
-      bot.execute(message);
+      if (profileRequiredGuard.requireProfileForCallback(userTelegramId, callbackQuery, bot)) {
+        return;
+      }
+      String text = buildListText(userTelegramId);
+      bot.execute(MessageUtil.createdEditMessageText(chatId, messageId, text,
+          keyboardUtil.getButtonToMenu()));
     } catch (TelegramApiException e) {
       TelegramExceptionHandler.handle(e);
     }
   }
 
-  private String buildListText(Long userTelegramId,
-      boolean isProfileExists) {
-
-    if (!isProfileExists) {
-      return "⚠️ У вас пока нет профиля.\n\nВоспользуйтесь пунктом меню для создания профиля.";
-    }
-
-    Integer playerProfileId = playerProfileService.getPlayerProfileByTelegramId(userTelegramId).getId();
+  private String buildListText(Long userTelegramId) {
+    Integer playerProfileId = playerProfileService.getPlayerProfileByTelegramId(userTelegramId)
+        .getId();
     List<TeamDto> teams = teamService.getTeamsByUser(playerProfileId);
 
     if (teams.isEmpty()) {
