@@ -76,12 +76,13 @@ public class PlayerProfileService {
       });
     }
 
+    int initialRating = rating != null ? rating : 500;
     PlayerProfile profile = PlayerProfile.builder()
         .firstName(firstName)
         .lastName(lastName != null && !lastName.trim().isEmpty() ? lastName : null)
         .nickname(nickname)
         .telegramId(telegramId)
-        .rating(rating)
+        .rating(initialRating)
         .build();
 
     profile = playerProfileRepository.save(profile);

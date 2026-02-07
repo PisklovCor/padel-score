@@ -7,7 +7,7 @@
           http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
 
   <!-- 1. Общая функция аудита -->
-  <changeSet id="audit-fn" author="padelscore">
+  <changeSet id="001-audit-fn" author="padelscore">
     <sql splitStatements="false">
       CREATE OR REPLACE FUNCTION audit_log_changes()
             RETURNS TRIGGER AS $$
@@ -56,7 +56,7 @@
   <!-- 2. Триггеры на бизнес‑таблицы -->
 
   <!-- tournaments -->
-  <changeSet id="audit-trigger-tournaments" author="padelscore">
+  <changeSet id="002-audit-trigger-tournaments" author="padelscore">
     <sql>
       CREATE TRIGGER trg_audit_tournaments
         AFTER INSERT OR UPDATE OR DELETE ON tournaments
@@ -69,7 +69,7 @@
   </changeSet>
 
   <!-- teams -->
-  <changeSet id="audit-trigger-teams" author="padelscore">
+  <changeSet id="003-audit-trigger-teams" author="padelscore">
     <sql>
       CREATE TRIGGER trg_audit_teams
         AFTER INSERT OR UPDATE OR DELETE ON teams
@@ -82,7 +82,7 @@
   </changeSet>
 
   <!-- player_profiles -->
-  <changeSet id="audit-trigger-player-profiles" author="padelscore">
+  <changeSet id="004-audit-trigger-player-profiles" author="padelscore">
     <sql>
       CREATE TRIGGER trg_audit_player_profiles
         AFTER INSERT OR UPDATE OR DELETE ON player_profiles
@@ -95,7 +95,7 @@
   </changeSet>
 
   <!-- team_players -->
-  <changeSet id="audit-trigger-team-players" author="padelscore">
+  <changeSet id="005-audit-trigger-team-players" author="padelscore">
     <sql>
       CREATE TRIGGER trg_audit_team_players
         AFTER INSERT OR UPDATE OR DELETE ON team_players
@@ -108,7 +108,7 @@
   </changeSet>
 
   <!-- matches -->
-  <changeSet id="audit-trigger-matches" author="padelscore">
+  <changeSet id="006-audit-trigger-matches" author="padelscore">
     <sql>
       CREATE TRIGGER trg_audit_matches
         AFTER INSERT OR UPDATE OR DELETE ON matches
@@ -121,7 +121,7 @@
   </changeSet>
 
   <!-- match_results -->
-  <changeSet id="audit-trigger-match-results" author="padelscore">
+  <changeSet id="007-audit-trigger-match-results" author="padelscore">
     <sql>
       CREATE TRIGGER trg_audit_match_results
         AFTER INSERT OR UPDATE OR DELETE ON match_results
@@ -134,7 +134,7 @@
   </changeSet>
 
   <!-- set_scores -->
-  <changeSet id="audit-trigger-set-scores" author="padelscore">
+  <changeSet id="008-audit-trigger-set-scores" author="padelscore">
     <sql>
       CREATE TRIGGER trg_audit_set_scores
         AFTER INSERT OR UPDATE OR DELETE ON set_scores
@@ -147,7 +147,7 @@
   </changeSet>
 
   <!-- game_scores -->
-  <changeSet id="audit-trigger-game-scores" author="padelscore">
+  <changeSet id="009-audit-trigger-game-scores" author="padelscore">
     <sql>
       CREATE TRIGGER trg_audit_game_scores
         AFTER INSERT OR UPDATE OR DELETE ON game_scores
@@ -160,7 +160,7 @@
   </changeSet>
 
   <!-- user_roles -->
-  <changeSet id="audit-trigger-user-roles" author="padelscore">
+  <changeSet id="010-audit-trigger-user-roles" author="padelscore">
     <sql>
       CREATE TRIGGER trg_audit_user_roles
         AFTER INSERT OR UPDATE OR DELETE ON user_roles

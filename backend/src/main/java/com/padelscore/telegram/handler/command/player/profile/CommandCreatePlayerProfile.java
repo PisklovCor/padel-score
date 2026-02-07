@@ -54,7 +54,7 @@ public class CommandCreatePlayerProfile implements Command {
     final String chatId = message.getChatId().toString();
     try {
       final var dto = playerProfileService.createPlayerProfile(user.getFirstName(),
-          user.getLastName(), nickname, user.getId(), 0);
+          user.getLastName(), nickname, user.getId(), null);
       sendProfileCreated(chatId, dto.getNickname(), dto.getFirstName(), dto.getRating(), bot);
     } catch (NicknameNotUniqueException e) {
       sendNicknameTakenHint(chatId, bot);

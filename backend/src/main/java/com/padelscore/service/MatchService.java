@@ -139,12 +139,9 @@ public class MatchService {
     Team winnerTeam = team1Sets > team2Sets ? match.getTeam1() : match.getTeam2();
     Team loserTeam = team1Sets > team2Sets ? match.getTeam2() : match.getTeam1();
 
-    int winnerPoints = 3;
-    int loserPoints = 1;
-
-    if ((team1Sets == 2 && team2Sets == 0) || (team1Sets == 0 && team2Sets == 2)) {
-      winnerPoints = 4;
-    }
+    // Турнирные очки: 2:0 → 3/0, 2:1 → 2/1 (для standings и для Elo в триггере по winner_points/loser_points)
+    int winnerPoints = (team1Sets == 2 && team2Sets == 1) || (team1Sets == 1 && team2Sets == 2) ? 2 : 3;
+    int loserPoints = (team1Sets == 2 && team2Sets == 1) || (team1Sets == 1 && team2Sets == 2) ? 1 : 0;
 
     return new ScoreCalculationResult(winnerTeam, loserTeam, winnerPoints, loserPoints);
   }

@@ -84,7 +84,7 @@ public class MatchResult {
       winnerPoints = 3;
     }
     if (loserPoints == null) {
-      loserPoints = 1;
+      loserPoints = 0;
     }
   }
 

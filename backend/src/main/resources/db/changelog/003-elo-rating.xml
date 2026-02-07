@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+  <!--
+    Рейтинг игроков (Elo-подобный): стартовый 500, пересчёт после INSERT в match_results.
+    Командный рейтинг = среднее рейтингов двух игроков команды.
+    E_A = 1/(1+10^((R_B-R_A)/400)), E_B = 1 - E_A.
+    Счёт 2:0 → S_winner=1.0, S_loser=0; 2:1 → S_winner=0.75, S_loser=0.25.
+    K=24. Каждый игрок команды получает delta_team/2 к рейтингу.
+  -->
+
+  <changeSet id="003-elo-rating-default" author="padelscore">
+    <comment>Стартовый рейтинг игрока 500 (default для новых и COALESCE в формулах)</comment>
+    <addDefaultValue tableName="player_profiles" columnName="rating" defaultValueNumeric="500"/>
+    <rollback>
+      <dropDefaultValue tableName="player_profiles" columnName="rating"/>
+    </rollback>
+  </changeSet>
+
+  <changeSet id="003-elo-fn-calculate-match-elo" author="padelscore">
+    <comment>PL/pgSQL: расчёт Elo по результату матча (winner_team, loser_team, winner_points, loser_points). K=24.</comment>
+    <sql splitStatements="false">
+CREATE OR REPLACE FUNCTION calculate_match_elo()
+RETURNS TRIGGER AS $$
+DECLARE
+  v_winner_team_id  INTEGER;
+  v_loser_team_id   INTEGER;
+  v_winner_points   INTEGER;
+  v_loser_points    INTEGER;
+  v_r_winner        NUMERIC;
+  v_r_loser         NUMERIC;
+  v_e_winner        NUMERIC;
+  v_e_loser         NUMERIC;
+  v_s_winner        NUMERIC;
+  v_s_loser         NUMERIC;
+  v_k               NUMERIC := 24;
+  v_r_winner_new    NUMERIC;
+  v_r_loser_new     NUMERIC;
+  v_delta_winner    NUMERIC;
+  v_delta_loser     NUMERIC;
+  v_cnt_winner      INTEGER;
+  v_cnt_loser       INTEGER;
+BEGIN
+  v_winner_team_id := NEW.winner_team_id;
+  v_loser_team_id  := NEW.loser_team_id;
+  v_winner_points  := COALESCE(NEW.winner_points, 3);
+  v_loser_points   := COALESCE(NEW.loser_points, 0);
+
+  -- Командный рейтинг = среднее COALESCE(rating, 500) по игрокам команды
+  SELECT COALESCE(AVG(COALESCE(pp.rating, 500)), 500)
+    INTO v_r_winner
+    FROM team_players tp
+    JOIN player_profiles pp ON pp.id = tp.player_profile_id
+    WHERE tp.team_id = v_winner_team_id;
+
+  SELECT COALESCE(AVG(COALESCE(pp.rating, 500)), 500)
+    INTO v_r_loser
+    FROM team_players tp
+    JOIN player_profiles pp ON pp.id = tp.player_profile_id
+    WHERE tp.team_id = v_loser_team_id;
+
+  -- Ожидаемый результат: E_winner = 1 / (1 + 10^((R_loser - R_winner) / 400))
+  v_e_winner := 1.0 / (1.0 + power(10.0, (v_r_loser - v_r_winner) / 400.0));
+  v_e_loser  := 1.0 - v_e_winner;
+
+  -- Фактический результат по счёту: 2:0 → 1.0/0; 2:1 → 0.75/0.25
+  IF v_winner_points = 3 AND v_loser_points = 0 THEN
+    v_s_winner := 1.0;
+    v_s_loser  := 0.0;
+  ELSIF v_winner_points = 2 AND v_loser_points = 1 THEN
+    v_s_winner := 0.75;
+    v_s_loser  := 0.25;
+  ELSE
+    v_s_winner := 1.0;
+    v_s_loser  := 0.0;
+  END IF;
+
+  -- Новые командные рейтинги: R' = R + K * (S - E)
+  v_r_winner_new := v_r_winner + v_k * (v_s_winner - v_e_winner);
+  v_r_loser_new  := v_r_loser  + v_k * (v_s_loser  - v_e_loser);
+  v_delta_winner := v_r_winner_new - v_r_winner;
+  v_delta_loser  := v_r_loser_new  - v_r_loser;
+
+  SELECT count(*) INTO v_cnt_winner FROM team_players WHERE team_id = v_winner_team_id;
+  SELECT count(*) INTO v_cnt_loser  FROM team_players WHERE team_id = v_loser_team_id;
+  v_cnt_winner := GREATEST(v_cnt_winner, 1);
+  v_cnt_loser  := GREATEST(v_cnt_loser, 1);
+
+  -- Каждому игроку команды: + delta_team / кол-во игроков (по ТЗ для 2 игроков: delta/2)
+  UPDATE player_profiles pp
+  SET rating = COALESCE(pp.rating, 500) + (v_delta_winner / v_cnt_winner)
+  FROM team_players tp
+  WHERE tp.player_profile_id = pp.id AND tp.team_id = v_winner_team_id;
+
+  UPDATE player_profiles pp
+  SET rating = COALESCE(pp.rating, 500) + (v_delta_loser / v_cnt_loser)
+  FROM team_players tp
+  WHERE tp.player_profile_id = pp.id AND tp.team_id = v_loser_team_id;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+    </sql>
+    <rollback>
+      DROP FUNCTION IF EXISTS calculate_match_elo();
+    </rollback>
+  </changeSet>
+
+  <changeSet id="003-elo-trigger-match-results" author="padelscore">
+    <comment>Триггер: после вставки результата матча пересчитать рейтинги игроков (Elo)</comment>
+    <sql>
+      CREATE TRIGGER trg_match_result_elo
+        AFTER INSERT ON match_results
+        FOR EACH ROW
+        EXECUTE FUNCTION calculate_match_elo();
+    </sql>
+    <rollback>
+      DROP TRIGGER IF EXISTS trg_match_result_elo ON match_results;
+    </rollback>
+  </changeSet>
+
+</databaseChangeLog>

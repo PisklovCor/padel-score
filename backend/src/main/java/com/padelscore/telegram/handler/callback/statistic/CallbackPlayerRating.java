@@ -50,7 +50,7 @@ public class CallbackPlayerRating implements Callback {
       List<PlayerProfileDto> top = statisticsService.getTopPlayersByRating(TOP_SIZE);
       String text = formatTopPlayers(top);
       bot.execute(
-          MessageUtil.createdEditMessageText(chatId, messageId, text, keyboardUtil.getButtonToMenu()));
+          MessageUtil.createdEditMessageText(chatId, messageId, text, keyboardUtil.getPlayerRatingKeyboard()));
     } catch (TelegramApiException e) {
       TelegramExceptionHandler.handle(e);
     }

@@ -54,7 +54,7 @@ public class CallbackCreatePlayerProfile implements Callback {
 
     try {
       final var dto = playerProfileService.createPlayerProfile(user.getFirstName(),
-          user.getLastName(), nickname, user.getId(), 0);
+          user.getLastName(), nickname, user.getId(), null);
       setProfileCreatedText(editMessage, dto.getNickname(), dto.getFirstName(), dto.getRating());
       editMessage.setReplyMarkup(keyboardPlayerProfileUtil.getProfileMenu(true));
       bot.execute(editMessage);

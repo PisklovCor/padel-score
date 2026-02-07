@@ -7,5 +7,6 @@
 
   <include file="db/changelog/001-full-schema.xml"/>
   <include file="db/changelog/002-audit-triggers.xml"/>
+  <include file="db/changelog/003-elo-rating.xml"/>
 
 </databaseChangeLog>
