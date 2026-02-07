@@ -3,7 +3,7 @@ package com.padelscore.telegram.handler.callback.statistic;
 import com.padelscore.dto.PlayerProfileDto;
 import com.padelscore.service.StatisticsService;
 import com.padelscore.telegram.handler.callback.Callback;
-import com.padelscore.telegram.util.KeyboardUtil;
+import com.padelscore.telegram.util.KeyboardStatistic;
 import com.padelscore.util.ProfileRequiredGuard;
 import com.padelscore.util.MessageUtil;
 import com.padelscore.util.TelegramExceptionHandler;
@@ -30,7 +30,7 @@ public class CallbackPlayerRating implements Callback {
 
   private final ProfileRequiredGuard profileRequiredGuard;
 
-  private final KeyboardUtil keyboardUtil;
+  private final KeyboardStatistic keyboardStatistic;
 
   @Override
   public boolean coincidence(String command) {
@@ -44,13 +44,15 @@ public class CallbackPlayerRating implements Callback {
     Long userId = callbackQuery.getFrom().getId();
 
     try {
-      if (profileRequiredGuard.requireProfileForCallback(userId, callbackQuery, bot, NO_PROFILE_MESSAGE)) {
+      if (profileRequiredGuard.requireProfileForCallback(userId, callbackQuery, bot,
+          NO_PROFILE_MESSAGE)) {
         return;
       }
       List<PlayerProfileDto> top = statisticsService.getTopPlayersByRating(TOP_SIZE);
       String text = formatTopPlayers(top);
       bot.execute(
-          MessageUtil.createdEditMessageText(chatId, messageId, text, keyboardUtil.getPlayerRatingKeyboard()));
+          MessageUtil.createdEditMessageText(chatId, messageId, text,
+              keyboardStatistic.getPlayerRatingKeyboard()));
     } catch (TelegramApiException e) {
       TelegramExceptionHandler.handle(e);
     }

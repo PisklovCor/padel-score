@@ -1,7 +1,7 @@
 package com.padelscore.telegram.handler.callback.statistic;
 
 import com.padelscore.telegram.handler.callback.Callback;
-import com.padelscore.telegram.util.KeyboardUtil;
+import com.padelscore.telegram.util.KeyboardStatistic;
 import com.padelscore.util.MessageUtil;
 import com.padelscore.util.TelegramExceptionHandler;
 import lombok.RequiredArgsConstructor;
@@ -21,15 +21,16 @@ public class CallbackRatingDescription implements Callback {
 
       • Стартовый рейтинг — 500.
       • Рейтинг команды = среднее рейтингов двух игроков.
-      • После каждого матча по формуле Elo считается ожидаемый результат (E) и сравнивается с фактическим (победа 2:0 или 2:1).
+      • После каждого матча по формуле Elo считается ожидаемый результат (E)
+       и сравнивается с фактическим (победа 2:0 или 2:1).
       • Коэффициент K = 24. Изменение рейтинга команды распределяется поровну между игроками.
       """;
 
-  private final KeyboardUtil keyboardUtil;
+  private final KeyboardStatistic keyboardStatistic;
 
   @Override
   public boolean coincidence(String command) {
-    return KeyboardUtil.RATING_DESCRIPTION.equals(command);
+    return KeyboardStatistic.RATING_DESCRIPTION.equals(command);
   }
 
   @Override
@@ -38,7 +39,7 @@ public class CallbackRatingDescription implements Callback {
     int messageId = callbackQuery.getMessage().getMessageId();
     try {
       bot.execute(MessageUtil.createdEditMessageText(
-          chatId, messageId, DESCRIPTION, keyboardUtil.getRatingDescriptionBackKeyboard()));
+          chatId, messageId, DESCRIPTION, keyboardStatistic.getRatingDescriptionBackKeyboard()));
     } catch (TelegramApiException e) {
       TelegramExceptionHandler.handle(e);
     }
