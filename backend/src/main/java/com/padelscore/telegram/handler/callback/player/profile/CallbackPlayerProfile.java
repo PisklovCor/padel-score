@@ -1,14 +1,15 @@
 package com.padelscore.telegram.handler.callback.player.profile;
 
+import com.padelscore.dto.PlayerProfileDto;
 import com.padelscore.service.PlayerProfileService;
 import com.padelscore.telegram.handler.callback.Callback;
 import com.padelscore.telegram.util.KeyboardPlayerProfileUtil;
+import com.padelscore.util.MessageUtil;
 import com.padelscore.util.TelegramExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -36,7 +37,6 @@ public class CallbackPlayerProfile implements Callback {
    */
   @Override
   public void handle(CallbackQuery callbackQuery, TelegramLongPollingBot bot) {
-
     final var userId = callbackQuery.getFrom().getId();
     final var chatId = callbackQuery.getMessage().getChatId().toString();
     String text;
@@ -45,16 +45,7 @@ public class CallbackPlayerProfile implements Callback {
     if (isProfileExists) {
 
       final var playerProfileDto = playerProfileService.getPlayerProfileByTelegramId(userId);
-
-      text = """
-          👤 Профиль пользователя:
-          
-          Ник - %s
-          Имя - %s
-          Рейтинг - %d""".formatted(
-          playerProfileDto.getNickname(),
-          playerProfileDto.getFirstName(),
-          playerProfileDto.getRating());
+      text = createsDescriptionForProfile(playerProfileDto);
     } else {
       text = """
           ⚠️ У вас пока нет профиля:
@@ -62,16 +53,24 @@ public class CallbackPlayerProfile implements Callback {
           Для быстрого создания используйте кнопку.""";
     }
 
-    final var message = new EditMessageText();
-    message.setChatId(chatId);
-    message.setMessageId(callbackQuery.getMessage().getMessageId());
-    message.setText(text);
-    message.setReplyMarkup(keyboardPlayerProfileUtil.getProfileMenu(isProfileExists));
-
     try {
-      bot.execute(message);
+      bot.execute(
+          MessageUtil.createdEditMessageText(chatId, callbackQuery.getMessage().getMessageId(),
+              text, keyboardPlayerProfileUtil.getProfileMenu(isProfileExists)));
     } catch (TelegramApiException e) {
       TelegramExceptionHandler.handle(e);
     }
+  }
+
+  private String createsDescriptionForProfile(PlayerProfileDto playerProfileDto) {
+    return """
+        👤 Профиль пользователя:
+        
+        Ник - %s
+        Имя - %s
+        Рейтинг - %d""".formatted(
+        playerProfileDto.getNickname(),
+        playerProfileDto.getFirstName(),
+        playerProfileDto.getRating());
   }
 }

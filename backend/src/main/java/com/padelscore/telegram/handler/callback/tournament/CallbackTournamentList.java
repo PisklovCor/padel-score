@@ -1,6 +1,5 @@
 package com.padelscore.telegram.handler.callback.tournament;
 
-import java.util.List;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -16,6 +15,8 @@ import com.padelscore.util.ProfileRequiredGuard;
 import com.padelscore.util.TelegramExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -46,8 +47,6 @@ public class CallbackTournamentList implements Callback {
    */
   @Override
   public void handle(CallbackQuery callbackQuery, TelegramLongPollingBot bot) {
-    final var chatId = callbackQuery.getMessage().getChatId().toString();
-    final var messageId = callbackQuery.getMessage().getMessageId();
     final var userId = callbackQuery.getFrom().getId();
 
     try {
@@ -59,22 +58,33 @@ public class CallbackTournamentList implements Callback {
           tournamentService.getTournamentsByUserTeams(playerProfileId);
 
       EditMessageText message = new EditMessageText();
-      message.setChatId(chatId);
-      message.setMessageId(messageId);
-      if (tournaments.isEmpty()) {
-        message.setText("🏆 Турниры\n\nВаши команды пока не участвуют ни в одном турнире.");
-        message.setReplyMarkup(keyboardUtil.getButtonToMenu());
-      } else {
-        StringBuilder text = new StringBuilder("🏆 Турниры (участие ваших команд)\n\n");
-        for (TournamentDto t : tournaments) {
-          text.append(String.format("• %s (ID: %d)\n", t.getTitle(), t.getId()));
-        }
-        message.setText(text.toString());
-        message.setReplyMarkup(keyboardTournamentUtil.getTournamentsMenu(tournaments));
-      }
+      message.setChatId(callbackQuery.getMessage().getChatId().toString());
+      message.setMessageId(callbackQuery.getMessage().getMessageId());
+
+      createTextMessage(message, tournaments);
+
       bot.execute(message);
     } catch (TelegramApiException e) {
       TelegramExceptionHandler.handle(e);
+    }
+  }
+
+  /**
+   * Создает описания сообщения и доступную клавиатуру.
+   */
+  private void createTextMessage(EditMessageText editMessageText, List<TournamentDto> tournaments) {
+    if (tournaments.isEmpty()) {
+
+      editMessageText.setText("🏆 Турниры\n\nВаши команды пока не участвуют ни в одном турнире.");
+      editMessageText.setReplyMarkup(keyboardUtil.getButtonToMenu());
+    } else {
+      StringBuilder text = new StringBuilder("🏆 Турниры (участие ваших команд)\n\n");
+      for (TournamentDto t : tournaments) {
+        text.append(String.format("• %s (ID: %d)\n", t.getTitle(), t.getId()));
+      }
+
+      editMessageText.setText(text.toString());
+      editMessageText.setReplyMarkup(keyboardTournamentUtil.getTournamentsMenu(tournaments));
     }
   }
 }
