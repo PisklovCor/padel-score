@@ -78,10 +78,10 @@ public class MatchReminderService {
     String location = match.getLocation() != null ? match.getLocation() : "—";
 
     String lineTeam1 = String.format(
-        "• Турнир: %s. Ваша команда «%s» vs «%s». Время: %s. Место: %s",
+        "🏆 Турнир: %s. Ваша команда «%s» vs «%s».\n⏰ Дата и время: %s.\n📍 Место: %s",
         tournamentName, team1Name, team2Name, timeStr, location);
     String lineTeam2 = String.format(
-        "• Турнир: %s. Ваша команда «%s» vs «%s». Время: %s. Место: %s",
+        "🏆 Турнир: %s. Ваша команда «%s» vs «%s».\n⏰ Дата и время: %s.\n📍 Место: %s",
         tournamentName, team2Name, team1Name, timeStr, location);
 
     List<TeamPlayer> team1Players =
