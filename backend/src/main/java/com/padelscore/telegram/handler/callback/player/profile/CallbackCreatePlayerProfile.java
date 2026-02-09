@@ -1,9 +1,11 @@
 package com.padelscore.telegram.handler.callback.player.profile;
 
+import com.padelscore.dto.PlayerProfileDto;
 import com.padelscore.exception.NicknameNotUniqueException;
 import com.padelscore.service.PlayerProfileService;
 import com.padelscore.telegram.handler.callback.Callback;
 import com.padelscore.telegram.util.KeyboardPlayerProfileUtil;
+import com.padelscore.util.MessageUtil;
 import com.padelscore.util.TelegramExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,32 +39,21 @@ public class CallbackCreatePlayerProfile implements Callback {
   @Override
   public void handle(CallbackQuery callbackQuery, TelegramLongPollingBot bot) {
 
-    final var chatId = callbackQuery.getMessage().getChatId().toString();
     final var user = callbackQuery.getFrom();
     final var nickname = user.getUserName();
 
     if (nickname == null || nickname.isBlank()) {
       throw new IllegalArgumentException(
-          "У вас не заполнен ник в телеграмме. Воспользуйтесь командой: /create_profiles Сахарок");
+          "У вас не заполнен ник в телеграмме. Воспользуйтесь командой: /create_profiles ваш_ник");
     }
 
     log.info("UserId=[{}], nickname=[{}]", user.getId(), nickname);
 
-    final var editMessage = new EditMessageText();
-    editMessage.setChatId(chatId);
-    editMessage.setMessageId(callbackQuery.getMessage().getMessageId());
-
     try {
-      final var dto = playerProfileService.createPlayerProfile(user.getFirstName(),
-          user.getLastName(), nickname, user.getId(), null);
-      setProfileCreatedText(editMessage, dto.getNickname(), dto.getFirstName(), dto.getRating());
-      editMessage.setReplyMarkup(keyboardPlayerProfileUtil.getProfileMenu(true));
-      bot.execute(editMessage);
+      bot.execute(profileCreationProfileAutomatically(callbackQuery));
     } catch (NicknameNotUniqueException e) {
-      editMessage.setText("Ник уже занят. Введите ник вручную командой: /create_profiles ник");
-      editMessage.setReplyMarkup(keyboardPlayerProfileUtil.getProfileMenu(false));
       try {
-        bot.execute(editMessage);
+        bot.execute(creatingMessageNicknameTaken(callbackQuery));
       } catch (TelegramApiException ex) {
         TelegramExceptionHandler.handle(e);
       }
@@ -71,12 +62,37 @@ public class CallbackCreatePlayerProfile implements Callback {
     }
   }
 
-  private void setProfileCreatedText(EditMessageText msg, String nick, String firstName, int rating) {
-    msg.setText("""
+  private EditMessageText profileCreationProfileAutomatically(CallbackQuery callbackQuery) {
+
+    final var message = callbackQuery.getMessage();
+    final var chatId = message.getChatId().toString();
+    final var user = callbackQuery.getFrom();
+    final var nickname = user.getUserName();
+
+    final var dto = playerProfileService.createPlayerProfile(user.getFirstName(),
+        user.getLastName(), nickname, user.getId(), null);
+
+    return MessageUtil.createdEditMessageText(chatId, message.getMessageId(),
+        createProfileText(dto), keyboardPlayerProfileUtil.getProfileMenu(true));
+  }
+
+  private String createProfileText(PlayerProfileDto profileDto) {
+    return """
         ✅ Профиль создан:
         
         Ник - %s
         Имя - %s
-        Рейтинг - %d""".formatted(nick, firstName, rating));
+        Рейтинг - %d""".formatted(profileDto.getNickname(), profileDto.getFirstName(),
+        profileDto.getRating());
+  }
+
+  private EditMessageText creatingMessageNicknameTaken(CallbackQuery callbackQuery) {
+
+    final var message = callbackQuery.getMessage();
+    final var chatId = message.getChatId().toString();
+
+    return MessageUtil.createdEditMessageText(chatId, message.getMessageId(),
+        "Ник уже занят. Введите ник вручную командой: /create_profiles ваш_ник",
+        keyboardPlayerProfileUtil.getProfileMenu(false));
   }
 }
