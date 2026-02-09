@@ -2,7 +2,6 @@ package com.padelscore.telegram.handler.callback.match;
 
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import com.padelscore.dto.MatchDto;
@@ -11,6 +10,7 @@ import com.padelscore.service.PlayerProfileService;
 import com.padelscore.service.TournamentService;
 import com.padelscore.telegram.handler.callback.Callback;
 import com.padelscore.telegram.util.KeyboardMatchUtil;
+import com.padelscore.util.MessageUtil;
 import com.padelscore.util.TelegramExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +19,11 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 public class CallbackMatchResultInput implements Callback {
+
+  public static final String NOT_ENOUGH_RIGHTS = """
+      ❌ У вас нет прав для редактирования результатов матчей.
+      
+      Только создатель турнира может редактировать результаты.""";
 
   private final MatchService matchService;
 
@@ -47,29 +52,20 @@ public class CallbackMatchResultInput implements Callback {
     final var userId = callbackQuery.getFrom().getId();
 
     try {
-      Integer matchId = Integer.parseInt(data.split("_")[2]);
+      final Integer matchId = Integer.parseInt(data.split("_")[2]);
       MatchDto match = matchService.getMatch(matchId);
 
       Integer playerProfileId = playerProfileService.getPlayerProfileByTelegramId(userId).getId();
       if (!tournamentService.isTournamentCreator(playerProfileId, match.getTournamentId())) {
-        EditMessageText message = new EditMessageText();
-        message.setChatId(chatId);
-        message.setMessageId(messageId);
-        message.setText("❌ У вас нет прав для редактирования результатов матчей.\n\n"
-            + "Только создатель турнира может редактировать результаты.");
-        message.setReplyMarkup(keyboardMatchUtil.getMatchMenu(
-            matchId, match.getTournamentId(), match.getStatus()));
-        bot.execute(message);
+        bot.execute(MessageUtil.createdEditMessageText(chatId, messageId, NOT_ENOUGH_RIGHTS,
+            keyboardMatchUtil.getMatchMenu(
+                matchId, match.getTournamentId(), match.getStatus())));
         return;
       }
 
-      EditMessageText message = new EditMessageText();
-      message.setChatId(chatId);
-      message.setMessageId(messageId);
-      message.setText("Выберите результат матча:\n\n"
-          + match.getTeam1Name() + " vs " + match.getTeam2Name());
-      message.setReplyMarkup(keyboardMatchUtil.getResultInputMenu(matchId));
-      bot.execute(message);
+      bot.execute(MessageUtil.createdEditMessageText(chatId, messageId,
+          "Выберите результат матча:\n\n" + match.getTeam1Name() + " vs " + match.getTeam2Name(),
+          keyboardMatchUtil.getResultInputMenu(matchId)));
     } catch (TelegramApiException e) {
       TelegramExceptionHandler.handle(e);
     }

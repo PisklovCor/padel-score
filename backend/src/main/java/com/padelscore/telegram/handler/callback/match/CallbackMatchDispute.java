@@ -2,7 +2,6 @@ package com.padelscore.telegram.handler.callback.match;
 
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
@@ -11,6 +10,7 @@ import com.padelscore.dto.MatchResultDto;
 import com.padelscore.service.MatchService;
 import com.padelscore.telegram.handler.callback.Callback;
 import com.padelscore.telegram.util.KeyboardMatchUtil;
+import com.padelscore.util.MessageUtil;
 import com.padelscore.util.TelegramExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,28 +43,13 @@ public class CallbackMatchDispute implements Callback {
 
     try {
       Integer matchId = Integer.parseInt(data.split("_")[2]);
-      
-      // Проверяем текущее состояние перед изменением
-      MatchResultDto currentResult = matchService.getMatchResult(matchId);
-      boolean wasAlreadyDisputed = currentResult.getDisputed() != null && currentResult.getDisputed();
-      
+
       matchService.disputeResult(matchId);
       MatchDto match = matchService.getMatch(matchId);
 
-      // Если результат уже был спорным, отправляем другое сообщение
-      String messageText = wasAlreadyDisputed
-          ? "⚠️ Результат матча уже помечен как спорный.\n\n"
-              + "Администратор турнира будет уведомлен."
-          : "⚠️ Результат матча помечен как спорный.\n\n"
-              + "Администратор турнира уведомлен.";
-
-      EditMessageText message = new EditMessageText();
-      message.setChatId(chatId);
-      message.setMessageId(messageId);
-      message.setText(messageText);
-      message.setReplyMarkup(keyboardMatchUtil.getMatchMenu(
-          matchId, match.getTournamentId(), match.getStatus()));
-      bot.execute(message);
+      bot.execute(MessageUtil.createdEditMessageText(chatId, messageId, createMessageText(matchId),
+          keyboardMatchUtil.getMatchMenu(
+              matchId, match.getTournamentId(), match.getStatus())));
     } catch (TelegramApiRequestException e) {
       // Игнорируем ошибку "message is not modified" - это не критично
       if (e.getMessage() != null && e.getMessage().contains("message is not modified")) {
@@ -75,5 +60,27 @@ public class CallbackMatchDispute implements Callback {
     } catch (TelegramApiException e) {
       TelegramExceptionHandler.handle(e);
     }
+  }
+
+  private String createMessageText(Integer matchId) {
+
+    // Проверяем текущее состояние перед изменением
+    MatchResultDto currentResult = matchService.getMatchResult(matchId);
+    boolean wasAlreadyDisputed =
+        currentResult.getDisputed() != null && currentResult.getDisputed();
+
+    matchService.disputeResult(matchId);
+    MatchDto match = matchService.getMatch(matchId);
+
+    // Если результат уже был спорным, отправляем другое сообщение
+    return wasAlreadyDisputed
+        ? """
+        ⚠️ Результат матча уже помечен как спорный.
+        
+        Администратор турнира уведомлен."""
+        : """
+            ⚠️ Результат матча помечен как спорный.
+            
+            Администратор турнира будет уведомлен.""";
   }
 }
