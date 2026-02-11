@@ -54,15 +54,7 @@ public class MatchController {
       @ApiResponse(responseCode = "400", description = "Неверные данные запроса")
   })
   public ResponseEntity<MatchDto> createMatch(@Valid @RequestBody CreateMatchRequest request) {
-    MatchDto match = matchService.createMatch(
-        request.getTournamentId(),
-        request.getTeam1Id(),
-        request.getTeam2Id(),
-        request.getScheduledDate(),
-        request.getFormat(),
-        request.getLocation(),
-        request.getCompleted()
-    );
+    MatchDto match = matchService.createMatch(request);
     return ResponseEntity.status(HttpStatus.CREATED).body(match);
   }
 

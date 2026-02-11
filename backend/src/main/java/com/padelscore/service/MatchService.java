@@ -1,5 +1,6 @@
 package com.padelscore.service;
 
+import com.padelscore.dto.CreateMatchRequest;
 import com.padelscore.dto.MatchDto;
 import com.padelscore.dto.MatchResultDto;
 import com.padelscore.entity.Match;
@@ -18,7 +19,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,30 +43,24 @@ public class MatchService {
   private final JdbcTemplate jdbcTemplate;
 
   @Transactional
-  public MatchDto createMatch(Integer tournamentId, Integer team1Id, Integer team2Id,
-      LocalDateTime scheduledDate, String format, String location,
-      Boolean completed) {
-    Tournament tournament = tournamentRepository.findById(tournamentId)
+  public MatchDto createMatch(CreateMatchRequest request) {
+    Tournament tournament = tournamentRepository.findById(request.getTournamentId())
         .orElseThrow(() -> new RuntimeException("Tournament not found"));
-    Team team1 = teamRepository.findById(team1Id)
+    Team team1 = teamRepository.findById(request.getTeam1Id())
         .orElseThrow(() -> new RuntimeException("Team 1 not found"));
-    Team team2 = teamRepository.findById(team2Id)
+    Team team2 = teamRepository.findById(request.getTeam2Id())
         .orElseThrow(() -> new RuntimeException("Team 2 not found"));
 
-    if (team1Id.equals(team2Id)) {
+    if (request.getTeam1Id().equals(request.getTeam2Id())) {
       throw new RuntimeException("Team 1 and Team 2 cannot be the same");
     }
 
-    Match match = Match.builder()
-        .tournament(tournament)
-        .team1(team1)
-        .team2(team2)
-        .scheduledDate(scheduledDate)
-        .format(format != null ? format : "best_of_3_sets")
-        .location(location)
+    Match match = Match.builder().tournament(tournament)
+        .team1(team1).team2(team2).scheduledDate(request.getScheduledDate())
+        .format(request.getFormat() != null ? request.getFormat() : "best_of_3_sets")
+        .location(request.getLocation())
         .status(MatchStatus.SCHEDULED)
-        .completed(completed != null ? completed : false)
-        .build();
+        .completed(request.getCompleted() != null ? request.getCompleted() : false).build();
 
     match = matchRepository.save(match);
     return mapper.toDto(match);
@@ -88,36 +82,9 @@ public class MatchService {
       throw new RuntimeException("Только создатель турнира может редактировать результаты матчей");
     }
 
-    ScoreCalculationResult calculation = calculateScore(match, finalScore);
-
     MatchResult result = matchResultRepository.findByMatchId(matchId).orElse(null);
 
-    if (result == null) {
-      // Создаем новый результат
-      result = MatchResult.builder()
-          .match(match)
-          .winnerTeam(calculation.winnerTeam())
-          .loserTeam(calculation.loserTeam())
-          .finalScore(finalScore)
-          .winnerPoints(calculation.winnerPoints())
-          .loserPoints(calculation.loserPoints())
-          .submittedByPlayerProfileId(submittedByPlayerProfileId)
-          .notes(notes)
-          .disputed(false)
-          .build();
-    } else {
-      // Обновляем существующий результат
-      result.setWinnerTeam(calculation.winnerTeam());
-      result.setLoserTeam(calculation.loserTeam());
-      result.setFinalScore(finalScore);
-      result.setWinnerPoints(calculation.winnerPoints());
-      result.setLoserPoints(calculation.loserPoints());
-      result.setSubmittedByPlayerProfileId(submittedByPlayerProfileId);
-      if (notes != null) {
-        result.setNotes(notes);
-      }
-      result.setDisputed(false);
-    }
+    result = processingResult(result, match, finalScore, submittedByPlayerProfileId, notes);
 
     result = matchResultRepository.save(result);
     match.setStatus(MatchStatus.COMPLETED);
@@ -140,15 +107,12 @@ public class MatchService {
     Team loserTeam = team1Sets > team2Sets ? match.getTeam2() : match.getTeam1();
 
     // Турнирные очки: 2:0 → 3/0, 2:1 → 2/1 (для standings и для Elo в триггере по winner_points/loser_points)
-    int winnerPoints = (team1Sets == 2 && team2Sets == 1) || (team1Sets == 1 && team2Sets == 2) ? 2 : 3;
-    int loserPoints = (team1Sets == 2 && team2Sets == 1) || (team1Sets == 1 && team2Sets == 2) ? 1 : 0;
+    int winnerPoints =
+        (team1Sets == 2 && team2Sets == 1) || (team1Sets == 1 && team2Sets == 2) ? 2 : 3;
+    int loserPoints =
+        (team1Sets == 2 && team2Sets == 1) || (team1Sets == 1 && team2Sets == 2) ? 1 : 0;
 
     return new ScoreCalculationResult(winnerTeam, loserTeam, winnerPoints, loserPoints);
-  }
-
-  private record ScoreCalculationResult(Team winnerTeam, Team loserTeam, int winnerPoints,
-                                        int loserPoints) {
-
   }
 
   @Transactional(readOnly = true)
@@ -184,5 +148,39 @@ public class MatchService {
     result.setDisputed(true);
     result = matchResultRepository.save(result);
     return mapper.toDto(result);
+  }
+
+  private MatchResult processingResult(MatchResult result, Match match, String finalScore,
+      Integer submittedByPlayerProfileId, String notes) {
+
+    ScoreCalculationResult calculation = calculateScore(match, finalScore);
+    if (result == null) {
+      // Создаем новый результат
+      result = MatchResult.builder().match(match).winnerTeam(calculation.winnerTeam())
+          .loserTeam(calculation.loserTeam()).finalScore(finalScore)
+          .winnerPoints(calculation.winnerPoints()).loserPoints(calculation.loserPoints())
+          .submittedByPlayerProfileId(submittedByPlayerProfileId).notes(notes)
+          .disputed(false).build();
+    } else {
+      // Обновляем существующий результат
+      result.setWinnerTeam(calculation.winnerTeam());
+      result.setLoserTeam(calculation.loserTeam());
+      result.setFinalScore(finalScore);
+      result.setWinnerPoints(calculation.winnerPoints());
+      result.setLoserPoints(calculation.loserPoints());
+      result.setSubmittedByPlayerProfileId(submittedByPlayerProfileId);
+      if (notes != null) {
+        result.setNotes(notes);
+      }
+      result.setDisputed(false);
+    }
+    return result;
+  }
+
+  private record ScoreCalculationResult(Team winnerTeam,
+                                        Team loserTeam,
+                                        int winnerPoints,
+                                        int loserPoints) {
+
   }
 }
