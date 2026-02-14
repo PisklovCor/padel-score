@@ -26,113 +26,108 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TeamService {
 
-    private final TeamRepository teamRepository;
+  private final TeamRepository teamRepository;
 
-    private final TournamentRepository tournamentRepository;
+  private final TournamentRepository tournamentRepository;
 
-    private final UserRoleRepository userRoleRepository;
+  private final UserRoleRepository userRoleRepository;
 
-    private final TeamPlayerRepository teamPlayerRepository;
+  private final TeamPlayerRepository teamPlayerRepository;
 
-    private final PlayerProfileRepository playerProfileRepository;
+  private final PlayerProfileRepository playerProfileRepository;
 
-    private final EntityMapper mapper;
-    
-    @Transactional
-    public TeamDto createTeam(Integer tournamentId, String name, Integer captainPlayerProfileId, 
-                              String description, String color) {
-        Tournament tournament = tournamentRepository.findById(tournamentId)
-                .orElseThrow(() -> new RuntimeException("Tournament not found"));
-        
-        PlayerProfile captainProfile = playerProfileRepository.findById(captainPlayerProfileId)
-                .orElseThrow(() -> new RuntimeException("Player profile not found"));
-        
-        Team team = Team.builder()
-                .tournament(tournament)
-                .name(name)
-                .captainPlayerProfileId(captainPlayerProfileId)
-                .description(description)
-                .color(color)
-                .build();
-        
-        team = teamRepository.save(team);
-        
-        // Роль captain добавляем только если у пользователя ещё нет роли в турнире (иначе создатель турнира не смог бы быть капитаном)
-        if (userRoleRepository.findByTournamentIdAndPlayerProfileId(tournament.getId(), captainPlayerProfileId).isEmpty()) {
-            UserRole captainRole = UserRole.builder()
-                    .tournament(tournament)
-                    .playerProfile(captainProfile)
-                    .role(TournamentUserRole.CAPTAIN)
-                    .build();
-            userRoleRepository.save(captainRole);
-        }
-        
-        return mapper.toDto(team);
-    }
-    
-    @Transactional(readOnly = true)
-    public List<TeamDto> getTeamsByTournament(Integer tournamentId) {
-        return teamRepository.findByTournamentId(tournamentId).stream()
-                .map(mapper::toDto)
-                .collect(Collectors.toList());
+  private final EntityMapper mapper;
+
+  @Transactional
+  public TeamDto createTeam(Integer tournamentId, String name, Integer captainPlayerProfileId,
+      String description, String color) {
+    Tournament tournament = tournamentRepository.findById(tournamentId)
+        .orElseThrow(() -> new RuntimeException("Tournament not found"));
+
+    PlayerProfile captainProfile = playerProfileRepository.findById(captainPlayerProfileId)
+        .orElseThrow(() -> new RuntimeException("Player profile not found"));
+
+    Team team = Team.builder()
+        .tournament(tournament).name(name).captainPlayerProfileId(captainPlayerProfileId)
+        .description(description).color(color)
+        .build();
+
+    team = teamRepository.save(team);
+
+    if (userRoleRepository.findByTournamentIdAndPlayerProfileId(tournament.getId(),
+        captainPlayerProfileId).isEmpty()) {
+      UserRole captainRole = UserRole.builder().tournament(tournament).playerProfile(captainProfile)
+          .role(TournamentUserRole.CAPTAIN)
+          .build();
+      userRoleRepository.save(captainRole);
     }
 
-    /**
-     * Команды, где пользователь участвует как капитан или как игрок (по playerProfileId).
-     */
-    @Transactional(readOnly = true)
-    public List<TeamDto> getTeamsByUser(Integer playerProfileId) {
-        Set<Integer> seenIds = new LinkedHashSet<>();
-        List<TeamDto> result = new ArrayList<>();
-        for (Team team : teamRepository.findByCaptainPlayerProfileId(playerProfileId)) {
-            seenIds.add(team.getId());
-            result.add(mapper.toDto(team));
-        }
-        for (var tp : teamPlayerRepository.findByPlayerProfileId(playerProfileId)) {
-            Team team = tp.getTeam();
-            if (seenIds.add(team.getId())) {
-                result.add(mapper.toDto(team));
-            }
-        }
-        return result;
+    return mapper.toDto(team);
+  }
+
+  @Transactional(readOnly = true)
+  public List<TeamDto> getTeamsByTournament(Integer tournamentId) {
+    return teamRepository.findByTournamentId(tournamentId).stream()
+        .map(mapper::toDto)
+        .collect(Collectors.toList());
+  }
+
+  /**
+   * Команды, где пользователь участвует как капитан или как игрок (по playerProfileId).
+   */
+  @Transactional(readOnly = true)
+  public List<TeamDto> getTeamsByUser(Integer playerProfileId) {
+    Set<Integer> seenIds = new LinkedHashSet<>();
+    List<TeamDto> result = new ArrayList<>();
+    for (Team team : teamRepository.findByCaptainPlayerProfileId(playerProfileId)) {
+      seenIds.add(team.getId());
+      result.add(mapper.toDto(team));
     }
-    
-    @Transactional(readOnly = true)
-    public TeamDto getTeam(Integer id) {
-        Team team = teamRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Team not found"));
-        return mapper.toDto(team);
+    for (var tp : teamPlayerRepository.findByPlayerProfileId(playerProfileId)) {
+      Team team = tp.getTeam();
+      if (seenIds.add(team.getId())) {
+        result.add(mapper.toDto(team));
+      }
     }
-    
-    @Transactional
-    public TeamDto updateTeam(Integer id, String name, Integer captainPlayerProfileId, 
-                              String description, String color) {
-        Team team = teamRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Team not found"));
-        
-        if (name != null) {
-            team.setName(name);
-        }
-        if (captainPlayerProfileId != null) {
-            playerProfileRepository.findById(captainPlayerProfileId)
-                    .orElseThrow(() -> new RuntimeException("Player profile not found"));
-            team.setCaptainPlayerProfileId(captainPlayerProfileId);
-        }
-        if (description != null) {
-            team.setDescription(description);
-        }
-        if (color != null) {
-            team.setColor(color);
-        }
-        
-        team = teamRepository.save(team);
-        return mapper.toDto(team);
+    return result;
+  }
+
+  @Transactional(readOnly = true)
+  public TeamDto getTeam(Integer id) {
+    Team team = teamRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Team not found"));
+    return mapper.toDto(team);
+  }
+
+  @Transactional
+  public TeamDto updateTeam(Integer id, String name, Integer captainPlayerProfileId,
+      String description, String color) {
+    Team team = teamRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Team not found"));
+
+    if (name != null) {
+      team.setName(name);
     }
-    
-    @Transactional
-    public void deleteTeam(Integer id) {
-        Team team = teamRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Team not found"));
-        teamRepository.delete(team);
+    if (captainPlayerProfileId != null) {
+      playerProfileRepository.findById(captainPlayerProfileId)
+          .orElseThrow(() -> new RuntimeException("Player profile not found"));
+      team.setCaptainPlayerProfileId(captainPlayerProfileId);
     }
+    if (description != null) {
+      team.setDescription(description);
+    }
+    if (color != null) {
+      team.setColor(color);
+    }
+
+    team = teamRepository.save(team);
+    return mapper.toDto(team);
+  }
+
+  @Transactional
+  public void deleteTeam(Integer id) {
+    Team team = teamRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Team not found"));
+    teamRepository.delete(team);
+  }
 }
