@@ -22,6 +22,8 @@ public class KeyboardTournamentUtil {
 
   public static final String LEADERBOARD = "leaderboard_";
 
+  public static final String LEADERBOARD_FULL = "leaderboard_full_";
+
   public static final String TOURNAMENT_LIST = "tournament_list";
 
   /**
@@ -75,6 +77,30 @@ public class KeyboardTournamentUtil {
         KeyboardUtil.singleButtonRow("◀️ Назад к турнирам", TOURNAMENT_LIST));
     markupTournamentMenu.setKeyboard(keyboardTournamentMenu);
     return markupTournamentMenu;
+  }
+
+  /**
+   * Клавиатура для краткой таблицы: «Подробнее» и «Назад к турниру».
+   */
+  public InlineKeyboardMarkup getLeaderboardKeyboard(Integer tournamentId) {
+    InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+    List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+    keyboard.add(KeyboardUtil.singleButtonRow("📋 Подробнее", LEADERBOARD_FULL + tournamentId));
+    keyboard.add(KeyboardUtil.singleButtonRow("◀️ Назад к турниру", TOURNAMENT_CARD + tournamentId));
+    markup.setKeyboard(keyboard);
+    return markup;
+  }
+
+  /**
+   * Клавиатура для полной таблицы: «Кратко» и «Назад к турниру».
+   */
+  public InlineKeyboardMarkup getLeaderboardFullKeyboard(Integer tournamentId) {
+    InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+    List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+    keyboard.add(KeyboardUtil.singleButtonRow("📋 Кратко", LEADERBOARD + tournamentId));
+    keyboard.add(KeyboardUtil.singleButtonRow("◀️ Назад к турниру", TOURNAMENT_CARD + tournamentId));
+    markup.setKeyboard(keyboard);
+    return markup;
   }
 
   /**
