@@ -1,0 +1,77 @@
+---
+extends: default
+ignore:
+  - target
+rules:
+  brackets:
+    forbid: non-empty
+    level: error
+  colons:
+    level: error
+    max-spaces-after: 1
+    max-spaces-before: 0
+  commas:
+    level: error
+    max-spaces-after: 1
+    max-spaces-before: 0
+    min-spaces-after: 1
+  comments:
+    level: error
+  comments-indentation:
+    level: error
+  document-end:
+    level: error
+  document-start:
+    level: error
+  empty-lines:
+    level: error
+    max: 1
+    max-end: 0
+    max-start: 0
+  empty-values:
+    level: error
+  float-values:
+    forbid-inf: true
+    forbid-nan: true
+    forbid-scientific-notation: true
+    level: error
+    require-numeral-before-decimal: true
+  hyphens:
+    level: error
+    max-spaces-after: 1
+  indentation:
+    indent-sequences: true
+    level: error
+    spaces: 2
+  key-duplicates:
+    level: error
+  key-ordering:
+    level: error
+  line-length:
+    allow-non-breakable-inline-mappings: false
+    allow-non-breakable-words: false
+    level: error
+    max: 80
+  new-line-at-end-of-file:
+    level: error
+  new-lines:
+    level: error
+  octal-values:
+    level: error
+  quoted-strings:
+    level: error
+    quote-type: any
+    required: false
+  trailing-spaces:
+    level: error
+  truthy:
+    allowed-values:
+      - 'true'
+      - 'false'
+    level: error
+yaml-files:
+  - '.*.yaml'
+  - '.*.yml'
+  - '**/*.yaml'
+  - '**/*.yml'
+...

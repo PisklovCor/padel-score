@@ -3,6 +3,7 @@ package com.padelscore.service;
 import com.padelscore.dto.LeaderboardEntryDto;
 import com.padelscore.dto.PlayerProfileDto;
 import com.padelscore.entity.Match;
+import com.padelscore.entity.MatchResult;
 import com.padelscore.entity.PlayerProfile;
 import com.padelscore.entity.Team;
 import com.padelscore.repository.MatchRepository;
@@ -14,9 +15,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import static com.padelscore.entity.enums.MatchStatus.COMPLETED;
 
@@ -38,9 +40,17 @@ public class StatisticsService {
     List<Team> teams = teamRepository.findByTournamentId(tournamentId);
     List<Match> completedMatches = matchRepository.findByTournamentIdAndStatus(tournamentId,
         COMPLETED);
+    Map<Integer, LeaderboardEntryDto> leaderboard = new ConcurrentHashMap<>();
+    initLeaderboard(teams, leaderboard);
+    for (Match match : completedMatches) {
+      matchResultRepository.findByMatchId(match.getId())
+          .ifPresent(result -> applyMatchResult(leaderboard, match, result));
+    }
+    updateWinRates(leaderboard);
+    return sortLeaderboard(leaderboard);
+  }
 
-    Map<Integer, LeaderboardEntryDto> leaderboard = new HashMap<>();
-
+  private void initLeaderboard(List<Team> teams, Map<Integer, LeaderboardEntryDto> leaderboard) {
     for (Team team : teams) {
       LeaderboardEntryDto entry = LeaderboardEntryDto.builder()
           .teamId(team.getId())
@@ -57,64 +67,66 @@ public class StatisticsService {
           .build();
       leaderboard.put(team.getId(), entry);
     }
+  }
 
-    for (Match match : completedMatches) {
-      matchResultRepository.findByMatchId(match.getId()).ifPresent(result -> {
-        LeaderboardEntryDto winner = leaderboard.get(result.getWinnerTeam().getId());
-        LeaderboardEntryDto loser = leaderboard.get(result.getLoserTeam().getId());
-
-        if (winner != null && loser != null) {
-          winner.setMatches(winner.getMatches() + 1);
-          winner.setWins(winner.getWins() + 1);
-          winner.setPoints(winner.getPoints() + result.getWinnerPoints());
-
-          loser.setMatches(loser.getMatches() + 1);
-          loser.setLosses(loser.getLosses() + 1);
-          loser.setPoints(loser.getPoints() + result.getLoserPoints());
-
-          String[] scores = result.getFinalScore().split("-");
-          if (scores.length == 2) {
-            int winnerSets = Integer.parseInt(scores[0].trim());
-            int loserSets = Integer.parseInt(scores[1].trim());
-
-            if (result.getWinnerTeam().getId().equals(match.getTeam1().getId())) {
-              winner.setSetsWon(winner.getSetsWon() + winnerSets);
-              winner.setSetsLost(winner.getSetsLost() + loserSets);
-              loser.setSetsWon(loser.getSetsWon() + loserSets);
-              loser.setSetsLost(loser.getSetsLost() + winnerSets);
-            } else {
-              winner.setSetsWon(winner.getSetsWon() + loserSets);
-              winner.setSetsLost(winner.getSetsLost() + winnerSets);
-              loser.setSetsWon(loser.getSetsWon() + winnerSets);
-              loser.setSetsLost(loser.getSetsLost() + loserSets);
-            }
-          }
-        }
-      });
+  private void applyMatchResult(Map<Integer, LeaderboardEntryDto> leaderboard, Match match,
+      MatchResult result) {
+    LeaderboardEntryDto winner = leaderboard.get(result.getWinnerTeam().getId());
+    LeaderboardEntryDto loser = leaderboard.get(result.getLoserTeam().getId());
+    if (winner == null || loser == null) {
+      return;
     }
+    updateWinLossStats(winner, loser, result);
+    updateSetsStats(match, result, winner, loser);
+  }
 
+  private void updateWinLossStats(LeaderboardEntryDto winner, LeaderboardEntryDto loser,
+      MatchResult result) {
+    winner.setMatches(winner.getMatches() + 1);
+    winner.setWins(winner.getWins() + 1);
+    winner.setPoints(winner.getPoints() + result.getWinnerPoints());
+    loser.setMatches(loser.getMatches() + 1);
+    loser.setLosses(loser.getLosses() + 1);
+    loser.setPoints(loser.getPoints() + result.getLoserPoints());
+  }
+
+  private void updateSetsStats(Match match, MatchResult result, LeaderboardEntryDto winner,
+      LeaderboardEntryDto loser) {
+    String[] scores = result.getFinalScore().split("-");
+    if (scores.length != 2) {
+      return;
+    }
+    int winnerSets = Integer.parseInt(scores[0].trim());
+    int loserSets = Integer.parseInt(scores[1].trim());
+    boolean team1Won = result.getWinnerTeam().getId().equals(match.getTeam1().getId());
+    if (team1Won) {
+      winner.setSetsWon(winner.getSetsWon() + winnerSets);
+      winner.setSetsLost(winner.getSetsLost() + loserSets);
+      loser.setSetsWon(loser.getSetsWon() + loserSets);
+      loser.setSetsLost(loser.getSetsLost() + winnerSets);
+    } else {
+      winner.setSetsWon(winner.getSetsWon() + loserSets);
+      winner.setSetsLost(winner.getSetsLost() + winnerSets);
+      loser.setSetsWon(loser.getSetsWon() + winnerSets);
+      loser.setSetsLost(loser.getSetsLost() + loserSets);
+    }
+  }
+
+  private void updateWinRates(Map<Integer, LeaderboardEntryDto> leaderboard) {
     for (LeaderboardEntryDto entry : leaderboard.values()) {
       if (entry.getMatches() > 0) {
         entry.setWinRate((double) entry.getWins() / entry.getMatches());
       }
     }
+  }
 
+  private List<LeaderboardEntryDto> sortLeaderboard(Map<Integer, LeaderboardEntryDto> leaderboard) {
+    Comparator<LeaderboardEntryDto> comparator = Comparator
+        .comparingInt(LeaderboardEntryDto::getPoints).reversed()
+        .thenComparing(e -> e.getSetsWon() - e.getSetsLost(), Comparator.reverseOrder())
+        .thenComparing(e -> e.getGamesWon() - e.getGamesLost(), Comparator.reverseOrder());
     return leaderboard.values().stream()
-        .sorted((a, b) -> {
-          int pointsCompare = Integer.compare(b.getPoints(), a.getPoints());
-          if (pointsCompare != 0) {
-            return pointsCompare;
-          }
-          int setsDiffCompare = Integer.compare(
-              b.getSetsWon() - b.getSetsLost(),
-              a.getSetsWon() - a.getSetsLost());
-          if (setsDiffCompare != 0) {
-            return setsDiffCompare;
-          }
-          return Integer.compare(
-              b.getGamesWon() - b.getGamesLost(),
-              a.getGamesWon() - a.getGamesLost());
-        })
+        .sorted(comparator)
         .collect(Collectors.toList());
   }
 

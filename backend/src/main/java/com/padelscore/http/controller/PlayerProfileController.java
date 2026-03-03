@@ -97,13 +97,7 @@ public class PlayerProfileController {
   })
   public ResponseEntity<PlayerProfileDto> createPlayerProfile(
       @Valid @RequestBody CreatePlayerProfileRequest request) {
-    PlayerProfileDto profile = playerProfileService.createPlayerProfile(
-        request.getFirstName(),
-        request.getLastName(),
-        request.getNickname(),
-        request.getTelegramId(),
-        request.getRating()
-    );
+    PlayerProfileDto profile = playerProfileService.createPlayerProfile(request);
     return ResponseEntity.status(HttpStatus.CREATED).body(profile);
   }
 
@@ -118,14 +112,7 @@ public class PlayerProfileController {
   public ResponseEntity<PlayerProfileDto> updatePlayerProfile(
       @Parameter(description = "ID профиля игрока", required = true) @PathVariable Integer id,
       @Valid @RequestBody UpdatePlayerRequest request) {
-    PlayerProfileDto profile = playerProfileService.updatePlayerProfile(
-        id,
-        request.getFirstName(),
-        request.getLastName(),
-        request.getNickname(),
-        request.getTelegramId(),
-        request.getRating()
-    );
+    PlayerProfileDto profile = playerProfileService.updatePlayerProfile(id, request);
     return ResponseEntity.ok(profile);
   }
 

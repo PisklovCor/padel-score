@@ -1,6 +1,8 @@
 package com.padelscore.service;
 
+import com.padelscore.dto.CreatePlayerRequest;
 import com.padelscore.dto.TeamPlayerDto;
+import com.padelscore.dto.UpdatePlayerRequest;
 import com.padelscore.entity.PlayerProfile;
 import com.padelscore.entity.Team;
 import com.padelscore.entity.TeamPlayer;
@@ -96,100 +98,103 @@ public class TeamPlayerService {
     }
     
     @Transactional
-    public TeamPlayerDto createPlayer(Integer teamId, String firstName, String lastName, 
-                                 Long telegramId, Integer rating, String position) {
-        Team team = teamRepository.findById(teamId)
+    public TeamPlayerDto createPlayer(CreatePlayerRequest request) {
+        Team team = teamRepository.findById(request.getTeamId())
                 .orElseThrow(() -> new RuntimeException("Team not found"));
-        
-        // Проверяем, не добавлен ли уже этот игрок в команду
-        if (telegramId != null) {
-            Optional<PlayerProfile> existingProfile = playerProfileRepository.findByTelegramId(telegramId);
-            if (existingProfile.isPresent()) {
-                // Проверяем, не состоит ли уже в этой команде
-                if (teamPlayerRepository.existsByTeamIdAndPlayerProfileId(teamId, existingProfile.get().getId())) {
-                    throw new RuntimeException("Player already exists in this team");
-                }
-                // Создаем связь с существующим профилем
-                TeamPlayerPosition playerPosition = parsePosition(position);
-                TeamPlayer teamPlayer = TeamPlayer.builder()
-                        .team(team)
-                        .playerProfile(existingProfile.get())
-                        .position(playerPosition)
-                        .build();
-                teamPlayer = teamPlayerRepository.save(teamPlayer);
-                return mapper.toDto(teamPlayer);
+        TeamPlayer teamPlayer = findOrCreateProfileAndLink(team, request);
+        return mapper.toDto(teamPlayer);
+    }
+
+    private TeamPlayer findOrCreateProfileAndLink(Team team, CreatePlayerRequest request) {
+        TeamPlayer byTelegram = tryLinkByTelegramId(team, request);
+        if (byTelegram != null) {
+            return byTelegram;
+        }
+        TeamPlayer byName = tryLinkByName(team, request);
+        if (byName != null) {
+            return byName;
+        }
+        return createNewProfileAndLink(team, request);
+    }
+
+    private TeamPlayer tryLinkByTelegramId(Team team, CreatePlayerRequest request) {
+        if (request.getTelegramId() == null) {
+            return null;
+        }
+        Optional<PlayerProfile> existing = playerProfileRepository.findByTelegramId(
+                request.getTelegramId());
+        if (existing.isEmpty()) {
+            return null;
+        }
+        if (teamPlayerRepository.existsByTeamIdAndPlayerProfileId(team.getId(),
+                existing.get().getId())) {
+            throw new RuntimeException("Player already exists in this team");
+        }
+        return saveTeamPlayer(team, existing.get(), request.getPosition());
+    }
+
+    private TeamPlayer tryLinkByName(Team team, CreatePlayerRequest request) {
+        if (request.getTelegramId() != null) {
+            return null;
+        }
+        List<PlayerProfile> profiles = playerProfileRepository.findByFirstNameAndLastName(
+                request.getFirstName(), request.getLastName());
+        for (PlayerProfile profile : profiles) {
+            if (!teamPlayerRepository.existsByTeamIdAndPlayerProfileId(team.getId(),
+                    profile.getId())) {
+                return saveTeamPlayer(team, profile, request.getPosition());
             }
         }
-        
-        // Ищем по имени, если telegram_id не указан
-        if (telegramId == null) {
-            List<PlayerProfile> profilesByName = playerProfileRepository.findByFirstNameAndLastName(firstName, lastName);
-            for (PlayerProfile profile : profilesByName) {
-                if (!teamPlayerRepository.existsByTeamIdAndPlayerProfileId(teamId, profile.getId())) {
-                    // Найден профиль с таким именем, создаем связь
-                    TeamPlayerPosition playerPosition = parsePosition(position);
-                    TeamPlayer teamPlayer = TeamPlayer.builder()
-                            .team(team)
-                            .playerProfile(profile)
-                            .position(playerPosition)
-                            .build();
-                    teamPlayer = teamPlayerRepository.save(teamPlayer);
-                    return mapper.toDto(teamPlayer);
-                }
-            }
-        }
-        
-        // Создаем новый профиль игрока
+        return null;
+    }
+
+    private TeamPlayer createNewProfileAndLink(Team team, CreatePlayerRequest request) {
         PlayerProfile profile = PlayerProfile.builder()
-                .firstName(firstName)
-                .lastName(lastName)
-                .telegramId(telegramId)
-                .rating(rating)
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .telegramId(request.getTelegramId())
+                .rating(request.getRating())
                 .build();
         profile = playerProfileRepository.save(profile);
-        
-        // Создаем связь с командой
-        TeamPlayerPosition playerPosition = parsePosition(position);
+        return saveTeamPlayer(team, profile, request.getPosition());
+    }
+
+    private TeamPlayer saveTeamPlayer(Team team, PlayerProfile profile, String position) {
         TeamPlayer teamPlayer = TeamPlayer.builder()
                 .team(team)
                 .playerProfile(profile)
-                .position(playerPosition)
+                .position(parsePosition(position))
                 .build();
-        teamPlayer = teamPlayerRepository.save(teamPlayer);
-        
-        return mapper.toDto(teamPlayer);
+        return teamPlayerRepository.save(teamPlayer);
     }
     
     @Transactional
-    public TeamPlayerDto updatePlayer(Integer id, String firstName, String lastName,
-                                  Long telegramId, Integer rating, String position) {
+    public TeamPlayerDto updatePlayer(Integer id, UpdatePlayerRequest request) {
         TeamPlayer teamPlayer = teamPlayerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Player not found"));
-        
+        return mapper.toDto(applyPlayerUpdates(teamPlayer, request));
+    }
+
+    private TeamPlayer applyPlayerUpdates(TeamPlayer teamPlayer, UpdatePlayerRequest request) {
         PlayerProfile profile = teamPlayer.getPlayerProfile();
-        
-        // Обновляем профиль игрока (изменения применятся ко всем командам)
-        if (firstName != null) {
-            profile.setFirstName(firstName);
+        if (request.getFirstName() != null) {
+            profile.setFirstName(request.getFirstName());
         }
-        if (lastName != null) {
-            profile.setLastName(lastName);
+        if (request.getLastName() != null) {
+            profile.setLastName(request.getLastName());
         }
-        if (telegramId != null) {
-            profile.setTelegramId(telegramId);
+        if (request.getTelegramId() != null) {
+            profile.setTelegramId(request.getTelegramId());
         }
-        if (rating != null) {
-            profile.setRating(rating);
+        if (request.getRating() != null) {
+            profile.setRating(request.getRating());
         }
         profile = playerProfileRepository.save(profile);
-        
-        // Обновляем позицию в конкретной команде
-        if (position != null) {
-            teamPlayer.setPosition(parsePosition(position));
+        if (request.getPosition() != null) {
+            teamPlayer.setPosition(parsePosition(request.getPosition()));
             teamPlayer = teamPlayerRepository.save(teamPlayer);
         }
-        
-        return mapper.toDto(teamPlayer);
+        return teamPlayer;
     }
     
     private TeamPlayerPosition parsePosition(String position) {

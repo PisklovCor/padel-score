@@ -1,7 +1,9 @@
 package com.padelscore.service;
 
+import com.padelscore.dto.CreatePlayerProfileRequest;
 import com.padelscore.dto.PlayerProfileDto;
 import com.padelscore.dto.TeamPlayerDto;
+import com.padelscore.dto.UpdatePlayerRequest;
 import com.padelscore.entity.PlayerProfile;
 import com.padelscore.exception.NicknameNotUniqueException;
 import com.padelscore.repository.PlayerProfileRepository;
@@ -58,92 +60,110 @@ public class PlayerProfileService {
   }
 
   @Transactional
-  public PlayerProfileDto createPlayerProfile(String firstName, String lastName, String nickname,
-      Long telegramId, Integer rating) {
+  public PlayerProfileDto createPlayerProfile(CreatePlayerProfileRequest request) {
+    validateCreateUniqueness(request.getFirstName(), request.getNickname(),
+        request.getTelegramId());
+    int initialRating = request.getRating() != null ? request.getRating() : 500;
+    String lastName = normalizeLastName(request.getLastName());
+    PlayerProfile profile = PlayerProfile.builder()
+        .firstName(request.getFirstName())
+        .lastName(lastName)
+        .nickname(request.getNickname())
+        .telegramId(request.getTelegramId())
+        .rating(initialRating)
+        .build();
+    profile = playerProfileRepository.save(profile);
+    return mapper.toDto(profile);
+  }
+
+  private void validateCreateUniqueness(String firstName, String nickname, Long telegramId) {
     if (telegramId != null && playerProfileRepository.findByTelegramId(telegramId).isPresent()) {
       throw new RuntimeException("Player profile with this telegram_id already exists");
     }
-
     if (telegramId != null && playerProfileRepository.findByFirstNameAndTelegramId(firstName,
         telegramId).isPresent()) {
       throw new RuntimeException(
           "Player profile with this first_name and telegram_id already exists");
     }
-
     if (nickname != null && !nickname.trim().isEmpty()) {
       playerProfileRepository.findByNicknameIgnoreCase(nickname.trim()).ifPresent(existing -> {
         throw new NicknameNotUniqueException("Player profile with this nickname already exists");
       });
     }
+  }
 
-    int initialRating = rating != null ? rating : 500;
-    PlayerProfile profile = PlayerProfile.builder()
-        .firstName(firstName)
-        .lastName(lastName != null && !lastName.trim().isEmpty() ? lastName : null)
-        .nickname(nickname)
-        .telegramId(telegramId)
-        .rating(initialRating)
-        .build();
+  private static String normalizeLastName(String lastName) {
+    return lastName != null && !lastName.trim().isEmpty() ? lastName : null;
+  }
 
+  @Transactional
+  public PlayerProfileDto updatePlayerProfile(Integer id, UpdatePlayerRequest request) {
+    PlayerProfile profile = playerProfileRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Player profile not found"));
+    applyProfileUpdates(profile, id, request);
+    validateUpdateUniqueness(profile, id, request);
     profile = playerProfileRepository.save(profile);
     return mapper.toDto(profile);
   }
 
-  @Transactional
-  public PlayerProfileDto updatePlayerProfile(Integer id, String firstName, String lastName,
-      String nickname, Long telegramId, Integer rating) {
-    PlayerProfile profile = playerProfileRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Player profile not found"));
+  private void applyProfileUpdates(PlayerProfile profile, Integer id, UpdatePlayerRequest request) {
+    if (request.getFirstName() != null) {
+      profile.setFirstName(request.getFirstName());
+    }
+    if (request.getLastName() != null) {
+      profile.setLastName(request.getLastName().trim().isEmpty() ? null : request.getLastName());
+    }
+    if (request.getNickname() != null) {
+      validateNicknameUniqueness(id, request.getNickname(), profile.getNickname());
+      profile.setNickname(request.getNickname().trim().isEmpty() ? null : request.getNickname());
+    }
+    if (request.getTelegramId() != null) {
+      validateTelegramIdUniqueness(id, request.getTelegramId(), profile.getTelegramId());
+      profile.setTelegramId(request.getTelegramId());
+    }
+    if (request.getRating() != null) {
+      profile.setRating(request.getRating());
+    }
+  }
 
-    if (firstName != null) {
-      profile.setFirstName(firstName);
+  private void validateNicknameUniqueness(Integer id, String nickname, String currentNickname) {
+    boolean nicknameChanged = currentNickname == null || !currentNickname.equalsIgnoreCase(nickname);
+    if (!nicknameChanged || nickname.trim().isEmpty()) {
+      return;
     }
-    if (lastName != null) {
-      profile.setLastName(lastName.trim().isEmpty() ? null : lastName);
+    playerProfileRepository.findByNicknameIgnoreCase(nickname.trim()).ifPresent(existing -> {
+      if (!existing.getId().equals(id)) {
+        throw new NicknameNotUniqueException(
+            "Player profile with this nickname already exists");
+      }
+    });
+  }
+
+  private void validateTelegramIdUniqueness(Integer id, Long telegramId, Long currentTelegramId) {
+    if (telegramId.equals(currentTelegramId)) {
+      return;
     }
-    if (nickname != null) {
-      // Проверяем уникальность nickname (регистронезависимо)
-      String currentNickname = profile.getNickname();
-      boolean nicknameChanged =
-          currentNickname == null || !currentNickname.equalsIgnoreCase(nickname);
-      if (nicknameChanged && !nickname.trim().isEmpty()) {
-        playerProfileRepository.findByNicknameIgnoreCase(nickname.trim()).ifPresent(existing -> {
+    playerProfileRepository.findByTelegramId(telegramId).ifPresent(existing -> {
+      throw new RuntimeException("Player profile with this telegram_id already exists");
+    });
+  }
+
+  private void validateUpdateUniqueness(PlayerProfile profile, Integer id,
+      UpdatePlayerRequest request) {
+    String finalFirstName = request.getFirstName() != null
+        ? request.getFirstName() : profile.getFirstName();
+    Long finalTelegramId = request.getTelegramId() != null
+        ? request.getTelegramId() : profile.getTelegramId();
+    if (finalTelegramId == null) {
+      return;
+    }
+    playerProfileRepository.findByFirstNameAndTelegramId(finalFirstName, finalTelegramId)
+        .ifPresent(existing -> {
           if (!existing.getId().equals(id)) {
-            throw new NicknameNotUniqueException(
-                "Player profile with this nickname already exists");
+            throw new RuntimeException(
+                "Player profile with this first_name and telegram_id already exists");
           }
         });
-      }
-      profile.setNickname(nickname.trim().isEmpty() ? null : nickname);
-    }
-    if (telegramId != null) {
-      // Проверяем уникальность telegram_id
-      if (!telegramId.equals(profile.getTelegramId())) {
-        playerProfileRepository.findByTelegramId(telegramId).ifPresent(existing -> {
-          throw new RuntimeException("Player profile with this telegram_id already exists");
-        });
-      }
-      profile.setTelegramId(telegramId);
-    }
-
-    // Проверяем уникальность комбинации first_name и telegram_id
-    String finalFirstName = firstName != null ? firstName : profile.getFirstName();
-    Long finalTelegramId = telegramId != null ? telegramId : profile.getTelegramId();
-    if (finalTelegramId != null) {
-      playerProfileRepository.findByFirstNameAndTelegramId(finalFirstName, finalTelegramId)
-          .ifPresent(existing -> {
-            if (!existing.getId().equals(id)) {
-              throw new RuntimeException(
-                  "Player profile with this first_name and telegram_id already exists");
-            }
-          });
-    }
-    if (rating != null) {
-      profile.setRating(rating);
-    }
-
-    profile = playerProfileRepository.save(profile);
-    return mapper.toDto(profile);
   }
 
   /**

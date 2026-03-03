@@ -1,5 +1,6 @@
 package com.padelscore.telegram.handler.command.player.profile;
 
+import com.padelscore.dto.CreatePlayerProfileRequest;
 import com.padelscore.exception.NicknameNotUniqueException;
 import com.padelscore.service.PlayerProfileService;
 import com.padelscore.telegram.handler.command.Command;
@@ -39,28 +40,35 @@ public class CommandCreatePlayerProfile implements Command {
    */
   @Override
   public void handle(Message message, TelegramLongPollingBot bot) {
-
     final User user = message.getFrom();
-    final String messageText = message.getText();
-    final String input = messageText.trim();
-    String nickname = user.getUserName();
-
-    if (nickname == null || nickname.isBlank()) {
-      nickname = commandCheck(input);
-    }
-
+    final String nickname = resolveNickname(user, message.getText().trim());
     log.info("UserId=[{}], nickname=[{}]", user.getId(), nickname);
-
     final String chatId = message.getChatId().toString();
     try {
-      final var dto = playerProfileService.createPlayerProfile(user.getFirstName(),
-          user.getLastName(), nickname, user.getId(), null);
-      sendProfileCreated(chatId, dto.getNickname(), dto.getFirstName(), dto.getRating(), bot);
+      createAndSendProfile(user, nickname, chatId, bot);
     } catch (NicknameNotUniqueException e) {
       sendNicknameTakenHint(chatId, bot);
     } catch (TelegramApiException e) {
       TelegramExceptionHandler.handle(e);
     }
+  }
+
+  private String resolveNickname(User user, String input) {
+    String nickname = user.getUserName();
+    return (nickname == null || nickname.isBlank()) ? commandCheck(input) : nickname;
+  }
+
+  private void createAndSendProfile(User user, String nickname, String chatId,
+      TelegramLongPollingBot bot) throws TelegramApiException {
+    final var req = CreatePlayerProfileRequest.builder()
+        .firstName(user.getFirstName())
+        .lastName(user.getLastName())
+        .nickname(nickname)
+        .telegramId(user.getId())
+        .rating(null)
+        .build();
+    final var dto = playerProfileService.createPlayerProfile(req);
+    sendProfileCreated(chatId, dto.getNickname(), dto.getFirstName(), dto.getRating(), bot);
   }
 
   private String commandCheck(String commandInput) {

@@ -53,16 +53,7 @@ public class TournamentController {
   })
   public ResponseEntity<TournamentDto> createTournament(
       @Valid @RequestBody CreateTournamentRequest request) {
-    TournamentDto tournament = tournamentService.createTournament(
-        request.getTitle(),
-        request.getDescription(),
-        request.getCreatedByPlayerProfileId(),
-        request.getFormat(),
-        request.getScoringSystem(),
-        request.getPrize(),
-        request.getStatus(),
-        request.getCompleted()
-    );
+    TournamentDto tournament = tournamentService.createTournament(request);
     return ResponseEntity.status(HttpStatus.CREATED).body(tournament);
   }
 
@@ -90,18 +81,7 @@ public class TournamentController {
   public ResponseEntity<TournamentDto> updateTournament(
       @Parameter(description = "ID турнира", required = true) @PathVariable Integer id,
       @Valid @RequestBody UpdateTournamentRequest request) {
-    TournamentDto tournament = tournamentService.updateTournament(
-        id,
-        request.getTitle(),
-        request.getDescription(),
-        request.getStartDate(),
-        request.getEndDate(),
-        request.getFormat(),
-        request.getScoringSystem(),
-        request.getPrize(),
-        request.getStatus(),
-        request.getCompleted()
-    );
+    TournamentDto tournament = tournamentService.updateTournament(id, request);
     return ResponseEntity.ok(tournament);
   }
 

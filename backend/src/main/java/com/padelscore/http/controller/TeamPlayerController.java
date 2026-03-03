@@ -89,14 +89,7 @@ public class TeamPlayerController {
   })
   public ResponseEntity<TeamPlayerDto> createPlayer(
       @Valid @RequestBody CreatePlayerRequest request) {
-    TeamPlayerDto player = teamPlayerService.createPlayer(
-        request.getTeamId(),
-        request.getFirstName(),
-        request.getLastName(),
-        request.getTelegramId(),
-        request.getRating(),
-        request.getPosition()
-    );
+    TeamPlayerDto player = teamPlayerService.createPlayer(request);
     return ResponseEntity.status(HttpStatus.CREATED).body(player);
   }
 
@@ -128,14 +121,7 @@ public class TeamPlayerController {
       @Parameter(description = "ID связи игрока с командой (TeamPlayer)",
           required = true) @PathVariable Integer id,
       @Valid @RequestBody UpdatePlayerRequest request) {
-    TeamPlayerDto player = teamPlayerService.updatePlayer(
-        id,
-        request.getFirstName(),
-        request.getLastName(),
-        request.getTelegramId(),
-        request.getRating(),
-        request.getPosition()
-    );
+    TeamPlayerDto player = teamPlayerService.updatePlayer(id, request);
     return ResponseEntity.ok(player);
   }
 

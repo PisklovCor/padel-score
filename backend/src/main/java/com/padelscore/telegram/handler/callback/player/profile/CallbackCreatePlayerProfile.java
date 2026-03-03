@@ -1,5 +1,6 @@
 package com.padelscore.telegram.handler.callback.player.profile;
 
+import com.padelscore.dto.CreatePlayerProfileRequest;
 import com.padelscore.dto.PlayerProfileDto;
 import com.padelscore.exception.NicknameNotUniqueException;
 import com.padelscore.service.PlayerProfileService;
@@ -69,8 +70,14 @@ public class CallbackCreatePlayerProfile implements Callback {
     final var user = callbackQuery.getFrom();
     final var nickname = user.getUserName();
 
-    final var dto = playerProfileService.createPlayerProfile(user.getFirstName(),
-        user.getLastName(), nickname, user.getId(), null);
+    final var req = CreatePlayerProfileRequest.builder()
+        .firstName(user.getFirstName())
+        .lastName(user.getLastName())
+        .nickname(nickname)
+        .telegramId(user.getId())
+        .rating(null)
+        .build();
+    final var dto = playerProfileService.createPlayerProfile(req);
 
     return MessageUtil.createdEditMessageText(chatId, message.getMessageId(),
         createProfileText(dto), keyboardPlayerProfileUtil.getProfileMenu(true));

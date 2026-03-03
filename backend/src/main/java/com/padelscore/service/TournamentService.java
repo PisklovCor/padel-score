@@ -1,7 +1,9 @@
 package com.padelscore.service;
 
+import com.padelscore.dto.CreateTournamentRequest;
 import com.padelscore.dto.TeamDto;
 import com.padelscore.dto.TournamentDto;
+import com.padelscore.dto.UpdateTournamentRequest;
 import com.padelscore.entity.PlayerProfile;
 import com.padelscore.entity.Tournament;
 import com.padelscore.entity.UserRole;
@@ -15,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,44 +37,49 @@ public class TournamentService {
     private final EntityMapper mapper;
     
     @Transactional
-    public TournamentDto createTournament(String title, String description, Integer createdByPlayerProfileId, 
-                                         String format, String scoringSystem, String prize,
-                                         String status, Boolean completed) {
-        TournamentStatus tournamentStatus = null;
-        if (status != null) {
-            try {
-                tournamentStatus = TournamentStatus.valueOf(status.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                tournamentStatus = TournamentStatus.PLANNED;
-            }
-        } else {
-            tournamentStatus = TournamentStatus.PLANNED;
-        }
-        
-        PlayerProfile createdByProfile = playerProfileRepository.findById(createdByPlayerProfileId)
+    public TournamentDto createTournament(CreateTournamentRequest request) {
+        TournamentStatus status = parseStatus(request.getStatus());
+        PlayerProfile createdByProfile = playerProfileRepository.findById(
+                request.getCreatedByPlayerProfileId())
                 .orElseThrow(() -> new RuntimeException("Player profile not found"));
-        
-        Tournament tournament = Tournament.builder()
-                .title(title)
-                .description(description)
-                .createdByPlayerProfileId(createdByPlayerProfileId)
-                .format(format != null ? format : "group")
-                .scoringSystem(scoringSystem != null ? scoringSystem : "points")
-                .prize(prize)
-                .status(tournamentStatus)
-                .completed(completed != null ? completed : false)
-                .build();
-        
+        Tournament tournament = buildTournament(request, status);
         tournament = tournamentRepository.save(tournament);
-        
+        saveAdminRole(tournament, createdByProfile);
+        return mapper.toDto(tournament);
+    }
+
+    private TournamentStatus parseStatus(String status) {
+        if (status == null) {
+            return TournamentStatus.PLANNED;
+        }
+        try {
+            return TournamentStatus.valueOf(status.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return TournamentStatus.PLANNED;
+        }
+    }
+
+    private Tournament buildTournament(CreateTournamentRequest request, TournamentStatus status) {
+        return Tournament.builder()
+                .title(request.getTitle())
+                .description(request.getDescription())
+                .createdByPlayerProfileId(request.getCreatedByPlayerProfileId())
+                .format(request.getFormat() != null ? request.getFormat() : "group")
+                .scoringSystem(request.getScoringSystem() != null
+                        ? request.getScoringSystem() : "points")
+                .prize(request.getPrize())
+                .status(status)
+                .completed(request.getCompleted() != null ? request.getCompleted() : false)
+                .build();
+    }
+
+    private void saveAdminRole(Tournament tournament, PlayerProfile createdByProfile) {
         UserRole adminRole = UserRole.builder()
                 .tournament(tournament)
                 .playerProfile(createdByProfile)
                 .role(TournamentUserRole.ADMIN)
                 .build();
         userRoleRepository.save(adminRole);
-        
-        return mapper.toDto(tournament);
     }
     
     public TournamentDto getTournament(Integer id) {
@@ -147,47 +153,40 @@ public class TournamentService {
     }
     
     @Transactional
-    public TournamentDto updateTournament(Integer id, String title, String description,
-                                         LocalDateTime startDate, LocalDateTime endDate,
-                                         String format, String scoringSystem, String prize,
-                                         String status, Boolean completed) {
+    public TournamentDto updateTournament(Integer id, UpdateTournamentRequest request) {
         Tournament tournament = tournamentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Tournament not found"));
-        
-        if (title != null) {
-            tournament.setTitle(title);
-        }
-        if (description != null) {
-            tournament.setDescription(description);
-        }
-        if (startDate != null) {
-            tournament.setStartDate(startDate);
-        }
-        if (endDate != null) {
-            tournament.setEndDate(endDate);
-        }
-        if (format != null) {
-            tournament.setFormat(format);
-        }
-        if (scoringSystem != null) {
-            tournament.setScoringSystem(scoringSystem);
-        }
-        if (prize != null) {
-            tournament.setPrize(prize);
-        }
-        if (status != null) {
-            try {
-                tournament.setStatus(TournamentStatus.valueOf(status.toUpperCase()));
-            } catch (IllegalArgumentException e) {
-                throw new RuntimeException("Invalid tournament status: " + status);
-            }
-        }
-        if (completed != null) {
-            tournament.setCompleted(completed);
-        }
-        
+        applyTournamentUpdates(tournament, request);
         tournament = tournamentRepository.save(tournament);
         return mapper.toDto(tournament);
+    }
+
+    private void applyTournamentUpdates(Tournament tournament, UpdateTournamentRequest request) {
+        applyIfPresent(request.getTitle(), tournament::setTitle);
+        applyIfPresent(request.getDescription(), tournament::setDescription);
+        applyIfPresent(request.getStartDate(), tournament::setStartDate);
+        applyIfPresent(request.getEndDate(), tournament::setEndDate);
+        applyIfPresent(request.getFormat(), tournament::setFormat);
+        applyIfPresent(request.getScoringSystem(), tournament::setScoringSystem);
+        applyIfPresent(request.getPrize(), tournament::setPrize);
+        if (request.getStatus() != null) {
+            tournament.setStatus(parseAndValidateStatus(request.getStatus()));
+        }
+        applyIfPresent(request.getCompleted(), tournament::setCompleted);
+    }
+
+    private <T> void applyIfPresent(T value, java.util.function.Consumer<T> consumer) {
+        if (value != null) {
+            consumer.accept(value);
+        }
+    }
+
+    private TournamentStatus parseAndValidateStatus(String status) {
+        try {
+            return TournamentStatus.valueOf(status.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid tournament status: " + status);
+        }
     }
     
     @Transactional
