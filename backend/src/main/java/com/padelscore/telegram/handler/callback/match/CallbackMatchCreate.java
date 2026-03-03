@@ -50,7 +50,7 @@ public class CallbackMatchCreate implements Callback {
     text.append("/add_match ").append(tournamentId).append(" ID_команды1 ID_команды2\n\n");
     text.append("Доступные команды:\n");
     for (TeamDto team : teams) {
-      text.append(String.format("• %s (ID: %d)\n", team.getName(), team.getId()));
+      text.append(String.format("• %s (ID: %d)%n", team.getName(), team.getId()));
     }
     text.append("\nПример:\n");
     text.append("/add_match ").append(tournamentId).append(" ")

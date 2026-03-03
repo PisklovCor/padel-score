@@ -93,12 +93,9 @@ public class CommandCreatePlayerProfile implements Command {
 
   private void sendProfileCreated(String chatId, String nick, String firstName, int rating,
                                   TelegramLongPollingBot bot) throws TelegramApiException {
-    final var text = """
-        ✅ Профиль создан:
-        
-        Ник - %s
-        Имя - %s
-        Рейтинг - %d""".formatted(nick, firstName, rating);
+    final var text = String.format(
+        "✅ Профиль создан:%n%nНик - %s%nИмя - %s%nРейтинг - %d",
+        nick, firstName, rating);
     var msg = new SendMessage();
     msg.setChatId(chatId);
     msg.setText(text);

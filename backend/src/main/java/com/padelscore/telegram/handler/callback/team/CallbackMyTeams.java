@@ -72,7 +72,7 @@ public class CallbackMyTeams implements Callback {
     StringBuilder sb = new StringBuilder("👥 Мои команды\n\n");
     for (TeamDto team : teams) {
       String role = playerProfileId.equals(team.getCaptainPlayerProfileId()) ? "капитан" : "игрок";
-      sb.append(String.format("• %s — %s (ID: %d)\n", team.getName(), role, team.getId()));
+      sb.append(String.format("• %s — %s (ID: %d)%n", team.getName(), role, team.getId()));
     }
     return sb.toString();
   }

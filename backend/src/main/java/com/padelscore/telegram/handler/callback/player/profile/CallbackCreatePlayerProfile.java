@@ -84,13 +84,9 @@ public class CallbackCreatePlayerProfile implements Callback {
   }
 
   private String createProfileText(PlayerProfileDto profileDto) {
-    return """
-        ✅ Профиль создан:
-        
-        Ник - %s
-        Имя - %s
-        Рейтинг - %d""".formatted(profileDto.getNickname(), profileDto.getFirstName(),
-        profileDto.getRating());
+    return String.format(
+        "✅ Профиль создан:%n%nНик - %s%nИмя - %s%nРейтинг - %d",
+        profileDto.getNickname(), profileDto.getFirstName(), profileDto.getRating());
   }
 
   private EditMessageText creatingMessageNicknameTaken(CallbackQuery callbackQuery) {

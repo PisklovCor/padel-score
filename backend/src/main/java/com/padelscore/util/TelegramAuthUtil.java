@@ -38,7 +38,7 @@ public class TelegramAuthUtil {
       Map<String, String> dataMap = new HashMap<>();
       String hash = extractDataAndHash(initData, dataMap);
       return hash != null && verifyHash(dataMap, hash, botToken);
-    } catch (Exception e) {
+    } catch (NoSuchAlgorithmException | InvalidKeyException e) {
       return false;
     }
   }

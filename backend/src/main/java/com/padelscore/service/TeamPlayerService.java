@@ -189,7 +189,7 @@ public class TeamPlayerService {
         if (request.getRating() != null) {
             profile.setRating(request.getRating());
         }
-        profile = playerProfileRepository.save(profile);
+        playerProfileRepository.save(profile);
         if (request.getPosition() != null) {
             teamPlayer.setPosition(parsePosition(request.getPosition()));
             teamPlayer = teamPlayerRepository.save(teamPlayer);

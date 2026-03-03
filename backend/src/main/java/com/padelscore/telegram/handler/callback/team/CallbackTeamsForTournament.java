@@ -63,7 +63,7 @@ public class CallbackTeamsForTournament implements Callback {
   private static String buildTeamsListText(List<TeamDto> teams) {
     StringBuilder sb = new StringBuilder("👥 Команды турнира\n\n");
     for (TeamDto team : teams) {
-      sb.append(String.format("• %s (ID: %d)\n", team.getName(), team.getId()));
+      sb.append(String.format("• %s (ID: %d)%n", team.getName(), team.getId()));
     }
     return sb.toString();
   }

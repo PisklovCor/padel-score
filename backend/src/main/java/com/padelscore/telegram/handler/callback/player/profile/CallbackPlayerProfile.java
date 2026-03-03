@@ -63,12 +63,8 @@ public class CallbackPlayerProfile implements Callback {
   }
 
   private String createsDescriptionForProfile(PlayerProfileDto playerProfileDto) {
-    return """
-        👤 Профиль пользователя:
-        
-        Ник - %s
-        Имя - %s
-        Рейтинг - %d""".formatted(
+    return String.format(
+        "👤 Профиль пользователя:%n%nНик - %s%nИмя - %s%nРейтинг - %d",
         playerProfileDto.getNickname(),
         playerProfileDto.getFirstName(),
         playerProfileDto.getRating());

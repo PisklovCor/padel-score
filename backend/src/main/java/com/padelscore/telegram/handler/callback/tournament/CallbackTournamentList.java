@@ -80,7 +80,7 @@ public class CallbackTournamentList implements Callback {
     } else {
       StringBuilder text = new StringBuilder("🏆 Турниры (участие ваших команд)\n\n");
       for (TournamentDto t : tournaments) {
-        text.append(String.format("• %s (ID: %d)\n", t.getTitle(), t.getId()));
+        text.append(String.format("• %s (ID: %d)%n", t.getTitle(), t.getId()));
       }
 
       editMessageText.setText(text.toString());

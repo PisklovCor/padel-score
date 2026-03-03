@@ -70,7 +70,6 @@ public class CallbackMatchDispute implements Callback {
         currentResult.getDisputed() != null && currentResult.getDisputed();
 
     matchService.disputeResult(matchId);
-    MatchDto match = matchService.getMatch(matchId);
 
     // Если результат уже был спорным, отправляем другое сообщение
     return wasAlreadyDisputed

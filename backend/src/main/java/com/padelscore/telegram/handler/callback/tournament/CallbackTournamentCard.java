@@ -46,7 +46,7 @@ public class CallbackTournamentCard implements Callback {
       EditMessageText message = new EditMessageText();
       message.setChatId(chatId);
       message.setMessageId(messageId);
-      message.setText(String.format("🏆 Турнир: %s\n\nID: %d\nФормат: %s\nПриз: %s",
+      message.setText(String.format("🏆 Турнир: %s%n%nID: %d%nФормат: %s%nПриз: %s",
           tournament.getTitle(), tournament.getId(),
           tournament.getFormat(), tournament.getPrize()));
       message.setReplyMarkup(keyboardTournamentUtil.getTournamentMenu(tournamentId));

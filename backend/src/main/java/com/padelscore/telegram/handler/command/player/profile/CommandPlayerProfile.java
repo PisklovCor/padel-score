@@ -61,12 +61,8 @@ public class CommandPlayerProfile implements Command {
   }
 
   private String getTextProfileExists(PlayerProfileDto playerProfileDto) {
-    return """
-        👤 Профиль пользователя:
-        
-        Ник - %s
-        Имя - %s
-        Рейтинг - %d""".formatted(
+    return String.format(
+        "👤 Профиль пользователя:%n%nНик - %s%nИмя - %s%nРейтинг - %d",
         playerProfileDto.getNickname(),
         playerProfileDto.getFirstName(),
         playerProfileDto.getRating());

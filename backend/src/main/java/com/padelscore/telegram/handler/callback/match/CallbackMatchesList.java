@@ -70,7 +70,7 @@ public class CallbackMatchesList implements Callback {
           ? match.getScheduledDate().format(dateFormatter) : "—";
       String location = match.getLocation() != null && !match.getLocation().isBlank()
           ? match.getLocation().trim() : "—";
-      text.append(String.format("%s %s — %s — %s\n", status, teams, dateStr, location));
+      text.append(String.format("%s %s — %s — %s%n", status, teams, dateStr, location));
     }
 
     return text.toString();
