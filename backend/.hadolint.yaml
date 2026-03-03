@@ -1,0 +1,6 @@
+---
+failure-threshold: style
+strict-labels: true
+trustedRegistries:
+  - docker.io
+...

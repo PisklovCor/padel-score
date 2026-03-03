@@ -21,6 +21,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <hadolint.skip>false</hadolint.skip>
     <java.version>17</java.version>
     <telegram.version>6.9.7.1</telegram.version>
     <liquibase.version>4.24.0</liquibase.version>
@@ -157,6 +158,36 @@
             <phase>validate</phase>
             <goals>
               <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.6.0</version>
+        <configuration>
+          <executable>docker</executable>
+          <arguments>
+            <argument>run</argument>
+            <argument>--rm</argument>
+            <argument>-v</argument>
+            <argument>${project.basedir}:/lint</argument>
+            <argument>-w</argument>
+            <argument>/lint</argument>
+            <argument>--entrypoint</argument>
+            <argument>hadolint</argument>
+            <argument>hadolint/hadolint</argument>
+            <argument>Dockerfile</argument>
+          </arguments>
+          <skip>${hadolint.skip}</skip>
+        </configuration>
+        <executions>
+          <execution>
+            <id>hadolint</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>exec</goal>
             </goals>
           </execution>
         </executions>
