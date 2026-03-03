@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Исключения для SpotBugs: Lombok и типичные ложные срабатывания -->
+<FindBugsFilter
+    xmlns="https://github.com/spotbugs/filter/3.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://github.com/spotbugs/filter/3.0.0 https://raw.githubusercontent.com/spotbugs/spotbugs/3.1.0/spotbugs/etc/findbugsfilter.xsd">
+
+  <!-- Классы, сгенерированные Lombok (внутренние классы $$) -->
+  <Match>
+    <Class name="~.*\$\$.*"/>
+  </Match>
+
+  <!-- EI_EXPOSE_REP/EI_EXPOSE_REP2: Lombok @Data генерирует getters, возвращающие ссылку на mutable-коллекции -->
+  <Match>
+    <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+  </Match>
+
+  <!-- RCN_REDUNDANT_NULLCHECK: Lombok @NonNull порождает избыточные null-check -->
+  <Match>
+    <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"/>
+  </Match>
+</FindBugsFilter>
